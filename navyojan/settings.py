@@ -11,9 +11,22 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os 
+import firebase_admin
+from firebase_admin import credentials
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+
+FIREBASE_CREDENTIALS = credentials.Certificate(
+    os.path.join(BASE_DIR, 'D:/navyojan_backend/navyojanai-bee80-firebase-adminsdk-8hn6x-7c948a12f3.json'))
+
+firebase_admin.initialize_app(FIREBASE_CREDENTIALS)
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -99,6 +112,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+
+AUTHENTICATION_BACKENDS = [
+    'userapp.auth.FirebaseAuthentication',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 
