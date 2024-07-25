@@ -9,14 +9,12 @@ class UserProfile(models.Model):
     field_of_study = models.CharField(max_length=100, blank=True)
     country = models.CharField(max_length=50, blank=True)
 
+#add preference field here to map to the scholarship data
+
+
     def __str__(self):
         return self.user.username
 
-@receiver(post_save, sender=User)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-    instance.userprofile.save()
 
 class ScholarshipData(models.Model):
     title = models.CharField(max_length=200)
@@ -28,3 +26,24 @@ class ScholarshipData(models.Model):
     
     def __str__(self):
         return self.title
+    
+
+
+class UserScholarshipsData(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='scholarship_applications')
+    scholarship = models.ManyToManyField(ScholarshipData, on_delete=models.CASCADE, related_name='applications')
+    applied_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default='Seen', choices=[
+        ('Interested', 'Interested'),   #sent the message for this to the user and its relevancy
+        ('Applied', 'Applied'),
+        # ('Interested but Not Applied','Interested but Not Applied'),
+        ('Interested and Applied', 'Interested and Applied'),
+        # ('Not Interested but Applied', 'Not Interested '),
+        ('Seen', 'Seen'),
+    ])
+
+    class Meta:
+        unique_together = ('user', 'scholarship')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.scholarship.title}"

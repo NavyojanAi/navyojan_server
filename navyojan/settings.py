@@ -126,10 +126,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-AUTHENTICATION_BACKENDS = [
-    'userapp.auth.FirebaseAuthentication',
-    'django.contrib.auth.backends.ModelBackend',
-]
+# AUTHENTICATION_BACKENDS = [
+#     'userapp.auth.FirebaseAuthentication',
+#     'django.contrib.auth.backends.ModelBackend',
+# ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'userapp.authentication.FirebaseAuthentication',
+    ],
+}
 
 
 # Internationalization
