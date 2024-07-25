@@ -11,5 +11,7 @@ router.register(r'scholarships', ScholarshipDataViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    # path('profile/', UserProfileView.as_view(), name='user_profile'),
+    # path('apply-scholarship/<int:scholarship_id>/', ApplyScholarshipView.as_view(), name='apply_scholarship'),
     
 ]
