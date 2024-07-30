@@ -17,13 +17,13 @@ class UserProfile(models.Model):
 
 
 class ScholarshipData(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=255)
     description = models.TextField()
     eligibility = models.TextField()
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    deadline = models.DateField()
+    amount = models.CharField(max_length=100)  # Changed from DecimalField to CharField
+    deadline = models.CharField(max_length=100)  # Changed from DateField to CharField
     link = models.URLField()
-    
+
     def __str__(self):
         return self.title
     
