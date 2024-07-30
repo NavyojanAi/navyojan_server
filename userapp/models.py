@@ -31,9 +31,9 @@ class ScholarshipData(models.Model):
 
 class UserScholarshipsData(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='scholarship_applications')
-    scholarship = models.ManyToManyField(ScholarshipData, on_delete=models.CASCADE, related_name='applications')
+    scholarship = models.ForeignKey(ScholarshipData, on_delete=models.CASCADE,related_name='applications')  #changed from ManyToManyField to ForeignKey
     applied_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default='Seen', choices=[
+    status = models.CharField(max_length=40, default='Seen', choices=[
         ('Interested', 'Interested'),   #sent the message for this to the user and its relevancy
         ('Applied', 'Applied'),
         # ('Interested but Not Applied','Interested but Not Applied'),

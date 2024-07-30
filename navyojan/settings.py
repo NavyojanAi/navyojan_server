@@ -107,8 +107,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'navyojan',
-        'USER': 'navy',
-        'PASSWORD': 'navy',
+        'USER': 'new_superuser',
+        'PASSWORD': 'modi',
         'HOST': 'localhost',
         'PORT': '5432',
         # 'NAME': BASE_DIR / 'db.sqlite3',
