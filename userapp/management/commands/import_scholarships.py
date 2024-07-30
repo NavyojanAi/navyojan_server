@@ -7,7 +7,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            with open('scripts/scholarships2.json', 'r') as file:
+            with open('scripts/scholarships2.json', 'r', encoding='utf-8') as file:
                 scholarships = json.load(file)
 
             for scholarship in scholarships:
