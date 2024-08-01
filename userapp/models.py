@@ -1,9 +1,10 @@
 from django.db import models
+from navyojan.models import BaseModel
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-class UserProfile(models.Model):
+class UserProfile(BaseModel):
     ACCOUNT_TYPE_CHOICES = (
         ('regular', 'Regular'),
         ('google', 'Google'),
@@ -14,38 +15,29 @@ class UserProfile(models.Model):
     field_of_study = models.CharField(max_length=100, blank=True)
     country = models.CharField(max_length=50, blank=True)
 
-    #add preference field here to map to the scholarship data
-
-
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username} - {self.account_type}"
 
 
-class ScholarshipData(models.Model):
+class ScholarshipData(BaseModel):
     title = models.CharField(max_length=255)
     description = models.TextField()
     eligibility = models.TextField()
-    amount = models.CharField(max_length=100)  # Changed from DecimalField to CharField
-    deadline = models.CharField(max_length=100)  # Changed from DateField to CharField
+    amount = models.DecimalField(max_digits=7, decimal_places=2) 
+    deadline = models.DateField() 
     link = models.URLField()
 
     def __str__(self):
-        return self.title
+        return f"{self.id} - {self.title}"
     
 
 
-class UserScholarshipsData(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='scholarship_applications')
-    scholarship = models.ManyToManyField(ScholarshipData, on_delete=models.CASCADE,related_name='applications',symmetrical=True)  #changed from ManyToManyField to ForeignKey
-    applied_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=40, default='Seen', choices=[
-        ('Interested', 'Interested'),   #sent the message for this to the user and its relevancy
-        ('Applied', 'Applied'),
-        # ('Interested but Not Applied','Interested but Not Applied'),
-        ('Interested and Applied', 'Interested and Applied'),
-        # ('Not Interested but Applied', 'Not Interested '),
-        ('Seen', 'Seen'),
-    ])
+class UserScholarshipApplicationData(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='scholarship_applications')
+    scholarship = models.ForeignKey(ScholarshipData,on_delete=models.CASCADE,related_name='applicants')
+    is_interested = models.BooleanField(default=False)
+    is_applied = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('user', 'scholarship')

@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from firebase_admin import auth
 from rest_framework import authentication
 from rest_framework import exceptions
-from .models import UserProfile
+from userapp.models import UserProfile
 
 class FirebaseAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):

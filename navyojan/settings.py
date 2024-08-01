@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import sys
 from pathlib import Path
 import os 
 import firebase_admin
@@ -18,6 +19,12 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+sys.path.extend(
+    [
+        str(BASE_DIR.parent / "ai"),
+    ]
+)
 
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
@@ -104,14 +111,13 @@ WSGI_APPLICATION = 'navyojan.wsgi.application'
 # psql -U postgres
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'navyojan',
-        'USER': 'new_superuser',
-        'PASSWORD': 'modi',
-        'HOST': 'localhost',
-        'PORT': '5432',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ["POSTGRES_DATABASE"],
+        "USER": os.environ["POSTGRES_USERNAME"],
+        "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+        "HOST": os.environ["POSTGRES_HOST"],
+        "PORT": os.environ["POSTGRES_PORT"],
     }
 }
 
@@ -137,13 +143,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  
-    'userapp.regular_authentication.EmailModelBackend',
+    'userapp.custom_authentication.EmailModelBackend',
 ]
 
 
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'userapp.authentication.FirebaseAuthentication',
+#         'userapp.google_authentication.FirebaseAuthentication',
 #         'rest_framework.authentication.SessionAuthentication',
 #         'rest_framework.authentication.BasicAuthentication',
 #     ],
