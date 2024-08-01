@@ -4,12 +4,17 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 class UserProfile(models.Model):
+    ACCOUNT_TYPE_CHOICES = (
+        ('regular', 'Regular'),
+        ('google', 'Google'),
+    )
+    account_type = models.CharField(max_length=7, choices=ACCOUNT_TYPE_CHOICES)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     education_level = models.CharField(max_length=50, blank=True)
     field_of_study = models.CharField(max_length=100, blank=True)
     country = models.CharField(max_length=50, blank=True)
 
-#add preference field here to map to the scholarship data
+    #add preference field here to map to the scholarship data
 
 
     def __str__(self):
@@ -31,7 +36,7 @@ class ScholarshipData(models.Model):
 
 class UserScholarshipsData(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='scholarship_applications')
-    scholarship = models.ForeignKey(ScholarshipData, on_delete=models.CASCADE,related_name='applications')  #changed from ManyToManyField to ForeignKey
+    scholarship = models.ManyToManyField(ScholarshipData, on_delete=models.CASCADE,related_name='applications',symmetrical=True)  #changed from ManyToManyField to ForeignKey
     applied_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=40, default='Seen', choices=[
         ('Interested', 'Interested'),   #sent the message for this to the user and its relevancy

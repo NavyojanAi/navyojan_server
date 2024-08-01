@@ -135,17 +135,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# AUTHENTICATION_BACKENDS = [
-#     'userapp.auth.FirebaseAuthentication',
-#     'django.contrib.auth.backends.ModelBackend',
-# ]
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  
+    'userapp.regular_authentication.EmailModelBackend',
+]
 
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'userapp.authentication.FirebaseAuthentication',
-    ],
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'userapp.authentication.FirebaseAuthentication',
+#         'rest_framework.authentication.SessionAuthentication',
+#         'rest_framework.authentication.BasicAuthentication',
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ],
+# }
 
 
 # Internationalization

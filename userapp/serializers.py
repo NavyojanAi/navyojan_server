@@ -6,16 +6,19 @@ from django.contrib.auth.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ['username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
 
-
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'user', 'education_level', 'field_of_study', 'country']
+        fields = ['user', 'education_level', 'field_of_study', 'country']
 
 
 class ScholarshipDataSerializer(serializers.ModelSerializer):
@@ -29,4 +32,4 @@ class UserScholarshipDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserScholarshipsData
-        fields = ['id', 'scholarship', 'applied_date', 'status']
+        fields = ['scholarship', 'applied_date', 'status']
