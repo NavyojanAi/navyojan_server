@@ -4,8 +4,19 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
-import openai 
-from config import OPEN_AI_KEY
+from openai import OpenAI 
+# from config import OPEN_AI_KEY
+import django
+from userapp.models.scholarships import ScholarshipData
+
+
+# Set up Django environment
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
+django.setup()
+
+
+
+
 
 
 # Base URL for scraping list of scholarships
@@ -81,13 +92,14 @@ async def scrape_scholarship_details(page, endpoint):
     await page.goto(url)
     await page.wait_for_load_state("networkidle")
 
-    details = {field: "" for field in fields}
-    details["name"] = endpoint.replace("-", " ").title()
+    # details = {field: "" for field in fields}
+    name = endpoint.replace("-", " ").title()
 
     try:
         job_details_body = await page.query_selector(".job-details-body")
         if job_details_body:
             elements = await job_details_body.query_selector_all("h6, p, ul")
+            details = {field: "" for field in fields}
             current_section = None
             for elem in elements:
                 tag_name = await elem.evaluate("el => el.tagName.toLowerCase()")
@@ -113,27 +125,45 @@ async def scrape_scholarship_details(page, endpoint):
                     value = value.strip()
                     if label in details:
                         details[label] = value
+                        
+                        
+        scholarship = ScholarshipData(
+            title=name,
+            eligibility=details.get('Eligibility', ''),
+            # amount=details.get('Amount', '0'),
+            documents_needed=details.get('Documents Needed', ''),
+            how_to_apply=details.get('How To Apply', ''),
+            published_on=details.get('Published on', ''),
+            state = details.get('State', ''),
+            deadline=details.get('Application Deadline', ''),
+            link=details.get('Official Link', ''),
+            category=details.get('Category', '')
+        )
+        scholarship.save()
+        print(f"Saved scholarship: {name}")
     except Exception as e:
         print(f"Error scraping {url}: {e}")
 
-    return details
 
-from openai import OpenAI
 
 def categorize_scholarship(details):
    
-    categories = ["MERIT", "GIRLS", "BOYS", "SPORTS", "COLLEGE LEVEL", "MINORITIES", "TALENT BASED", "DIFFERENTLY ABLED"]
+    categories = ["MERIT", "GIRLS", "BOYS", "SPORTS", "COLLEGE LEVEL", "MINORITIES", "TALENT BASED", "DIFFERENTLY ABLED","SCHOOL LEVEL"]
 
-    prompt = f"Categorize the following scholarship into one of the categories: {', '.join(categories)}.\n\nDetails: {details}\n\nCategory:"
+    prompt = f"Categorize the following scholarship into the following categories(give only the word) and give 'none' in case of not finding any relevancy: {', '.join(categories).lower()}.\n\nDetails: {details}\n\nCategory:"
 
-    client = OpenAI(api_key=OPEN_AI_KEY)
+    client = OpenAI(api_key="OPEN_AI_KEY")
+    
     response = client.chat.completions.create(
-        model = "gpt-4o",
-        prompt=prompt,
-    )
-
-    category = response.choices[0].text.strip()
+            model="gpt-4o",    
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+            
+    category = response.choices[0].message.content.strip()
     return category
+        
     
 
 
@@ -150,8 +180,9 @@ def save_data(data):
         json.dump(data, json_file, indent=2, ensure_ascii=False)
 
 async def main():
-    existing_data = load_existing_data()
-    existing_names = set(scholarship["name"] for scholarship in existing_data)
+    # existing_data = load_existing_data()
+    # existing_names = set(scholarship["name"] for scholarship in existing_data)
+
 
     formatted_list = get_scholarship_list()
 
@@ -159,38 +190,31 @@ async def main():
         browser = await p.chromium.launch()
         page = await browser.new_page()
 
-        new_scholarships = []
+        # new_scholarships = []
         for endpoint in formatted_list:
             name = endpoint.replace("-", " ").title()
-            if name not in existing_names:
-                details = await scrape_scholarship_details(page, endpoint)
-                
-                # Check if there's any non-empty data in the details
-                if any(value.strip() for value in details.values() if value is not None):
-                    
-                    category = categorize_scholarship(details)
-                    details["Category"] = category
-                    
-                    
-                    new_scholarships.append(details)
-                    existing_names.add(name)  # Add to set to avoid duplicates in the same run
-                    print(f"Added new scholarship: {name} with category {category}")
-                else:
-                    print(f"No data found for {name}. Skipping.")
+            if not ScholarshipData.objects.filter(title=name).exists():
+                await scrape_scholarship_details(page, endpoint)
             else:
                 print(f"Scholarship {name} already exists. Skipping.")
 
         await browser.close()
+        
+    print("Scrapping Completed.")
+
+
 
     # Combine existing data with new scholarships
-    updated_data = existing_data + new_scholarships
+    # updated_data = existing_data + new_scholarships
 
-    # Write updated JSON to file
-    if new_scholarships:
-        save_data(updated_data)
-        print(f"Scraping complete. Added {len(new_scholarships)} new scholarships to 'scholarships2.json'")
-    else:
-        print("No new scholarships found. JSON file remains unchanged.")
+    # # Write updated JSON to file
+    # if new_scholarships:
+    #     save_data(updated_data)
+    #     print(f"Scraping complete. Added {len(new_scholarships)} new scholarships to 'scholarships2.json'")
+    # else:
+    #     print("No new scholarships found. JSON file remains unchanged.")
 
-# Run the main function
-asyncio.run(main())
+
+
+
+# asyncio.run(main())
