@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserProfile, ScholarshipData, UserScholarshipApplicationData
+from userapp.models import UserProfile
 from django.contrib.auth.models import User
 
 
@@ -18,18 +18,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'education_level', 'field_of_study', 'country']
+        fields = ['user', 'phone_number', 'education_level', 'field_of_study', 'country']
 
 
-class ScholarshipDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ScholarshipData
-        fields = '__all__'
-        
-
-class UserScholarshipDataSerializer(serializers.ModelSerializer):
-    scholarship = ScholarshipDataSerializer()
-
-    class Meta:
-        model = UserScholarshipApplicationData
-        fields = ['scholarship','user']

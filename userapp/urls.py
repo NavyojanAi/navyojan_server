@@ -1,19 +1,17 @@
 from django.urls import path, include
+from django.urls import path
+
 from rest_framework.routers import DefaultRouter
-from userapp.views import UserProfileViewSet, ScholarshipDataViewSet
-from userapp.authentication_views import signup_view, login_view, logout_view
 
-
+from userapp.views import UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP
 
 
 router = DefaultRouter()
 router.register(r'profiles', UserProfileViewSet)
 router.register(r'scholarships', ScholarshipDataViewSet)
 
-
 urlpatterns = [
     path('', include(router.urls)),
-    path('signup/', signup_view, name='signup'),
-    path('login/', login_view, name='login'),
-    path('logout/', logout_view, name='logout'),
+    path('/profiles/generate-otp/', GenerateOTP.as_view(), name='generate-otp'),
+    path('/profiles/verify-otp/', VerifyOTP.as_view(), name='verify-otp'),
 ]

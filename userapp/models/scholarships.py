@@ -1,22 +1,6 @@
 from django.db import models
 from navyojan.models import BaseModel
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-class UserProfile(BaseModel):
-    ACCOUNT_TYPE_CHOICES = (
-        ('regular', 'Regular'),
-        ('google', 'Google'),
-    )
-    account_type = models.CharField(max_length=7, choices=ACCOUNT_TYPE_CHOICES)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    education_level = models.CharField(max_length=50, blank=True)
-    field_of_study = models.CharField(max_length=100, blank=True)
-    country = models.CharField(max_length=50, blank=True)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.account_type}"
 
 
 class ScholarshipData(BaseModel):
