@@ -23,7 +23,7 @@ class UserProfile(BaseModel):
     def __str__(self):
         return f"{self.user.username} - {self.account_type}"
     
-class OTP(models.Model):
+class OTP(BaseModel):
     OTP_TYPE_CHOICES = (
         ('phone', 'Phone'),
         ('email', 'Email'),
@@ -32,5 +32,4 @@ class OTP(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     otp = models.CharField(max_length=6)
     otp_type = models.CharField(max_length=5, choices=OTP_TYPE_CHOICES)
-    created_at = models.DateTimeField(auto_now_add=True)
     verified = models.BooleanField(default=False)
