@@ -8,7 +8,7 @@ from openai import OpenAI
 # from config import OPEN_AI_KEY
 import django
 from userapp.models.scholarships import ScholarshipData
-
+from ai.ai_categorizer import update_recent_scholarships
 
 # Set up Django environment
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
@@ -202,6 +202,8 @@ async def main():
         
     print("Scrapping Completed.")
 
+    update_recent_scholarships()
+    print("Categorization Completed.")
 
 
     # Combine existing data with new scholarships

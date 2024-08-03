@@ -15,6 +15,7 @@ class ScholarshipData(BaseModel):
     deadline = models.DateField() 
     link = models.URLField()
     category = models.CharField(max_length=255,null=True)   #not a mandatory field
+    created_at = models.DateTimeField(auto_now_add=True)   #notes the time when the scholarship was added
 
     def __str__(self):
         return f"{self.id} - {self.title}"
