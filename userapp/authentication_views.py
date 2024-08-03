@@ -12,7 +12,9 @@ from userapp.forms import CustomUserCreationForm
 @api_view(['POST','GET'])
 def signup_view(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.data)
+        input_form = request.data
+        # input_form['username']=input_form['first_name'] + "_" + input_form['last_name']+"_navyojan"
+        form = CustomUserCreationForm(input_form)
         if form.is_valid():
             form.save()
             email = form.cleaned_data.get('email')
@@ -29,7 +31,8 @@ def signup_view(request):
     elif request.method == 'GET':
         return Response({
             "format":{
-                "username":"Enter your name",
+                "first_name":"Enter your first name",
+                "last_name":"Enter your last name",
                 "email":"Enter your email id",
                 "password1":"Enter your password",
                 "password2":"Re-Enter your password"

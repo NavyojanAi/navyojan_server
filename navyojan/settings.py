@@ -110,6 +110,7 @@ WSGI_APPLICATION = 'navyojan.wsgi.application'
 #TO CONNECT TO THE DATABASE: RUN THE FOLLOWING COMMANDS IN THE TERMINAL
 # psql -U postgres
 
+print(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

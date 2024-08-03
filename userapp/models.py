@@ -9,7 +9,7 @@ class UserProfile(BaseModel):
         ('regular', 'Regular'),
         ('google', 'Google'),
     )
-    account_type = models.CharField(max_length=7, choices=ACCOUNT_TYPE_CHOICES)
+    account_type = models.CharField(max_length=7, choices=ACCOUNT_TYPE_CHOICES,null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     education_level = models.CharField(max_length=50, blank=True)
     field_of_study = models.CharField(max_length=100, blank=True)
