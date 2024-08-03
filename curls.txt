@@ -1,0 +1,28 @@
+>>>signup:
+curl --location --request GET 'http://127.0.0.1:8000/signup/' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: csrftoken=dYBIibm74N2O0gw21utZLAzyvRDm9uWS; sessionid=jufki04xzyccp8lxj8dryd06dsshe0e6' \
+--data '{
+    "first_name":"Enter your first name",
+    "last_name":"Enter your last name",
+    "email":"Enter your email id",
+    "password1":"Enter your password",
+    "password2":"Re-Enter your password"
+}'
+
+
+>>>login:
+curl --location 'http://127.0.0.1:8000/login/' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: csrftoken=dYBIibm74N2O0gw21utZLAzyvRDm9uWS; sessionid=jufki04xzyccp8lxj8dryd06dsshe0e6' \
+--data '{
+    "email":"Enter your email",
+    "password":"Enter your password"
+}'
+
+
+>>>logout:
+curl --location --request POST 'http://127.0.0.1:8000/logout/' \
+--header 'sessionid: hqday0pdc6pzd1vyrcek070nkctoy8eh' \
+--header 'X-CSRFToken: PJ8fV0kaBuu76wJ2BOA7gRN0PAdam1UW' \
+--header 'Cookie: csrftoken=dYBIibm74N2O0gw21utZLAzyvRDm9uWS; sessionid=jufki04xzyccp8lxj8dryd06dsshe0e6'
