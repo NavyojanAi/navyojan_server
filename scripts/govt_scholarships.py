@@ -10,6 +10,12 @@ import django
 from userapp.models.scholarships import ScholarshipData
 from ai.ai_categorizer import update_recent_scholarships
 
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+
+
 # Set up Django environment
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
 django.setup()
@@ -89,6 +95,13 @@ fields = [
 async def scrape_scholarship_details(page, endpoint):
     url = detail_base_url + endpoint
     print(f"Scraping details from {url}...")
+    
+    
+    # if ScholarshipData.objects.filter(title=name).exists():
+    #     print(f"Scholarship {name} already exists. Skipping.")
+    #     return
+    
+    
     await page.goto(url)
     await page.wait_for_load_state("networkidle")
 
@@ -126,18 +139,41 @@ async def scrape_scholarship_details(page, endpoint):
                     if label in details:
                         details[label] = value
                         
+        def parse_date(date_string):
+            try:
+                return datetime.strptime(date_string.strip(), "%B %d, %Y").date()
+            except ValueError:
+                return None
+
+        # Helper function to parse amount
+        def parse_amount(amount_string):
+            try:
+                # Remove currency symbols and commas
+                amount = ''.join(c for c in amount_string if c.isdigit() or c == '.')
+                return Decimal(amount)
+            except InvalidOperation:
+                return None
+
+        # Helper function to validate URL
+        def validate_url(url_string):
+            try:
+                URLValidator()(url_string)
+                return url_string
+            except ValidationError:
+                return None
+            
                         
         scholarship = ScholarshipData(
-            title=name,
-            eligibility=details.get('Eligibility', ''),
+            title = name,
+            eligibility = details.get('Eligibility', ''),
             # amount=details.get('Amount', '0'),
-            documents_needed=details.get('Documents Needed', ''),
-            how_to_apply=details.get('How To Apply', ''),
-            published_on=details.get('Published on', ''),
+            documents_needed = details.get('Documents Needed', ''),
+            how_to_apply = details.get('How To Apply', ''),
+            published_on = parse_date(details.get('Published on', '')),
             state = details.get('State', ''),
-            deadline=details.get('Application Deadline', ''),
-            link=details.get('Official Link', ''),
-            category=details.get('Category', '')
+            deadline = parse_date(details.get('Application Deadline', '')),
+            link = validate_url(details.get('Official Link', '')),
+            category = details.get('Category', '')
         )
         scholarship.save()
         print(f"Saved scholarship: {name}")
