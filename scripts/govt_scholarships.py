@@ -4,6 +4,9 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
+import openai 
+from config import OPEN_AI_KEY
+
 
 # Base URL for scraping list of scholarships
 base_url = "https://www.scholarshipforme.com/scholarships?state=&qualification=&category=&availability=&origin=&type=&page={}&is_item=true"
@@ -115,6 +118,25 @@ async def scrape_scholarship_details(page, endpoint):
 
     return details
 
+from openai import OpenAI
+
+def categorize_scholarship(details):
+   
+    categories = ["MERIT", "GIRLS", "BOYS", "SPORTS", "COLLEGE LEVEL", "MINORITIES", "TALENT BASED", "DIFFERENTLY ABLED"]
+
+    prompt = f"Categorize the following scholarship into one of the categories: {', '.join(categories)}.\n\nDetails: {details}\n\nCategory:"
+
+    client = OpenAI(api_key=OPEN_AI_KEY)
+    response = client.chat.completions.create(
+        model = "gpt-4o",
+        prompt=prompt,
+    )
+
+    category = response.choices[0].text.strip()
+    return category
+    
+
+
 # Function to load existing data from JSON file
 def load_existing_data():
     if os.path.exists("navyojan/scripts/scholarships2.json"):
@@ -145,9 +167,14 @@ async def main():
                 
                 # Check if there's any non-empty data in the details
                 if any(value.strip() for value in details.values() if value is not None):
+                    
+                    category = categorize_scholarship(details)
+                    details["Category"] = category
+                    
+                    
                     new_scholarships.append(details)
                     existing_names.add(name)  # Add to set to avoid duplicates in the same run
-                    print(f"Added new scholarship: {name}")
+                    print(f"Added new scholarship: {name} with category {category}")
                 else:
                     print(f"No data found for {name}. Skipping.")
             else:
