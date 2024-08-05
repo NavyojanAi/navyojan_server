@@ -12,6 +12,6 @@ router.register(r'scholarships', ScholarshipDataViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('/profiles/generate-otp/', GenerateOTP.as_view(), name='generate-otp'),
-    path('/profiles/verify-otp/', VerifyOTP.as_view(), name='verify-otp'),
+    path('profiles/generate-otp/', GenerateOTP.as_view(), name='generate-otp'),
+    path('profiles/verify-otp/', VerifyOTP.as_view(), name='verify-otp'),
 ]

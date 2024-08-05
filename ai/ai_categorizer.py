@@ -4,8 +4,7 @@ import django
 from openai import OpenAI
 from django.utils import timezone
 from datetime import timedelta
-from userapp.models.scholarships import ScholarshipData
-
+from userapp.models.scholarships import ScholarshipData,Category
 
 # Set up Django environment
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
@@ -17,7 +16,9 @@ django.setup()
 client = OpenAI(api_key=OPEN_AI_KEY)
 
 def categorize_scholarship(details):
-    categories = ["MERIT", "GIRLS", "BOYS", "SPORTS", "COLLEGE LEVEL", "MINORITIES", "TALENT BASED", "DIFFERENTLY ABLED", "SCHOOL LEVEL"]
+    categories = Category.objects.values_list('name', flat=True)
+    
+    # categories = ["MERIT", "FEMALE", "MALE", "SPORTS", "COLLEGE LEVEL", "MINORITIES", "TALENT BASED", "DIFFERENTLY ABLED", "SCHOOL LEVEL"]
 
     prompt = f"Categorize the following scholarship into the following categories(give only the word) and give 'none' in case of not finding any relevancy: {', '.join(categories).lower()}.\n\nDetails: {details}\n\nCategory:"
 
@@ -36,7 +37,7 @@ def update_recent_scholarships():
     # Get scholarships added in the last 24 hours with empty category
     recent_time = timezone.now() - timedelta(hours=24)
     recent_scholarships = ScholarshipData.objects.filter(
-        created_at__gte=recent_time,
+        datetime_created__gte=recent_time,
         category__isnull=True
     )
 

@@ -7,6 +7,14 @@ class UserProfile(BaseModel):
         ('regular', 'Regular'),
         ('google', 'Google'),
     )
+    
+    GENDER_CHOICES = (
+        ('male','Male'),
+        ('female','Female'),
+        ('others','Others'),
+    )
+    
+    # opted_categories = models.ManyToManyField('scholarships.Category', related_name='opted_users', blank=True)
     account_type = models.CharField(max_length=7, choices=ACCOUNT_TYPE_CHOICES,null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE,related_name="userprofile")
     phone_number = models.CharField(max_length=15, blank=True, null=True)
@@ -15,7 +23,8 @@ class UserProfile(BaseModel):
     country = models.CharField(max_length=50, blank=True)
     is_email_verified = models.BooleanField(default=False)
     is_phone_number_verified = models.BooleanField(default=False)
-
+    gender = models.CharField(max_length = 10, blank = False, choices = GENDER_CHOICES, default = 'others')  #default to be removed later
+    
     #following are permission assigned based on user's package 
     free_account_privilages = models.BooleanField(default=True)
     premium_account_privilages = models.BooleanField(default=False)
