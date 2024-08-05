@@ -5,9 +5,7 @@ from django.utils import timezone
 
 class ScholarshipData(BaseModel):
     title = models.CharField(max_length=255)
-    # description = models.TextField()
     eligibility = models.TextField(null=True,blank=True)
-    # amount = models.DecimalField(max_digits=7, decimal_places=2) 
     document_needed = models.TextField(null=True,blank=True)
     how_to_apply = models.TextField(null=True,blank=True)
     published_on = models.DateField(default=timezone.now)
@@ -15,7 +13,6 @@ class ScholarshipData(BaseModel):
     deadline = models.DateField(default=timezone.now) 
     link = models.URLField(default=None)
     category = models.CharField(max_length=255,null=True)   #not a mandatory field
-    # created_at = models.DateTimeField(auto_now_add=True)   #notes the time when the scholarship was added
     categories = models.ManyToManyField('Category', related_name='scholarships', blank=True)
     
     

@@ -18,8 +18,6 @@ client = OpenAI(api_key=OPEN_AI_KEY)
 def categorize_scholarship(details):
     categories = Category.objects.values_list('name', flat=True)
     
-    # categories = ["MERIT", "FEMALE", "MALE", "SPORTS", "COLLEGE LEVEL", "MINORITIES", "TALENT BASED", "DIFFERENTLY ABLED", "SCHOOL LEVEL"]
-
     prompt = f"Categorize the following scholarship into the following categories(give only the word) and give 'none' in case of not finding any relevancy: {', '.join(categories).lower()}.\n\nDetails: {details}\n\nCategory:"
 
     response = client.chat.completions.create(

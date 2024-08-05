@@ -145,14 +145,6 @@ async def scrape_scholarship_details(page, endpoint):
             except ValueError:
                 return None
 
-        # Helper function to parse amount
-        def parse_amount(amount_string):
-            try:
-                # Remove currency symbols and commas
-                amount = ''.join(c for c in amount_string if c.isdigit() or c == '.')
-                return Decimal(amount)
-            except InvalidOperation:
-                return None
 
         # Helper function to validate URL
         def validate_url(url_string):
@@ -166,7 +158,6 @@ async def scrape_scholarship_details(page, endpoint):
         scholarship = ScholarshipData(
             title = name,
             eligibility = details.get('Eligibility', ''),
-            # amount=details.get('Amount', '0'),
             documents_needed = details.get('Documents Needed', ''),
             how_to_apply = details.get('How To Apply', ''),
             published_on = parse_date(details.get('Published on', '')),
@@ -180,26 +171,6 @@ async def scrape_scholarship_details(page, endpoint):
     except Exception as e:
         print(f"Error scraping {url}: {e}")
 
-
-
-def categorize_scholarship(details):
-   
-    categories = ["MERIT", "GIRLS", "BOYS", "SPORTS", "COLLEGE LEVEL", "MINORITIES", "TALENT BASED", "DIFFERENTLY ABLED","SCHOOL LEVEL"]
-
-    prompt = f"Categorize the following scholarship into the following categories(give only the word) and give 'none' in case of not finding any relevancy: {', '.join(categories).lower()}.\n\nDetails: {details}\n\nCategory:"
-
-    client = OpenAI(api_key="OPEN_AI_KEY")
-    
-    response = client.chat.completions.create(
-            model="gpt-4o",    
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-            
-    category = response.choices[0].message.content.strip()
-    return category
-        
     
 
 
