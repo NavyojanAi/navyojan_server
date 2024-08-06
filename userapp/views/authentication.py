@@ -3,17 +3,28 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 
 from userapp.models import UserProfile
 from userapp.forms import CustomUserCreationForm
 
+def generate_unique_username(first_name, last_name):
+    User = get_user_model()
+    base_username = f"{first_name}_{last_name}".lower()
+    username = base_username
+    counter = 1
+    
+    while User.objects.filter(username=username).exists():
+        username = f"{base_username}{counter}"
+        counter += 1
+        
+    return username
 
 @api_view(['POST','GET'])
 def signup_view(request):
     if request.method == 'POST':
         input_form = request.data
-        # input_form['username']=input_form['first_name'] + "_" + input_form['last_name']+"_navyojan"
+        input_form['username']=generate_unique_username(first_name=input_form['first_name'],last_name=input_form['last_name'])
         form = CustomUserCreationForm(input_form)
         if form.is_valid():
             form.save()
