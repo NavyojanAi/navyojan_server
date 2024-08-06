@@ -1,19 +1,15 @@
-import asyncio
 from playwright.async_api import async_playwright
 import requests
 from bs4 import BeautifulSoup
-import json
 import os
-from openai import OpenAI 
-# from config import OPEN_AI_KEY
 import django
 from userapp.models.scholarships import ScholarshipData
 from ai.ai_categorizer import update_recent_scholarships
 
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from asgiref.sync import sync_to_async
 
 
 # Set up Django environment
@@ -91,15 +87,44 @@ fields = [
     "State", "Gender", "Amount", "Application Deadline", "Official Link"
 ]
 
+
+
+@sync_to_async
+def save_scholarship(name, details):
+    def parse_date(date_string):
+        if not date_string:
+            return None 
+        try:
+            return datetime.strptime(date_string.strip(), "%B %d, %Y").date()
+        except ValueError:
+            return None
+
+    def validate_url(url_string):
+        try:
+            URLValidator()(url_string)
+            return url_string
+        except ValidationError:
+            return None
+
+    scholarship = ScholarshipData(
+        title=name,
+        eligibility=details.get('Eligibility', ''),
+        document_needed = details.get('Documents Needed', ''),
+        how_to_apply=details.get('How To Apply', ''),
+        published_on=parse_date(details.get('Published on', '')),
+        state=details.get('State', ''),
+        deadline=parse_date(details.get('Application Deadline', '')),
+        link=validate_url(details.get('Official Link', '')),
+        category=details.get('Category', '')
+    )
+    scholarship.save()
+
+
+
 # Function to scrape details of a single scholarship
 async def scrape_scholarship_details(page, endpoint):
     url = detail_base_url + endpoint
     print(f"Scraping details from {url}...")
-    
-    
-    # if ScholarshipData.objects.filter(title=name).exists():
-    #     print(f"Scholarship {name} already exists. Skipping.")
-    #     return
     
     
     await page.goto(url)
@@ -107,12 +132,12 @@ async def scrape_scholarship_details(page, endpoint):
 
     # details = {field: "" for field in fields}
     name = endpoint.replace("-", " ").title()
+    details = {field: "" for field in fields}
 
     try:
         job_details_body = await page.query_selector(".job-details-body")
         if job_details_body:
             elements = await job_details_body.query_selector_all("h6, p, ul")
-            details = {field: "" for field in fields}
             current_section = None
             for elem in elements:
                 tag_name = await elem.evaluate("el => el.tagName.toLowerCase()")
@@ -138,59 +163,18 @@ async def scrape_scholarship_details(page, endpoint):
                     value = value.strip()
                     if label in details:
                         details[label] = value
-                        
-        def parse_date(date_string):
-            try:
-                return datetime.strptime(date_string.strip(), "%B %d, %Y").date()
-            except ValueError:
-                return None
-
-
-        # Helper function to validate URL
-        def validate_url(url_string):
-            try:
-                URLValidator()(url_string)
-                return url_string
-            except ValidationError:
-                return None
-            
-                        
-        scholarship = ScholarshipData(
-            title = name,
-            eligibility = details.get('Eligibility', ''),
-            documents_needed = details.get('Documents Needed', ''),
-            how_to_apply = details.get('How To Apply', ''),
-            published_on = parse_date(details.get('Published on', '')),
-            state = details.get('State', ''),
-            deadline = parse_date(details.get('Application Deadline', '')),
-            link = validate_url(details.get('Official Link', '')),
-            category = details.get('Category', '')
-        )
-        scholarship.save()
+        
+        await save_scholarship(name, details)
+        
         print(f"Saved scholarship: {name}")
     except Exception as e:
         print(f"Error scraping {url}: {e}")
 
-    
+    return details
 
 
-# Function to load existing data from JSON file
-def load_existing_data():
-    if os.path.exists("navyojan/scripts/scholarships2.json"):
-        with open("navyojan/scripts/scholarships2.json", "r", encoding="utf-8") as json_file:
-            return json.load(json_file)
-    return []
-
-# Function to save data to JSON file
-def save_data(data):
-    with open("navyojan/scripts/scholarships2.json", "w", encoding="utf-8") as json_file:
-        json.dump(data, json_file, indent=2, ensure_ascii=False)
 
 async def main():
-    # existing_data = load_existing_data()
-    # existing_names = set(scholarship["name"] for scholarship in existing_data)
-
-
     formatted_list = get_scholarship_list()
 
     async with async_playwright() as p:
@@ -200,7 +184,7 @@ async def main():
         # new_scholarships = []
         for endpoint in formatted_list:
             name = endpoint.replace("-", " ").title()
-            if not ScholarshipData.objects.filter(title=name).exists():
+            if not await sync_to_async(ScholarshipData.objects.filter(title=name).exists)():
                 await scrape_scholarship_details(page, endpoint)
             else:
                 print(f"Scholarship {name} already exists. Skipping.")
@@ -211,19 +195,3 @@ async def main():
 
     update_recent_scholarships()
     print("Categorization Completed.")
-
-
-    # Combine existing data with new scholarships
-    # updated_data = existing_data + new_scholarships
-
-    # # Write updated JSON to file
-    # if new_scholarships:
-    #     save_data(updated_data)
-    #     print(f"Scraping complete. Added {len(new_scholarships)} new scholarships to 'scholarships2.json'")
-    # else:
-    #     print("No new scholarships found. JSON file remains unchanged.")
-
-
-
-
-# asyncio.run(main())
