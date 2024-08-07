@@ -1,5 +1,5 @@
 from django.contrib import admin
-from userapp.models import User, UserProfile, ScholarshipData, UserScholarshipApplicationData
+from userapp.models import UserProfile, ScholarshipData, UserScholarshipApplicationData
 # Register your models here.
 
 admin.site.register(UserProfile)

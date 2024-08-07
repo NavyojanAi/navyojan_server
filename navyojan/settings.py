@@ -110,6 +110,7 @@ WSGI_APPLICATION = 'navyojan.wsgi.application'
 #TO CONNECT TO THE DATABASE: RUN THE FOLLOWING COMMANDS IN THE TERMINAL
 # psql -U postgres
 
+print(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -143,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  
-    'userapp.custom_authentication.EmailModelBackend',
+    'userapp.authentication.custom_authentication.EmailModelBackend',
 ]
 
 
