@@ -193,5 +193,5 @@ async def main():
         
     print("Scrapping Completed.")
 
-    update_recent_scholarships()
+    await update_recent_scholarships()
     print("Categorization Completed.")
