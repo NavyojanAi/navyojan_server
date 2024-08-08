@@ -58,24 +58,6 @@ async def update_recent_scholarships():
         print(f"Updated category for '{scholarship.title}' to '{category}'")
 
 
-
-
-# def update_recent_scholarships():
-#     # Get scholarships added in the last 24 hours with empty category
-#     recent_time = timezone.now() - timedelta(hours=24)
-#     recent_scholarships = ScholarshipData.objects.filter(
-#         datetime_created__gte=recent_time,
-#         category__isnull=True
-#     )
-
-#     for scholarship in recent_scholarships:
-#         details = f"Title: {scholarship.title}\nEligibility: {scholarship.eligibility}\nDocuments Needed: {scholarship.document_needed}\nHow To Apply: {scholarship.how_to_apply}\nPublished On: {scholarship.published_on}\nState: {scholarship.state}\nDeadline: {scholarship.deadline}\nLink: {scholarship.link}"
-#         category = categorize_scholarship(details)
-        
-#         scholarship.category = category
-#         scholarship.save()
-#         print(f"Updated category for '{scholarship.title}' to '{category}'")
-
 if __name__ == "__main__":
     import asyncio 
     asyncio.run(update_recent_scholarships())
