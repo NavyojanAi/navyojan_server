@@ -12,7 +12,6 @@ class ScholarshipData(BaseModel):
     state = models.CharField(null = True ,max_length=255,default=None,blank=True)
     deadline = models.DateField(null=True,default=None,blank=True) 
     link = models.URLField(null=True,default=None,blank=True)
-    category = models.CharField(max_length=255,null=True,blank=True)   #not a mandatory field
     categories = models.ManyToManyField('Category', related_name='scholarships', blank=True)
     
     
@@ -21,19 +20,7 @@ class ScholarshipData(BaseModel):
     
     
 class Category(BaseModel):
-    CATEGORY_CHOICES = [
-        ("MERIT", "Merit"),
-        ("FEMALE", "Female"),
-        ("MALE", "Male"),
-        ("SPORTS", "Sports"),
-        ("COLLEGE LEVEL", "College Level"),
-        ("MINORITIES", "Minorities"),
-        ("TALENT BASED", "Talent Based"),
-        ("DIFFERENTLY ABLED", "Differently Abled"),
-        ("SCHOOL LEVEL", "School Level"),
-    ]
-
-    name = models.CharField(max_length=255, unique=True, choices=CATEGORY_CHOICES)
+    name = models.CharField(max_length=255, unique=True,)
     description = models.TextField(null=True, blank=True)
     
 

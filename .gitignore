@@ -1,3 +1,4 @@
 .env
 ai/config.py
 ai/__pycache__/
+userapp/management/commands/update_categories.py

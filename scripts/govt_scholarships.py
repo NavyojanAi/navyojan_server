@@ -5,11 +5,14 @@ import os
 import django
 from userapp.models.scholarships import ScholarshipData
 from ai.ai_categorizer import update_recent_scholarships
+from ai.ai_categorizer import categorize_scholarship
 
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from asgiref.sync import sync_to_async
+from userapp.models.scholarships import Category
+
 
 
 # Set up Django environment
@@ -83,7 +86,7 @@ detail_base_url = "https://www.scholarshipforme.com/scholarships/"
 # Define the expected fields
 fields = [
     "name", "Scholarship Details", "Award", "Eligibility", "Documents Needed",
-    "Provider", "How To Apply", "Published on", "Status", "Category", "Type",
+    "Provider", "How To Apply", "Published on", "Status", "Type",
     "State", "Gender", "Amount", "Application Deadline", "Official Link"
 ]
 
@@ -117,7 +120,6 @@ def save_scholarship(name, details):
         'state',
         'deadline',
         'link',
-        'category'
     ]
 
     scholarship_data = {
@@ -129,39 +131,24 @@ def save_scholarship(name, details):
         'state': details.get('State', ''),
         'deadline': parse_date(details.get('Application Deadline', '')),
         'link': validate_url(details.get('Official Link', '')),
-        'category': details.get('Category', '')
     }
 
     # Check if all required fields have valid data
     if all(scholarship_data.get(field) for field in required_fields):
         scholarship = ScholarshipData(**scholarship_data)
-        scholarship.save()
-        print(f"Saved scholarship: {name}")
+        scholarship.save()        
+        
+        categories = categorize_scholarship(details)
+        for category_name in categories:
+            category = Category.objects.get(name=category_name)
+            scholarship.categories.add(category)
+        
+        print(f"Saved and categorized scholarship: {name}")
         
     else:
         missing_fields = [field for field in required_fields if not scholarship_data.get(field)]
         print(f"Skipping scholarship '{name}' due to missing required fields: {', '.join(missing_fields)}")
 
-
-
-    # scholarship = ScholarshipData(
-    #     title=name,
-    #     eligibility=details.get('Eligibility', ''),
-    #     document_needed = details.get('Documents Needed', ''),
-    #     how_to_apply=details.get('How To Apply', ''),
-    #     published_on=parse_date(details.get('Published on', '')),
-    #     state=details.get('State', ''),
-    #     deadline=parse_date(details.get('Application Deadline', '')),
-    #     link=validate_url(details.get('Official Link', '')),
-    #     category=details.get('Category', '')
-    # )
-    # # scholarship.save()
-
-
-    # if all(scholarship.get(field) for field in required_fields):
-    #     scholarship_ = ScholarshipData(**scholarship)
-    #     scholarship_.save()
-    #     print(f"Saved scholarship: {name}")
 
 
 # Function to scrape details of a single scholarship
@@ -235,6 +222,3 @@ async def main():
         await browser.close()
         
     print("Scrapping Completed.")
-
-    # await update_recent_scholarships()
-    # print("Categorization Completed.")
