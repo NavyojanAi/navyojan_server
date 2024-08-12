@@ -38,7 +38,7 @@ class OTP(BaseModel):
         ('email', 'Email'),
     )
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="otps")
     otp = models.CharField(max_length=6)
     otp_type = models.CharField(max_length=5, choices=OTP_TYPE_CHOICES)
     verified = models.BooleanField(default=False)

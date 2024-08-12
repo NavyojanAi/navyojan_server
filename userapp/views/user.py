@@ -39,7 +39,7 @@ class GenerateOTP(APIView):
                 OTP.objects.update_or_create(user=user, otp_type=otp_type, defaults={'otp': otp, 'verified': False})
 
                 # Send OTP via msg97
-                # msg97.send(phone_number, otp)
+                # send_otp_via_msg97(user.userprofile.phone_number)
                 
                 return Response({"message": "OTP sent to phone number"}, status=status.HTTP_200_OK)
             else:

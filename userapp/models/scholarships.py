@@ -21,19 +21,20 @@ class ScholarshipData(BaseModel):
     
     
 class Category(BaseModel):
-    CATEGORY_CHOICES = [
-        ("MERIT", "Merit"),
-        ("FEMALE", "Female"),
-        ("MALE", "Male"),
-        ("SPORTS", "Sports"),
-        ("COLLEGE LEVEL", "College Level"),
-        ("MINORITIES", "Minorities"),
-        ("TALENT BASED", "Talent Based"),
-        ("DIFFERENTLY ABLED", "Differently Abled"),
-        ("SCHOOL LEVEL", "School Level"),
-    ]
+    # CATEGORY_CHOICES = [
+    #     ("MERIT", "Merit"),
+    #     ("FEMALE", "Female"),
+    #     ("MALE", "Male"),
+    #     ("SPORTS", "Sports"),
+    #     ("COLLEGE LEVEL", "College Level"),
+    #     ("MINORITIES", "Minorities"),
+    #     ("TALENT BASED", "Talent Based"),
+    #     ("DIFFERENTLY ABLED", "Differently Abled"),
+    #     ("SCHOOL LEVEL", "School Level"),
+    # ]
 
-    name = models.CharField(max_length=255, unique=True, choices=CATEGORY_CHOICES)
+    name = models.CharField(max_length=255, unique=True)
+    #, choices=CATEGORY_CHOICES)
     description = models.TextField(null=True, blank=True)
     
 
