@@ -23,6 +23,13 @@ class UserScholarshipDataSerializer(serializers.ModelSerializer):
         model = UserScholarshipApplicationData
         fields = ['scholarship','user']
 
+        
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+        
+        
 class CategoryWithScholarshipsSerializer(serializers.ModelSerializer):
     scholarships = ScholarshipDataSerializer(many=True, read_only=True)
 

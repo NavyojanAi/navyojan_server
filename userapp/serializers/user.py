@@ -18,6 +18,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'phone_number', 'education_level', 'field_of_study', 'country']
+        fields = ['phone_number', 'education_level', 'field_of_study', 'country', 'gender']
 
 
