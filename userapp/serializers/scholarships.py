@@ -17,7 +17,7 @@ class UserScholarshipDataSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['name']
+        fields = '__all__'
         
         
 class CategoryWithScholarshipsSerializer(serializers.ModelSerializer):
@@ -25,4 +25,4 @@ class CategoryWithScholarshipsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'scholarships']
+        fields = ['id', 'name', 'description']

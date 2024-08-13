@@ -23,6 +23,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()      
     serializer_class = UserProfileSerializer  
     authentication_classes = DEFAULT_AUTH_CLASSES  
+    http_method_names = ["get", "patch"]
     permission_classes = [IsActivePermission]
 
 

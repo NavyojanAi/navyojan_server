@@ -1,11 +1,12 @@
 from rest_framework import permissions
 
-class IsActivePermission(permissions.BasePermission):
+class IsActivePermission(permissions.BasePermission):  
     def has_permission(self, request):
         return request.user.is_active and request.user.is_authenticated
-
-    def has_object_permission(self, request):
+    
+    def has_object_permission(self, request, view, obj):
         return request.user.is_active and request.user.is_authenticated
+
 
 
 class IsVerfiedPermission(permissions.BasePermission):
