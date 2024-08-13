@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
 from userapp.models import ScholarshipData, UserScholarshipApplicationData, Category
@@ -17,7 +18,7 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
     permission_classes = [IsActivePermission]
 
     def list(self, request, *args, **kwargs):
-        category_id = request.query_params.get('category_id', None) # expects a integer(id)
+        category_id = request.data.get('category_id', None) # expects a integer(id)
         
         if category_id:
             try:
@@ -26,7 +27,10 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
             except Category.DoesNotExist:
                 queryset = ScholarshipData.objects.none()
         else:
-            queryset = self.get_queryset()
+            return Response(
+                "category doesn't exist",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
