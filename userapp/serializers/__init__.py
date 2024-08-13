@@ -1,2 +1,2 @@
 from .user import UserProfileSerializer, UserSerializer, LoginSerializer
-from .scholarships import ScholarshipDataSerializer,UserScholarshipDataSerializer
+from .scholarships import ScholarshipDataSerializer,UserScholarshipDataSerializer, CategorySerializer

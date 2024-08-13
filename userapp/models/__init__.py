@@ -1,2 +1,2 @@
 from .user import UserProfile, OTP
-from .scholarships import ScholarshipData,UserScholarshipApplicationData
+from .scholarships import ScholarshipData,UserScholarshipApplicationData,Category

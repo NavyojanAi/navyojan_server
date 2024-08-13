@@ -15,7 +15,7 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
             decoded_token = auth.verify_id_token(id_token)
             uid = decoded_token["uid"]
             user, created = User.objects.get_or_create(username=uid)
-            userProfile = UserProfile.objects.get_or_create(user=user,account_type="google")
+            userProfile = UserProfile.objects.get_or_create(user=user,account_type="google",is_email_verified=True)
             return (user, None)
         except:
             raise exceptions.AuthenticationFailed("Invalid token")

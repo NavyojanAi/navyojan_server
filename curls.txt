@@ -26,3 +26,11 @@ curl --location --request POST 'http://127.0.0.1:8000/logout/' \
 --header 'sessionid: hqday0pdc6pzd1vyrcek070nkctoy8eh' \
 --header 'X-CSRFToken: PJ8fV0kaBuu76wJ2BOA7gRN0PAdam1UW' \
 --header 'Cookie: csrftoken=dYBIibm74N2O0gw21utZLAzyvRDm9uWS; sessionid=jufki04xzyccp8lxj8dryd06dsshe0e6'
+
+>>>scholarshipdata
+curl --location 'http://127.0.0.1:8000/api/scholarships/' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: csrftoken=WvfMncTELD88uaTMboH0cQzeWC1YOAdK; sessionid=8jeh5rz3niqu6kz89w09otmrtgxn8h6r' \
+--data '{
+    "category_id":1
+}'

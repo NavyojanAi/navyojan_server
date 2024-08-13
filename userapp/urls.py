@@ -3,12 +3,14 @@ from django.urls import path
 
 from rest_framework.routers import DefaultRouter
 
-from userapp.views import UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP
+from userapp.views import UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,UserScholarshipDataViewset
 
 
 router = DefaultRouter()
 router.register(r'profiles', UserProfileViewSet)
 router.register(r'scholarships', ScholarshipDataViewSet)
+router.register(r'categories',CategoryViewSet)
+router.register(r'scholarship_data',UserScholarshipDataViewset)
 
 urlpatterns = [
     path('', include(router.urls)),
