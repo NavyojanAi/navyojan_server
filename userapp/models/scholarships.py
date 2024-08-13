@@ -10,19 +10,18 @@ class ScholarshipData(BaseModel):
     how_to_apply = models.TextField(null=True,blank=True)
     published_on = models.DateField(null = True,default=None,blank=True)
     state = models.CharField(null = True ,max_length=255,default=None,blank=True)
-    deadline = models.DateField(null=True,default=None,blank=True) 
+    deadline = models.DateField(null=True,default=None,blank=True)
     link = models.URLField(null=True,default=None,blank=True)
     categories = models.ManyToManyField('Category', related_name='scholarships', blank=True)
-    
     
     def __str__(self):
         return f"{self.id} - {self.title}"
     
     
 class Category(BaseModel):
-    name = models.CharField(max_length=255, unique=True,)
+    name = models.CharField(max_length=255, unique=True)
+    display_name = models.CharField(max_length=255, unique=True, null=True)
     description = models.TextField(null=True, blank=True)
-    
 
     def __str__(self):
         return self.name
