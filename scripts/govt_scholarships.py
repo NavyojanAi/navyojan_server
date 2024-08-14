@@ -41,7 +41,7 @@ def scrape_page(page_number):
 
     # Extract the text of the anchor tag inside the h4 tag
     for div in job_content_divs:
-        if len(scholarship_list) >= 5:  # Limiting to 10 scholarships
+        if len(scholarship_list) >= 200:  # Limiting to 10 scholarships
             break 
         h4_tag = div.find("h4")
         if h4_tag and h4_tag.find("a"):
@@ -52,7 +52,7 @@ def scrape_page(page_number):
 def get_scholarship_list():
     global scholarship_list
     page_number = 1
-    while len(scholarship_list) < 5:
+    while len(scholarship_list) < 200:
         print(f"Scraping page {page_number}...")
         initial_len = len(scholarship_list)
         scrape_page(page_number)
@@ -64,7 +64,7 @@ def get_scholarship_list():
         page_number += 1
 
     # Ensure only 25 scholarships are being processed
-    scholarship_list = scholarship_list[:5]
+    scholarship_list = scholarship_list[:200]
 
     # Format the list by removing ',' and ';', replacing spaces with hyphens, and converting to lowercase
     formatted_list = [
@@ -97,6 +97,8 @@ def save_scholarship(name, details):
     def parse_date(date_string):
         if not date_string:
             return None 
+        if date_string.lower() == "always open":
+            return datetime(9999, 12, 31).date()
         try:
             return date_parser.parse(date_string).date()
         except ValueError:
@@ -104,6 +106,8 @@ def save_scholarship(name, details):
             return None
 
     def validate_url(url_string):
+        if not url_string:
+            return None
         try:
             URLValidator()(url_string)
             return url_string
@@ -119,7 +123,7 @@ def save_scholarship(name, details):
         'published_on',
         'state',
         'deadline',
-        'link',
+        # 'link',
     ]
 
     scholarship_data = {
