@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from asgiref.sync import sync_to_async
 from userapp.models.scholarships import Category
+import re 
 
 
 
@@ -113,6 +114,12 @@ def save_scholarship(name, details):
             return url_string
         except ValidationError:
             return None
+        
+    def extract_amount(amount_string):
+        numbers = re.findall(r'\d+', amount_string)
+        if numbers:
+            return max(int(num) for num in numbers)
+        return None
 
 
     required_fields = [
@@ -132,7 +139,7 @@ def save_scholarship(name, details):
         'eligibility': details.get('Eligibility', '').strip().split('\n'),
         'document_needed': details.get('Documents Needed', '').strip().split('\n'),
         'how_to_apply': details.get('How To Apply', '').strip().split('\n'),
-        'amount': details.get('Amount', ''),
+        'amount': extract_amount(details.get('Amount', '')),
         'published_on': parse_date(details.get('Published on', '')),
         'state': details.get('State', ''),
         'deadline': parse_date(details.get('Application Deadline', '')),
