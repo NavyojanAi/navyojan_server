@@ -9,7 +9,7 @@ class ScholarshipData(BaseModel):
     eligibility = ArrayField(models.CharField(null=True,blank=True),default=None,null=True,blank=True)
     document_needed = ArrayField(models.CharField(default=None,null=True,blank=True),default=None,null=True,blank=True)
     how_to_apply = ArrayField(models.CharField(null=True,blank=True),default=None,null=True,blank=True)
-    amount = models.CharField(max_length=255,null=True,blank=True)      #filter
+    amount = models.IntegerField(null=True,blank=True)      #filter
     published_on = models.DateField(null = True,default=None,blank=True)   #filter
     state = models.CharField(null = True ,max_length=255,default=None,blank=True)   #skip filter for time being
     deadline = models.DateField(null=True,default=None,blank=True)    #filtered by default
