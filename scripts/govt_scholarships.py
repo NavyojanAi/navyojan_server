@@ -162,7 +162,7 @@ def save_scholarship(name, details):
         
         categories = categorize_scholarship(details)
         for category_name in categories:
-            category = Category.objects.get_or_create(name=category_name)
+            category, created = Category.objects.get_or_create(name=category_name)
             scholarship.categories.add(category)
         
         print(f"Saved and categorized scholarship: {name}")
