@@ -9,3 +9,4 @@ beautifulsoup4==4.12.3
 psycopg2==2.9.9
 psycopg2-binary==2.9.9
 celery==5.4.0
+django-filter==24.3
