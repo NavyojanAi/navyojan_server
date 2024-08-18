@@ -97,6 +97,8 @@ def save_scholarship(name, details):
     def parse_date(date_string):
         if not date_string:
             return None 
+        if date_string.lower() == "always open":
+            return datetime(9999, 12, 31).date()
         try:
             return date_parser.parse(date_string).date()
         except ValueError:
@@ -104,6 +106,8 @@ def save_scholarship(name, details):
             return None
 
     def validate_url(url_string):
+        if not url_string:
+            return None
         try:
             URLValidator()(url_string)
             return url_string
@@ -116,22 +120,33 @@ def save_scholarship(name, details):
         'eligibility',
         'document_needed',
         'how_to_apply',
+        'amount',
         'published_on',
         'state',
         'deadline',
-        'link',
+        # 'link',
     ]
 
     scholarship_data = {
         'title': name,
-        'eligibility': details.get('Eligibility', ''),
-        'document_needed': details.get('Documents Needed', ''),
-        'how_to_apply': details.get('How To Apply', ''),
+        'eligibility': details.get('Eligibility', '').strip().split('\n'),
+        'document_needed': details.get('Documents Needed', '').strip().split('\n'),
+        'how_to_apply': details.get('How To Apply', '').strip().split('\n'),
+        'amount': details.get('Amount', ''),
         'published_on': parse_date(details.get('Published on', '')),
         'state': details.get('State', ''),
         'deadline': parse_date(details.get('Application Deadline', '')),
         'link': validate_url(details.get('Official Link', '')),
     }
+    
+    scholarship_data['eligibility'] = [
+    item.strip() for item in scholarship_data['eligibility'] if item.strip()]
+
+    scholarship_data['document_needed'] = [
+    item.strip() for item in scholarship_data['document_needed'] if item.strip()]
+    
+    scholarship_data['how_to_apply'] = [
+    item.strip() for item in scholarship_data['how_to_apply'] if item.strip()]
 
     # Check if all required fields have valid data
     if all(scholarship_data.get(field) for field in required_fields):
@@ -140,7 +155,7 @@ def save_scholarship(name, details):
         
         categories = categorize_scholarship(details)
         for category_name in categories:
-            category = Category.objects.get(name=category_name)
+            category = Category.objects.get_or_create(name=category_name)
             scholarship.categories.add(category)
         
         print(f"Saved and categorized scholarship: {name}")
