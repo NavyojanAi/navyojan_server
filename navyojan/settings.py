@@ -57,6 +57,7 @@ SECRET_KEY = 'django-insecure-x$im$wy@jq*%&rjoccud*3%m9w)qo6vug+a@50v@y7##598q@+
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '*',
     '159.65.158.135', 
      '159.65.158.135:8080', # Your server's IP address
     'localhost',
@@ -78,6 +79,7 @@ INSTALLED_APPS = [
     'userapp',
     'rest_framework',
     'django_filters',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -85,12 +87,14 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'navyojan.urls'
+
 
 TEMPLATES = [
     {
