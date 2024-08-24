@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 
 from userapp.views import UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,UserScholarshipDataViewset
 
+from userapp.views import UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP
 
 router = DefaultRouter()
 router.register(r'profiles', UserProfileViewSet)

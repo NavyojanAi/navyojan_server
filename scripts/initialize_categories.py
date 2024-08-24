@@ -21,7 +21,7 @@ def initialize_categories():
     ]
 
     for category_name in categories:
-        Category.objects.get_or_create(name=category_name,display_name=category_name.capitalize())
+        Category.objects.get_or_create(name=category_name)
 
     print("Categories initialized successfully.")
 

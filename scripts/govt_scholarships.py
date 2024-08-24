@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from asgiref.sync import sync_to_async
 from userapp.models.scholarships import Category
+import re 
 
 
 
@@ -52,7 +53,7 @@ def scrape_page(page_number):
 def get_scholarship_list():
     global scholarship_list
     page_number = 1
-    while len(scholarship_list) < 200:
+    while len(scholarship_list) < 200:  # Limiting to 10 scholarships
         print(f"Scraping page {page_number}...")
         initial_len = len(scholarship_list)
         scrape_page(page_number)
@@ -113,6 +114,12 @@ def save_scholarship(name, details):
             return url_string
         except ValidationError:
             return None
+        
+    def extract_amount(amount_string):
+        numbers = re.findall(r'\d+', amount_string)
+        if numbers:
+            return max(int(num) for num in numbers)
+        return None
 
 
     required_fields = [
@@ -120,6 +127,7 @@ def save_scholarship(name, details):
         'eligibility',
         'document_needed',
         'how_to_apply',
+        'amount',
         'published_on',
         'state',
         'deadline',
@@ -128,14 +136,24 @@ def save_scholarship(name, details):
 
     scholarship_data = {
         'title': name,
-        'eligibility': details.get('Eligibility', ''),
-        'document_needed': details.get('Documents Needed', ''),
-        'how_to_apply': details.get('How To Apply', ''),
+        'eligibility': details.get('Eligibility', '').strip().split('\n'),
+        'document_needed': details.get('Documents Needed', '').strip().split('\n'),
+        'how_to_apply': details.get('How To Apply', '').strip().split('\n'),
+        'amount': extract_amount(details.get('Amount', '')),
         'published_on': parse_date(details.get('Published on', '')),
         'state': details.get('State', ''),
         'deadline': parse_date(details.get('Application Deadline', '')),
         'link': validate_url(details.get('Official Link', '')),
     }
+    
+    scholarship_data['eligibility'] = [
+    item.strip() for item in scholarship_data['eligibility'] if item.strip()]
+
+    scholarship_data['document_needed'] = [
+    item.strip() for item in scholarship_data['document_needed'] if item.strip()]
+    
+    scholarship_data['how_to_apply'] = [
+    item.strip() for item in scholarship_data['how_to_apply'] if item.strip()]
 
     # Check if all required fields have valid data
     if all(scholarship_data.get(field) for field in required_fields):
@@ -144,7 +162,7 @@ def save_scholarship(name, details):
         
         categories = categorize_scholarship(details)
         for category_name in categories:
-            category = Category.objects.get(name=category_name)
+            category, created = Category.objects.get_or_create(name=category_name)
             scholarship.categories.add(category)
         
         print(f"Saved and categorized scholarship: {name}")
