@@ -56,7 +56,14 @@ SECRET_KEY = 'django-insecure-x$im$wy@jq*%&rjoccud*3%m9w)qo6vug+a@50v@y7##598q@+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '159.65.158.135', 
+     '159.65.158.135:8080', # Your server's IP address
+    'localhost',
+    '127.0.0.1',
+    # Add any other hosts or domain names here
+]
+
 
 
 # Application definition
@@ -70,6 +77,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'userapp',
     'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -149,14 +157,17 @@ AUTHENTICATION_BACKENDS = [
 
 
 # REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'userapp.google_authentication.FirebaseAuthentication',
-#         'rest_framework.authentication.SessionAuthentication',
-#         'rest_framework.authentication.BasicAuthentication',
-#     ],
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAuthenticated',
-#     ],
+#     # 'DEFAULT_FILTER_BACKENDS': [
+#     #     'django_filters.rest_framework.DjangoFilterBackend'
+#     # ],
+#     # 'DEFAULT_AUTHENTICATION_CLASSES': [
+#     #     'userapp.google_authentication.FirebaseAuthentication',
+#     #     'rest_framework.authentication.SessionAuthentication',
+#     #     'rest_framework.authentication.BasicAuthentication',
+#     # ],
+#     # 'DEFAULT_PERMISSION_CLASSES': [
+#     #     'rest_framework.permissions.IsAuthenticated',
+#     # ],
 # }
 
 
@@ -165,7 +176,7 @@ AUTHENTICATION_BACKENDS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 

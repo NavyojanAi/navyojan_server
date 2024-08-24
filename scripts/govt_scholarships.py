@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from asgiref.sync import sync_to_async
 from userapp.models.scholarships import Category
+import re 
 
 
 
@@ -41,7 +42,7 @@ def scrape_page(page_number):
 
     # Extract the text of the anchor tag inside the h4 tag
     for div in job_content_divs:
-        if len(scholarship_list) >= 5:  # Limiting to 10 scholarships
+        if len(scholarship_list) >= 200:  # Limiting to 10 scholarships
             break 
         h4_tag = div.find("h4")
         if h4_tag and h4_tag.find("a"):
@@ -52,7 +53,7 @@ def scrape_page(page_number):
 def get_scholarship_list():
     global scholarship_list
     page_number = 1
-    while len(scholarship_list) < 5:
+    while len(scholarship_list) < 200:  # Limiting to 10 scholarships
         print(f"Scraping page {page_number}...")
         initial_len = len(scholarship_list)
         scrape_page(page_number)
@@ -64,7 +65,7 @@ def get_scholarship_list():
         page_number += 1
 
     # Ensure only 25 scholarships are being processed
-    scholarship_list = scholarship_list[:5]
+    scholarship_list = scholarship_list[:200]
 
     # Format the list by removing ',' and ';', replacing spaces with hyphens, and converting to lowercase
     formatted_list = [
@@ -113,6 +114,12 @@ def save_scholarship(name, details):
             return url_string
         except ValidationError:
             return None
+        
+    def extract_amount(amount_string):
+        numbers = re.findall(r'\d+', amount_string)
+        if numbers:
+            return max(int(num) for num in numbers)
+        return None
 
 
     required_fields = [
@@ -132,7 +139,7 @@ def save_scholarship(name, details):
         'eligibility': details.get('Eligibility', '').strip().split('\n'),
         'document_needed': details.get('Documents Needed', '').strip().split('\n'),
         'how_to_apply': details.get('How To Apply', '').strip().split('\n'),
-        'amount': details.get('Amount', ''),
+        'amount': extract_amount(details.get('Amount', '')),
         'published_on': parse_date(details.get('Published on', '')),
         'state': details.get('State', ''),
         'deadline': parse_date(details.get('Application Deadline', '')),
@@ -155,7 +162,7 @@ def save_scholarship(name, details):
         
         categories = categorize_scholarship(details)
         for category_name in categories:
-            category = Category.objects.get_or_create(name=category_name)
+            category, created = Category.objects.get_or_create(name=category_name)
             scholarship.categories.add(category)
         
         print(f"Saved and categorized scholarship: {name}")
