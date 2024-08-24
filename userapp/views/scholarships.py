@@ -28,40 +28,23 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
     serializer_class = ScholarshipDataSerializer
     http_method_names = ["get"]
     permission_classes = [IsActivePermission]
-    # authentication_classes = DEFAULT_AUTH_CLASSES
-    # permission_classes = [IsActivePermission]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ScholarshipDataFilter
 
     def list(self, request, *args, **kwargs):
-        category_id = request.data.get('category_id', None) # expects a integer(id)
-        if category_id:
-            try:
-                category = Category.objects.get(id=category_id)
-                queryset = self.get_queryset().filter(categories=category)
-            except Category.DoesNotExist:
-                queryset = ScholarshipData.objects.none()
-        else:
-            return Response(
-                "category doesn't exist",
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        
+        queryset = self.filter_queryset(self.get_queryset())
         paginator = Paginator(queryset,10)
         page_number = self.request.query_params.get('page', 1)
         page_queryset = paginator.get_page(page_number)
 
         serializer = self.get_serializer(page_queryset, many=True)
         return Response(serializer.data)
-    # Enable filtering
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ScholarshipDataFilter
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     http_method_names = ["get"]
-    # authentication_classes = DEFAULT_AUTH_CLASSES
-    # permission_classes = [IsActivePermission]
 
 class UserScholarshipDataViewset(viewsets.ModelViewSet):
     queryset = UserScholarshipApplicationData.objects.all()
