@@ -33,12 +33,15 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
+        total_pages = (len(queryset)//10)+1
         paginator = Paginator(queryset,10)
         page_number = self.request.query_params.get('page', 1)
         page_queryset = paginator.get_page(page_number)
 
         serializer = self.get_serializer(page_queryset, many=True)
-        return Response(serializer.data)
+        response_data = serializer.data
+        response_data['total_pages']=total_pages
+        return Response(response_data)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
