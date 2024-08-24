@@ -18,7 +18,6 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
     queryset = ScholarshipData.objects.all()
     serializer_class = ScholarshipDataSerializer
     http_method_names = ["get"]
-    authentication_classes = DEFAULT_AUTH_CLASSES
     permission_classes = [IsActivePermission]
 
     def list(self, request, *args, **kwargs):
