@@ -1,6 +1,10 @@
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
+
+from django.core.paginator import Paginator
+
+
 from userapp.models import ScholarshipData, UserScholarshipApplicationData, Category
 from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer
 from userapp.permission import IsActivePermission, IsVerfiedPermission
@@ -19,7 +23,6 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         category_id = request.data.get('category_id', None) # expects a integer(id)
-        
         if category_id:
             try:
                 category = Category.objects.get(id=category_id)
@@ -31,8 +34,12 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
                 "category doesn't exist",
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        
+        paginator = Paginator(queryset,10)
+        page_number = self.request.query_params.get('page', 1)
+        page_queryset = paginator.get_page(page_number)
 
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(page_queryset, many=True)
         return Response(serializer.data)
 
 class CategoryViewSet(viewsets.ModelViewSet):
