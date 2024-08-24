@@ -1,3 +1,12 @@
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.response import Response
+
+from django.core.paginator import Paginator
+
+
+from userapp.models import ScholarshipData, UserScholarshipApplicationData, Category
+from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer
 from userapp.authentication import FirebaseAuthentication
 from userapp.serializers.scholarships import CategorySerializer
 from userapp.permission import IsActivePermission, IsVerfiedPermission
@@ -18,20 +27,24 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
     queryset = ScholarshipData.objects.all()
     serializer_class = ScholarshipDataSerializer
     http_method_names = ["get"]
-    # authentication_classes = DEFAULT_AUTH_CLASSES
-    # permission_classes = [IsActivePermission]
-
-    # Enable filtering
+    permission_classes = [IsActivePermission]
     filter_backends = [DjangoFilterBackend]
     filterset_class = ScholarshipDataFilter
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        paginator = Paginator(queryset,10)
+        page_number = self.request.query_params.get('page', 1)
+        page_queryset = paginator.get_page(page_number)
+
+        serializer = self.get_serializer(page_queryset, many=True)
+        return Response(serializer.data)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     http_method_names = ["get"]
-    # authentication_classes = DEFAULT_AUTH_CLASSES
-    # permission_classes = [IsActivePermission]
 
 class UserScholarshipDataViewset(viewsets.ModelViewSet):
     queryset = UserScholarshipApplicationData.objects.all()
