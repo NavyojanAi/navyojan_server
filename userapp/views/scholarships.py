@@ -15,11 +15,11 @@ DEFAULT_AUTH_CLASSES = [SessionAuthentication, FirebaseAuthentication]
 
 
 class ScholarshipDataViewSet(viewsets.ModelViewSet):
-    queryset = ScholarshipData.objects.filter(deadline__gte=timezone.now())
+    queryset = ScholarshipData.objects.all()
     serializer_class = ScholarshipDataSerializer
     http_method_names = ["get"]
-    authentication_classes = DEFAULT_AUTH_CLASSES
-    permission_classes = [IsActivePermission]
+    # authentication_classes = DEFAULT_AUTH_CLASSES
+    # permission_classes = [IsActivePermission]
 
     # Enable filtering
     filter_backends = [DjangoFilterBackend]
@@ -30,8 +30,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     http_method_names = ["get"]
-    authentication_classes = DEFAULT_AUTH_CLASSES
-    permission_classes = [IsActivePermission]
+    # authentication_classes = DEFAULT_AUTH_CLASSES
+    # permission_classes = [IsActivePermission]
 
 class UserScholarshipDataViewset(viewsets.ModelViewSet):
     queryset = UserScholarshipApplicationData.objects.all()

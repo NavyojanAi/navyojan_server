@@ -42,8 +42,8 @@ def scrape_page(page_number):
 
     # Extract the text of the anchor tag inside the h4 tag
     for div in job_content_divs:
-        # if len(scholarship_list) >= 5:  # Limiting to 10 scholarships     #Remove this line to scrape all scholarships
-        #     break                                                         #Remove this line to scrape all scholarships                                       
+        if len(scholarship_list) >= 200:  # Limiting to 10 scholarships
+            break 
         h4_tag = div.find("h4")
         if h4_tag and h4_tag.find("a"):
             anchor_tag = h4_tag.find("a")
@@ -53,7 +53,7 @@ def scrape_page(page_number):
 def get_scholarship_list():
     global scholarship_list
     page_number = 1
-    while True:                            #len(scholarship_list) < 5:           #True   (Change this line to 'True' scrape all scholarships)
+    while len(scholarship_list) < 200:  # Limiting to 10 scholarships
         print(f"Scraping page {page_number}...")
         initial_len = len(scholarship_list)
         scrape_page(page_number)
@@ -65,7 +65,7 @@ def get_scholarship_list():
         page_number += 1
 
     # Ensure only 25 scholarships are being processed
-    # scholarship_list = scholarship_list[:5]      #Remove this line to scrape all scholarships
+    scholarship_list = scholarship_list[:200]
 
     # Format the list by removing ',' and ';', replacing spaces with hyphens, and converting to lowercase
     formatted_list = [
