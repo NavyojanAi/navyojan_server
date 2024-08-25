@@ -1,7 +1,10 @@
-from django.db import models
 from navyojan.models import BaseModel
+
+import django_filters
+
+from django.db import models
+from django.utils.timezone import now
 from django.contrib.auth.models import User
-from django.utils import timezone
 from django.contrib.postgres.fields import ArrayField
 
 class ScholarshipData(BaseModel):
@@ -19,6 +22,13 @@ class ScholarshipData(BaseModel):
     def __str__(self):
         return f"{self.id} - {self.title}"
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set default filter for deadline
+        self.filters['deadline'] = django_filters.DateFilter(field_name='deadline', lookup_expr='gte', initial=now)
+        self.filters['deadline'].extra.update({
+            'initial': now()
+        })
     
 class Category(BaseModel):
     name = models.CharField(max_length=255, unique=True)
