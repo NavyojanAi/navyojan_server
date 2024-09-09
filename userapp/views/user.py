@@ -10,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 
 
-from userapp.models import UserProfile, OTP
-from userapp.serializers import UserProfileSerializer
+from userapp.models import UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences
+from userapp.serializers import UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
 from userapp.permission import IsActivePermission
 from userapp.authentication import FirebaseAuthentication
 
@@ -26,8 +26,26 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "patch"]
     permission_classes = [IsActivePermission]
 
+class UserProfileScholarshipProviderViewset(viewsets.ModelViewSet):
+    queryset= UserProfileScholarshipProvider.objects.all()
+    serializer_class = UserProfileScholarshipProviderSerializer
+    authentication_classes = DEFAULT_AUTH_CLASSES
+    http_method_names = ["get","patch"]
+    permission_classes = [IsActivePermission] 
 
+class UserDocumentsViewset(viewsets.ModelViewSet):
+    queryset=UserDocuments.objects.all()
+    serializer_class=UserDocumentsSerializer
+    authentication_classes = DEFAULT_AUTH_CLASSES
+    http_method_names = ["get","patch"]
+    permission_classes=[IsActivePermission]
 
+class UserPreferencesViewset(viewsets.ModelViewSet):
+    queryset = UserPreferences.objects.all()
+    serializer_class = UserPreferencesSerializer
+    authentication_classes=DEFAULT_AUTH_CLASSES
+    http_method_names=["get","patch"]
+    permission_classes=[IsActivePermission]
 class GenerateOTP(APIView):
     def post(self, request):
         user = request.user

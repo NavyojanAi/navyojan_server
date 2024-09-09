@@ -33,12 +33,6 @@ class UserScholarshipDataSerializer(serializers.ModelSerializer):
         fields = ['scholarship','user']
 
         
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = '__all__'
-        
-        
 class CategoryWithScholarshipsSerializer(serializers.ModelSerializer):
     scholarships = ScholarshipDataSerializer(many=True, read_only=True)
 

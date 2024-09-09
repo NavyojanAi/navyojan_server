@@ -28,6 +28,13 @@ sys.path.extend(
 
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+# URL for serving media files (locally stored PDFs)
+MEDIA_URL = '/media/'
+
+# Local directory where files will be stored
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 
 FIREBASE_CREDENTIALS = credentials.Certificate({
     "type": os.getenv('FIREBASE_TYPE'),
@@ -80,6 +87,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'corsheaders',
+    "drf_yasg"
 ]
 
 MIDDLEWARE = [
@@ -123,6 +131,14 @@ WSGI_APPLICATION = 'navyojan.wsgi.application'
 # psql -U postgres
 
 print(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
