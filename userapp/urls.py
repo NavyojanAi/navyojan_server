@@ -3,15 +3,16 @@ from django.urls import path
 
 from rest_framework.routers import DefaultRouter
 
-from userapp.views import UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,UserScholarshipDataViewset
-
-from userapp.views import UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP
+from userapp.views import UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,UserScholarshipApplicationDataViewset,UserProfileScholarshipProviderViewset,UserDocumentsViewset,UserPreferencesViewset
 
 router = DefaultRouter()
 router.register(r'profiles', UserProfileViewSet)
 router.register(r'scholarships', ScholarshipDataViewSet)
 router.register(r'categories',CategoryViewSet)
-router.register(r'scholarship_data',UserScholarshipDataViewset)
+router.register(r'user_scholarship_status',UserScholarshipApplicationDataViewset)
+router.register(r'profile_sp',UserProfileScholarshipProviderViewset)
+router.register(r'documents',UserDocumentsViewset)
+router.register(r'preferences',UserPreferencesViewset)
 
 urlpatterns = [
     path('', include(router.urls)),
