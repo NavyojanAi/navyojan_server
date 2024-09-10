@@ -244,3 +244,6 @@ async def main():
         await browser.close()
         
     print("Scrapping Completed.")
+
+
+#step1: 

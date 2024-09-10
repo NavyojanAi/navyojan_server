@@ -1,0 +1,7 @@
+from userapp.models.user import User
+
+#ONLY FOR SUBSCRIBED PEOPLE
+
+# USER CLICKS -> SPORTS
+# SPORTS -> FETCH FROM DB OF SPORTS
+# MAP WITH USER -> SPORTS
