@@ -28,6 +28,13 @@ sys.path.extend(
 
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+# URL for serving media files (locally stored PDFs)
+MEDIA_URL = '/media/'
+
+# Local directory where files will be stored
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 
 FIREBASE_CREDENTIALS = credentials.Certificate({
     "type": os.getenv('FIREBASE_TYPE'),
@@ -56,7 +63,15 @@ SECRET_KEY = 'django-insecure-x$im$wy@jq*%&rjoccud*3%m9w)qo6vug+a@50v@y7##598q@+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*',
+    '159.65.158.135', 
+     '159.65.158.135:8080', # Your server's IP address
+    'localhost',
+    '127.0.0.1',
+    # Add any other hosts or domain names here
+]
+
 
 
 # Application definition
@@ -71,6 +86,8 @@ INSTALLED_APPS = [
     'userapp',
     'rest_framework',
     'django_filters',
+    'corsheaders',
+    "drf_yasg"
 ]
 
 MIDDLEWARE = [
@@ -78,12 +95,14 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'navyojan.urls'
+
 
 TEMPLATES = [
     {
@@ -112,6 +131,14 @@ WSGI_APPLICATION = 'navyojan.wsgi.application'
 # psql -U postgres
 
 print(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

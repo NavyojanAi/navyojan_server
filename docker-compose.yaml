@@ -5,7 +5,7 @@ services:
     container_name: navyojan-postgres-db-server
     restart: always
     expose:
-      - 5432
+      - 25060
     env_file:
       - .env
     volumes:
@@ -28,7 +28,7 @@ services:
       context: .
       dockerfile: dockerfile
     ports:
-      - 7000:8000
+      - 8080:8000
     env_file:
       - .env
     depends_on:
@@ -40,7 +40,7 @@ services:
       python manage.py runserver 0.0.0.0:8000 --noreload"
     environment:
       - TZ=Asia/Kolkata
-      - POSTGRES_HOST=navyojan-postgres-db-server
+      - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     networks:
       - navyojan-app
