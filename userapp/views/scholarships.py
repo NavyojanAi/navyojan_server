@@ -17,13 +17,14 @@ from rest_framework import viewsets
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 
-DEFAULT_AUTH_CLASSES = [SessionAuthentication, FirebaseAuthentication]
+# DEFAULT_AUTH_CLASSES = [SessionAuthentication, FirebaseAuthentication]
 
 
 class ScholarshipDataViewSet(viewsets.ModelViewSet):
     queryset = ScholarshipData.objects.all()
     serializer_class = ScholarshipDataSerializer
     http_method_names = ["get","post","patch","delete"]
+
     filter_backends = [DjangoFilterBackend]
     filterset_class = ScholarshipDataFilter
 
@@ -86,8 +87,8 @@ class UserScholarshipApplicationDataViewset(viewsets.ModelViewSet):
     queryset = UserScholarshipApplicationData.objects.all()
     serializer_class = UserScholarshipDataSerializer
     http_method_names = ["get", "post", "patch"]
-    authentication_classes = DEFAULT_AUTH_CLASSES
-    permission_classes = [IsActivePermission,IsVerfiedPermission]
+    # authentication_classes = DEFAULT_AUTH_CLASSES
+    # permission_classes = [IsActivePermission,IsVerfiedPermission]
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user.id)
