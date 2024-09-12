@@ -27,11 +27,10 @@ def perform():
 
         # TODO: eligibility check
 
-        final_users = users
-        final_users1 = []
+        final_users = []
 
         for scholarship in scholarships:
-            for user in final_users:
+            for user in users:
                 user_profile = UserProfile.objects.get(user=user)
                 user_profile_data = f"""
                 Gender: {user_profile.gender}
@@ -46,7 +45,7 @@ def perform():
                 
                 is_eligible = check_eligibility_with_gpt(scholarship.eligibility, user_profile_data)
                 if is_eligible == "yes":
-                    final_users1.append(user)
+                    final_users.append(user)
                     
                     application ,created=UserScholarshipApplicationData.objects.get_or_create(
                         user=user,
@@ -54,7 +53,8 @@ def perform():
                         is_applied=True
                         )
                     if not created:
-                        application.is_interested=True      #change from application.is_applied=True
+                        application.is_interested=True
+                        application.is_applied=True
                         application.save()
 
 

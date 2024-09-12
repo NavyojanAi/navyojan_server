@@ -8,11 +8,8 @@ from django.core.paginator import Paginator
 from userapp.models import ScholarshipData, UserScholarshipApplicationData, Category
 from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer
 from userapp.authentication import FirebaseAuthentication
-from userapp.serializers.scholarships import CategorySerializer
 from userapp.permission import IsActivePermission, IsVerfiedPermission,CanHostSites
 from userapp.filters import ScholarshipDataFilter
-from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer
-from userapp.models.scholarships import ScholarshipData, UserScholarshipApplicationData, Category
 
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import viewsets
