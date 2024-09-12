@@ -113,6 +113,10 @@ def save_scholarship(name, details):
         if not url_string:
             return None
         url_lower = url_string.lower()
+        
+        if url_lower.startswith('https://www.buddy4study.com/') or url_lower.startswith('http://www.scholarships.gov.in/'):
+            return None
+        
         excluded_urls = [
         'https://www.buddy4study.com/',
         'http://www.scholarships.gov.in/',
