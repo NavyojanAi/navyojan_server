@@ -15,16 +15,51 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include 
+
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+
 from userapp.views import signup_view, login_view, logout_view
 
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="NAVYOJAN",
+        default_version="v1",
+        description="API documentation for app",
+    ),
+    public=True,
+)
 
 
 urlpatterns = [
+    path(
+        "docs/",
+        include(
+            [
+                path(
+                    "redoc/",
+                    schema_view.with_ui("redoc", cache_timeout=0),
+                    name="schema-redoc",
+                ),
+                path(
+                    "swagger/",
+                    schema_view.with_ui("swagger", cache_timeout=0),
+                    name="swagger-ui",
+                ),
+            ]
+        ),
+    ),
     path('admin/', admin.site.urls),
     path('api/', include('userapp.urls')),
     path('signup/', signup_view, name='signup'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
 ]
+
+# Add this line to serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

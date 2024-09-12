@@ -5,7 +5,7 @@ from rest_framework import status
 
 from django.contrib.auth import authenticate, login, logout, get_user_model
 
-from userapp.models import UserProfile
+from userapp.models import UserProfile,UserProfileScholarshipProvider,UserDocuments,UserPreferences
 from userapp.forms import CustomUserCreationForm
 
 def generate_unique_username(first_name, last_name):
@@ -32,7 +32,15 @@ def signup_view(request):
             password = form.cleaned_data.get('password1')
             user = authenticate(request, username=email, password=password)
             if user is not None:
-                UserProfile.objects.create(user=user,account_type="regular")
+                signup_type = request.data['signup_type']
+                if signup_type == 'scholarshipProviders':
+                    upsp,_=UserProfileScholarshipProvider.objects.get_or_create(user=user)
+                else:
+                    #NOTE:more signup types can comeup further
+                    pass
+                user_profile,_ = UserProfile.objects.get_or_create(user=user,account_type="regular",is_host_user=True)
+                user_documents,_=UserDocuments.objects.get_or_create(user=user)
+                user_preferences,_=UserPreferences.objects.get_or_create(user=user)
                 login(request, user)
                 return Response({'message': 'Signup successful'}, status=status.HTTP_200_OK)
             else:
