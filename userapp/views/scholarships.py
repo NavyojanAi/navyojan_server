@@ -32,7 +32,7 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
         if self.request.method in ['POST', 'PATCH', 'DELETE']:
             return [IsActivePermission(), CanHostSites()]
         else:
-            return [IsActivePermission()]
+            return []
         
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
