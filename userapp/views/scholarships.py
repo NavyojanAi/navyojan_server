@@ -8,7 +8,7 @@ from django.utils.timezone import now
 from userapp.models import ScholarshipData, UserScholarshipApplicationData, Category
 from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer
 from userapp.authentication import FirebaseAuthentication
-from userapp.permission import IsActivePermission, IsVerfiedPermission,CanHostSites
+from userapp.permission import IsActivePermission,CanHostSites,IsActiveAndCanHostOrIsReviewer
 from userapp.filters import ScholarshipDataFilter
 
 from rest_framework.authentication import SessionAuthentication
@@ -29,8 +29,10 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
     filterset_class = ScholarshipDataFilter
 
     def get_permissions(self):
-        if self.request.method in ['POST', 'PATCH', 'DELETE']:
+        if self.request.method in ['POST', 'DELETE']:
             return [IsActivePermission(), CanHostSites()]
+        elif self.request.method in ['PATCH']:
+            return [IsActiveAndCanHostOrIsReviewer()]
         else:
             return []
         
