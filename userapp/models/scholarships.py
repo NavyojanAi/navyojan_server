@@ -18,6 +18,7 @@ class ScholarshipData(BaseModel):
     deadline = models.DateField(null=True,default=None,blank=True)    #filtered by default
     link = models.URLField(null=True,default=None,blank=True)
     categories = models.ManyToManyField('Category', related_name='scholarships', blank=True)  #filter
+    is_approved = models.BooleanField(default=False)
     
     def __str__(self):
         return f"{self.id} - {self.title}"
