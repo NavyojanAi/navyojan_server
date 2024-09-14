@@ -4,7 +4,7 @@ docker run -d -ti --name postgres-db-server \
     -p 25060:25060 \
     postgres
 
-#!/usr/bin/env pwsh
+!/usr/bin/env pwsh
 
 # # Create the directory if it doesn't exist
 # $dir = "$((Get-Location).Path)\postgres"
@@ -14,8 +14,8 @@ docker run -d -ti --name postgres-db-server \
 
 # # Run the PostgreSQL container with provided credentials
 # docker run -d -ti --name postgres-db-server `
-#     -e POSTGRES_PASSWORD='Networking@123' `
+#     -e POSTGRES_PASSWORD='AVNS_Bt_VNG6g8VOfas3VdMH' `
 #     -v "${dir}:/var/lib/postgresql/data:rw" `
-#     -p 5432:5432 `
+#     -p 25060:25060 `
 #     postgres
 

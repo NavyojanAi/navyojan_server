@@ -9,9 +9,9 @@ from django.contrib.postgres.fields import ArrayField
 
 class ScholarshipData(BaseModel):
     title = models.CharField(max_length=255,null=True)
-    eligibility = ArrayField(models.CharField(null=True,blank=True,max_length=20),default=None,null=True,blank=True)
-    document_needed = ArrayField(models.CharField(default=None,null=True,blank=True,max_length=20),default=None,null=True,blank=True)
-    how_to_apply = ArrayField(models.CharField(null=True,blank=True,max_length=20),default=None,null=True,blank=True)
+    eligibility = ArrayField(models.CharField(null=True,blank=True,max_length=20),default=list,null=True,blank=True)
+    document_needed = ArrayField(models.CharField(default=None,null=True,blank=True,max_length=20),default=list,null=True,blank=True)
+    how_to_apply = ArrayField(models.CharField(null=True,blank=True,max_length=20),default=list,null=True,blank=True)
     amount = models.IntegerField(null=True,blank=True)      #filter
     published_on = models.DateField(null = True,default=None,blank=True)   #filter
     state = models.CharField(null = True ,max_length=255,default=None,blank=True)   #skip filter for time being
@@ -23,13 +23,6 @@ class ScholarshipData(BaseModel):
     def __str__(self):
         return f"{self.id} - {self.title}"
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Set default filter for deadline
-        self.filters['deadline'] = django_filters.DateFilter(field_name='deadline', lookup_expr='gte', initial=now)
-        self.filters['deadline'].extra.update({
-            'initial': now()
-        })
     
 class Category(BaseModel):
     name = models.CharField(max_length=255, unique=True)

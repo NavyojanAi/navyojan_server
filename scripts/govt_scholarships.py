@@ -112,6 +112,22 @@ def save_scholarship(name, details):
     def validate_url(url_string):
         if not url_string:
             return None
+        url_lower = url_string.lower()
+        
+        if url_lower.startswith('https://www.buddy4study.com/') or url_lower.startswith('http://www.scholarships.gov.in/'):
+            return None
+        
+        excluded_urls = [
+        'https://www.buddy4study.com/',
+        'http://www.scholarships.gov.in/',
+        'official website',
+        'apply online link',
+        'click here'
+        ]
+        
+        if any(excluded_url in url_lower for excluded_url in excluded_urls):
+            return None
+        
         try:
             URLValidator()(url_string)
             return url_string
