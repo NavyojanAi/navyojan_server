@@ -1,3 +1,3 @@
-from .user import UserProfileViewSet, VerifyOTP, GenerateOTP,UserDocumentsViewset,UserPreferencesViewset,UserProfileScholarshipProviderViewset
+from .user import UserProfileViewSet, VerifyOTP, GenerateOTP,UserDocumentsViewset,UserPreferencesViewset,UserProfileScholarshipProviderViewset,AdminStatisticsView
 from .scholarships import ScholarshipDataViewSet,CategoryViewSet,UserScholarshipApplicationDataViewset
 from .authentication import signup_view,login_view,logout_view
