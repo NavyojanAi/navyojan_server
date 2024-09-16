@@ -2,22 +2,55 @@ import random
 
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
+
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 
 
-from userapp.models import UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences
+from userapp.models import UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences, ScholarshipData
 from userapp.serializers import UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
-from userapp.permission import IsActivePermission
+from userapp.permission import IsActivePermission, IsReviewerUser
 from userapp.authentication import FirebaseAuthentication
 
 
 DEFAULT_AUTH_CLASSES = [SessionAuthentication, FirebaseAuthentication]
 
+class AdminStatisticsView(APIView):
+    permission_classes = [IsAdminUser, IsReviewerUser]  # Allow only admin users to view these statistics
+
+    def get(self, request, *args, **kwargs):
+        # User statistics
+        total_users = User.objects.count()
+        total_reviewers = UserProfile.objects.filter(is_reviewer=True).count()
+        total_customers = UserProfile.objects.filter(is_host_user=False).count()  # non-host users
+        total_admins = User.objects.filter(is_staff=True).count()
+
+        # Scholarship statistics
+        total_scholarships = ScholarshipData.objects.count()
+        total_approved_scholarships = ScholarshipData.objects.filter(is_approved=True).count()
+        total_unapproved_scholarships = ScholarshipData.objects.filter(is_approved=False).count()
+
+        data = {
+            "user_stats": {
+                "total_users": total_users,
+                "total_reviewers": total_reviewers,
+                "total_customers": total_customers,
+                "total_admins": total_admins,
+            },
+            "scholarship_stats": {
+                "total_scholarships": total_scholarships,
+                "approved_scholarships": total_approved_scholarships,
+                "unapproved_scholarships": total_unapproved_scholarships,
+            }
+        }
+
+        return Response(data)
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()      
@@ -46,6 +79,7 @@ class UserPreferencesViewset(viewsets.ModelViewSet):
     authentication_classes=DEFAULT_AUTH_CLASSES
     http_method_names=["get","patch"]
     permission_classes=[IsActivePermission]
+    
 class GenerateOTP(APIView):
     def post(self, request):
         user = request.user
