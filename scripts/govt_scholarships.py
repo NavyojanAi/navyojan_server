@@ -163,6 +163,7 @@ def save_scholarship(name, details):
         'state': details.get('State', ''),
         'deadline': parse_date(details.get('Application Deadline', '')),
         'link': validate_url(details.get('Official Link', '')),
+        'is_approved': True,
     }
     
     scholarship_data['eligibility'] = [
