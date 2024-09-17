@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.core.paginator import Paginator
 
 from django.utils.timezone import now
-from userapp.models import ScholarshipData, UserScholarshipApplicationData, Category
+from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category
 from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer
 from userapp.authentication import FirebaseAuthentication
 from userapp.permission import IsActivePermission,CanHostSites,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission
@@ -67,6 +67,7 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
             scholarship=serializer.save()
             user = self.request.user
             user.hostprofile.hosted_scholarships.add(scholarship)
+            UserScholarshipStatus.objects.get_or_create(user=user,scholarship=scholarship)
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:

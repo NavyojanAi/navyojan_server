@@ -48,6 +48,22 @@ class UserProfileScholarshipProvider(BaseModel):
 
     can_host_scholarships = models.BooleanField(default=False)
 
+class UserScholarshipStatus(BaseModel):
+    STATUS=(
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected','Rejected')
+    )
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    scholarship = models.ForeignKey(ScholarshipData,on_delete=models.CASCADE)
+    status = models.CharField(max_length = 10, default="pending", choices = STATUS)
+    class Meta:
+        permissions = [
+            ("can_access_admin_model", "Can access the model in admin"),
+        ]
+    def __str__(self):
+        return f"{self.user.username} - {self.scholarship.title} - {self.status}"
+
 # TODO: Need to setup s3bucket and iam role for django app to store pdfs in cloud. for now its locally stored
 class UserDocuments(BaseModel):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='documents')
