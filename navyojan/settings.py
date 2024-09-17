@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import sys
 from pathlib import Path
-import os 
+import os
 import firebase_admin
 from firebase_admin import credentials
 from dotenv import load_dotenv
@@ -26,52 +26,52 @@ sys.path.extend(
     ]
 )
 
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 # URL for serving media files (locally stored PDFs)
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"
 
 # Local directory where files will be stored
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
-
-FIREBASE_CREDENTIALS = credentials.Certificate({
-    "type": os.getenv('FIREBASE_TYPE'),
-    "project_id": os.getenv('FIREBASE_PROJECT_ID'),
-    "private_key_id": os.getenv('FIREBASE_PRIVATE_KEY_ID'),
-    "private_key": os.getenv('FIREBASE_PRIVATE_KEY').replace('\\n', '\n'),
-    "client_email": os.getenv('FIREBASE_CLIENT_EMAIL'),
-    "client_id": os.getenv('FIREBASE_CLIENT_ID'),
-    "auth_uri": os.getenv('FIREBASE_AUTH_URI'),
-    "token_uri": os.getenv('FIREBASE_TOKEN_URI'),
-    "auth_provider_x509_cert_url": os.getenv('FIREBASE_AUTH_PROVIDER_X509_CERT_URL'),
-    "client_x509_cert_url": os.getenv('FIREBASE_CLIENT_X509_CERT_URL')
-})
+FIREBASE_CREDENTIALS = credentials.Certificate(
+    {
+        "type": os.getenv("FIREBASE_TYPE"),
+        "project_id": os.getenv("FIREBASE_PROJECT_ID"),
+        "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID"),
+        "private_key": os.getenv("FIREBASE_PRIVATE_KEY").replace("\\n", "\n"),
+        "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
+        "client_id": os.getenv("FIREBASE_CLIENT_ID"),
+        "auth_uri": os.getenv("FIREBASE_AUTH_URI"),
+        "token_uri": os.getenv("FIREBASE_TOKEN_URI"),
+        "auth_provider_x509_cert_url": os.getenv(
+            "FIREBASE_AUTH_PROVIDER_X509_CERT_URL"
+        ),
+        "client_x509_cert_url": os.getenv("FIREBASE_CLIENT_X509_CERT_URL"),
+    }
+)
 
 firebase_admin.initialize_app(FIREBASE_CREDENTIALS)
-
-
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x$im$wy@jq*%&rjoccud*3%m9w)qo6vug+a@50v@y7##598q@+'
+SECRET_KEY = "django-insecure-x$im$wy@jq*%&rjoccud*3%m9w)qo6vug+a@50v@y7##598q@+"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '*',
-    '159.65.158.135', 
-     '159.65.158.135:8080', # Your server's IP address
-    'localhost',
-    '127.0.0.1',
+    "*",
+    "159.65.158.135",
+    "159.65.158.135:8080",  # Your server's IP address
+    "localhost",
+    "127.0.0.1",
     # Add any other hosts or domain names here
 ]
-
 
 
 # Application definition
@@ -88,49 +88,59 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     "corsheaders",
-    "drf_yasg"
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
-ROOT_URLCONF = 'navyojan.urls'
+CORS_ALLOW_CREDENTIALS = True  
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://159.65.158.135:3000",
+    "http://159.65.158.135:8080",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+   
+]
+ROOT_URLCONF = "navyojan.urls"
 
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'navyojan.wsgi.application'
+WSGI_APPLICATION = "navyojan.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
-#TO CONNECT TO THE DATABASE: RUN THE FOLLOWING COMMANDS IN THE TERMINAL
+# TO CONNECT TO THE DATABASE: RUN THE FOLLOWING COMMANDS IN THE TERMINAL
 # psql -U postgres
 
 print(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
@@ -159,23 +169,23 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  
-    'userapp.authentication.custom_authentication.EmailModelBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "userapp.authentication.custom_authentication.EmailModelBackend",
 ]
 
 
@@ -197,9 +207,9 @@ AUTHENTICATION_BACKENDS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Asia/Kolkata'
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
@@ -209,12 +219,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # TODO : need to setup celery
 # # Define the broker URL for Celery

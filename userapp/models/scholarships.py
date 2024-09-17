@@ -9,9 +9,9 @@ from django.contrib.postgres.fields import ArrayField
 
 class ScholarshipData(BaseModel):
     title = models.CharField(max_length=255,null=True)
-    eligibility = ArrayField(models.CharField(null=True,blank=True,max_length=20),default=list,null=True,blank=True)
-    document_needed = ArrayField(models.CharField(default=None,null=True,blank=True,max_length=20),default=list,null=True,blank=True)
-    how_to_apply = ArrayField(models.CharField(null=True,blank=True,max_length=20),default=list,null=True,blank=True)
+    eligibility = ArrayField(models.CharField(null=True,blank=True,max_length=512),default=list,null=True,blank=True)
+    document_needed = ArrayField(models.CharField(default=None,null=True,blank=True,max_length=512),default=list,null=True,blank=True)
+    how_to_apply = ArrayField(models.CharField(null=True,blank=True,max_length=512),default=list,null=True,blank=True)
     amount = models.IntegerField(null=True,blank=True)      #filter
     published_on = models.DateField(null = True,default=None,blank=True)   #filter
     state = models.CharField(null = True ,max_length=255,default=None,blank=True)   #skip filter for time being
