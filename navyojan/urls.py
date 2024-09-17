@@ -23,6 +23,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
 from userapp.views import signup_view, login_view, logout_view
+from navyojan.views import ensure_csrf
 
 
 schema_view = get_schema_view(
@@ -58,6 +59,7 @@ urlpatterns = [
     path('signup/', signup_view, name='signup'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
+    path("ensure-csrf/", ensure_csrf),
 ]
 
 # Add this line to serve media files during development
