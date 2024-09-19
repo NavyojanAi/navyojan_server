@@ -110,7 +110,7 @@ def login_view(request):
 # @permission_classes([IsActivePermission])  # Ensure only active users can log out
 def logout_view(request):
     # Retrieve the refresh token from the request data
-    refresh_token= request.COOKIES.get('refresh_token')
+    refresh_token= request.headers.get('X-Refresh-Token')
 
     if not refresh_token:
         return Response({'message': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
