@@ -2,6 +2,8 @@ from rest_framework import serializers
 from userapp.models import UserScholarshipStatus,UserProfile,UserProfileScholarshipProvider,UserPreferences,UserDocuments
 from django.contrib.auth.models import User
 
+from userapp.serializers import ScholarshipDataSerializer
+
 class UserScholarshipStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserScholarshipStatus
@@ -30,9 +32,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['phone_number', 'education_level', 'field_of_study', 'country', 'gender']
 
 class UserProfileScholarshipProviderSerializer(serializers.ModelSerializer):
+    hosted_scholarships = ScholarshipDataSerializer(many=True, read_only=True)
     class Meta:
         model = UserProfileScholarshipProvider
-        fields = ["organisation","org_site","hosted_scholarships"]
+        fields = ["organisation", "org_site", "hosted_scholarships"]
 
 class UserDocumentsSerializer(serializers.ModelSerializer):
     class Meta:
