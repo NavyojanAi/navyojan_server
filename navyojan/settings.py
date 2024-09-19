@@ -79,17 +79,17 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     "jazzmin",
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'userapp',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    'django_filters',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "userapp",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "django_filters",
     "corsheaders",
     "drf_yasg",
 ]
@@ -104,7 +104,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-CORS_ALLOW_CREDENTIALS = True  
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://localhost:3000",
@@ -115,12 +115,16 @@ CORS_ALLOWED_ORIGINS = [
     "http://159.65.158.135:8080",
     "http://localhost:8080",
     "http://127.0.0.1:8080",
-   
 ]
 CORS_ALLOW_HEADERS = [
-    'authorization',
-    'content-type',
-    'x-refresh-token',  
+    "authorization",
+    "content-type",
+    "x-refresh-token",
+    "X-CSRFToken",
+    "x-requested-with",
+    "accept",
+    "origin",
+    "x-csrftoken",
 ]
 ROOT_URLCONF = "navyojan.urls"
 
@@ -196,15 +200,15 @@ AUTHENTICATION_BACKENDS = [
     "userapp.authentication.custom_authentication.EmailModelBackend",
 ]
 
-REFRESH_TOKEN_COOKIE_PATH = '/refresh-token'
+REFRESH_TOKEN_COOKIE_PATH = "/refresh-token"
 REFRESH_TOKEN_COOKIE_MAX_AGE = timedelta(days=30)
 
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token lifetime
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Refresh token lifetime
-    'ROTATE_REFRESH_TOKENS': True,                  # Issue a new refresh token with each refresh
-    'BLACKLIST_AFTER_ROTATION': True,               # Blacklist the old refresh token after it is rotated
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),  # Access token lifetime
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Refresh token lifetime
+    "ROTATE_REFRESH_TOKENS": True,  # Issue a new refresh token with each refresh
+    "BLACKLIST_AFTER_ROTATION": True,  # Blacklist the old refresh token after it is rotated
 }
 
 
