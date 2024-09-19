@@ -13,7 +13,7 @@ from userapp.filters import ScholarshipDataFilter
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import viewsets
-
+from rest_framework.decorators import action
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -35,10 +35,20 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
             return [IsActiveAndCanHostOrIsReviewer()]
         else:
             return []
+    @action(detail=False, methods=['post'], authentication_classes=DEFAULT_AUTH_CLASSES)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @action(detail=True, methods=['patch'], authentication_classes=DEFAULT_AUTH_CLASSES)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @action(detail=True, methods=['delete'], authentication_classes=DEFAULT_AUTH_CLASSES)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
         
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
-        # Default filter for deadline: only show scholarships with deadline >= today
         return queryset.filter(deadline__gte=now())
     
 
