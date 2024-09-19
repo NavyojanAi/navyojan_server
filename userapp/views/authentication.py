@@ -84,7 +84,8 @@ def login_view(request):
                     'access': str(refresh.access_token),
                     'refresh': str(refresh)
                 }
-                response.set_cookie(
+                final_response=Response(response, status=status.HTTP_200_OK)
+                final_response.set_cookie(
                     key='refreshToken',
                     value=str(refresh),
                     httponly=True,
@@ -92,7 +93,7 @@ def login_view(request):
                     path=settings.REFRESH_TOKEN_COOKIE_PATH,  # Set the cookie path (typically /api/refresh)
                 )
 
-                return Response(response, status=status.HTTP_200_OK)
+                return final_response
             else:
                 return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         else:
