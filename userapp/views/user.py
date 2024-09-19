@@ -11,20 +11,21 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 
 from rest_framework.response import Response
-from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 from userapp.models import UserScholarshipStatus,UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences, ScholarshipData, UserScholarshipApplicationData
 from userapp.serializers import UserScholarshipStatusSerializer,UserDisplaySerializer,UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
-from userapp.permission import IsActivePermission, IsReviewerUser
+from userapp.permission import IsActivePermission, IsReviewerUser,CanHostSites
 from userapp.authentication import FirebaseAuthentication
 
 
-DEFAULT_AUTH_CLASSES = [SessionAuthentication, FirebaseAuthentication]
+DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 
 
 class AdminStatisticsView(APIView):
-    permission_classes = [IsAdminUser, IsReviewerUser]  # Allow only admin users to view these statistics
+    permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]  # Allow only admin users to view these statistics
+    authentication_classes = DEFAULT_AUTH_CLASSES
 
     def get(self, request, *args, **kwargs):
         # User statistics
@@ -97,9 +98,9 @@ class UserScholarshipStatusViewset(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in ['PATCH']:
-            return [IsActivePermission,IsAdminUser, IsReviewerUser]
+            return [IsActivePermission, IsAdminUser, IsReviewerUser, CanHostSites]
         else:
-            return [IsActivePermission]
+            return [IsActivePermission, CanHostSites]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
@@ -125,11 +126,8 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "patch"]
     permission_classes = [IsActivePermission]
 
-    def retrieve(self, request, *args, **kwargs):
-        id = kwargs.get('pk')
-        obj = self.queryset.get(user=User.objects.get(id=id))
-        serializer = self.get_serializer(obj)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 class UserProfileScholarshipProviderViewset(viewsets.ModelViewSet):
     queryset= UserProfileScholarshipProvider.objects.all()
@@ -138,11 +136,8 @@ class UserProfileScholarshipProviderViewset(viewsets.ModelViewSet):
     http_method_names = ["get","patch"]
     permission_classes = [IsActivePermission] 
 
-    def retrieve(self, request, *args, **kwargs):
-        id = kwargs.get('pk')
-        obj = self.queryset.get(user=User.objects.get(id=id))
-        serializer = self.get_serializer(obj)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 class UserDocumentsViewset(viewsets.ModelViewSet):
     queryset=UserDocuments.objects.all()
@@ -151,11 +146,8 @@ class UserDocumentsViewset(viewsets.ModelViewSet):
     http_method_names = ["get","patch"]
     permission_classes=[IsActivePermission]
 
-    def retrieve(self, request, *args, **kwargs):
-        id = kwargs.get('pk')
-        obj = self.queryset.get(user=User.objects.get(id=id))
-        serializer = self.get_serializer(obj)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 class UserPreferencesViewset(viewsets.ModelViewSet):
     queryset = UserPreferences.objects.all()
@@ -164,11 +156,8 @@ class UserPreferencesViewset(viewsets.ModelViewSet):
     http_method_names=["get","patch"]
     permission_classes=[IsActivePermission]
 
-    def retrieve(self, request, *args, **kwargs):
-        id = kwargs.get('pk')
-        obj = self.queryset.get(user=User.objects.get(id=id))
-        serializer = self.get_serializer(obj)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
     
 class GenerateOTP(APIView):
     def post(self, request):

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import sys
 from pathlib import Path
 import os
+from datetime import timedelta
 import firebase_admin
 from firebase_admin import credentials
 from dotenv import load_dotenv
@@ -86,6 +87,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'userapp',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'django_filters',
     "corsheaders",
     "drf_yasg",
@@ -188,6 +191,13 @@ AUTHENTICATION_BACKENDS = [
     "userapp.authentication.custom_authentication.EmailModelBackend",
 ]
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token lifetime
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Refresh token lifetime
+    'ROTATE_REFRESH_TOKENS': True,                  # Issue a new refresh token with each refresh
+    'BLACKLIST_AFTER_ROTATION': True,               # Blacklist the old refresh token after it is rotated
+}
+
 
 # REST_FRAMEWORK = {
 #     # 'DEFAULT_FILTER_BACKENDS': [
@@ -195,7 +205,7 @@ AUTHENTICATION_BACKENDS = [
 #     # ],
 #     # 'DEFAULT_AUTHENTICATION_CLASSES': [
 #     #     'userapp.google_authentication.FirebaseAuthentication',
-#     #     'rest_framework.authentication.SessionAuthentication',
+#     #     'rest_framework_simplejwt.authentication.JWTAuthentication',
 #     #     'rest_framework.authentication.BasicAuthentication',
 #     # ],
 #     # 'DEFAULT_PERMISSION_CLASSES': [
