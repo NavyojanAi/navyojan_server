@@ -35,7 +35,7 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
         else:
             return []
     def get_authenticators(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+        if self.request.method in ['POST', 'PATCH', 'DELETE']:
             return [auth() for auth in DEFAULT_AUTH_CLASSES]
         return []
 
