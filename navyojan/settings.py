@@ -191,7 +191,11 @@ AUTHENTICATION_BACKENDS = [
     "userapp.authentication.custom_authentication.EmailModelBackend",
 ]
 
+REFRESH_TOKEN_COOKIE_PATH = '/refresh-token'
+REFRESH_TOKEN_COOKIE_MAX_AGE = timedelta(days=30)
+
 SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token lifetime
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Refresh token lifetime
     'ROTATE_REFRESH_TOKENS': True,                  # Issue a new refresh token with each refresh
