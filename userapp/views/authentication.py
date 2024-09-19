@@ -6,6 +6,7 @@ from rest_framework import status
 
 
 from django.contrib.auth import authenticate,get_user_model
+from django.conf import settings
 
 from userapp.models import UserProfile,UserProfileScholarshipProvider,UserDocuments,UserPreferences
 from userapp.forms import CustomUserCreationForm
@@ -78,11 +79,20 @@ def login_view(request):
             if user is not None:
                 # Generate JWT tokens
                 refresh = RefreshToken.for_user(user)
-                return Response({
+                response = {
                     'message': 'Login successful',
                     'access': str(refresh.access_token),
                     'refresh': str(refresh)
-                }, status=status.HTTP_200_OK)
+                }
+                response.set_cookie(
+                    key='refreshToken',
+                    value=str(refresh),
+                    httponly=True,
+                    max_age=settings.REFRESH_TOKEN_COOKIE_MAX_AGE,  # Set the cookie's lifetime
+                    path=settings.REFRESH_TOKEN_COOKIE_PATH,  # Set the cookie path (typically /api/refresh)
+                )
+
+                return Response(response, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -99,7 +109,7 @@ def login_view(request):
 # @permission_classes([IsActivePermission])  # Ensure only active users can log out
 def logout_view(request):
     # Retrieve the refresh token from the request data
-    refresh_token = request.headers.get('refresh_token')
+    refresh_token= request.COOKIES.get('refresh_token')
 
     if not refresh_token:
         return Response({'message': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
