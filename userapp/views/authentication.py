@@ -38,20 +38,30 @@ def signup_view(request):
             # Authenticate user
             user = authenticate(request, username=email, password=password)
             if user is not None:
+                user_profile, _ = UserProfile.objects.get_or_create(user=user, account_type="regular")
+                UserDocuments.objects.get_or_create(user=user)
+                UserPreferences.objects.get_or_create(user=user)
                 signup_type = request.data.get('signup_type')
                 if signup_type == 'scholarshipProviders':
                     UserProfileScholarshipProvider.objects.get_or_create(user=user)
-                user_profile, _ = UserProfile.objects.get_or_create(user=user, account_type="regular", is_host_user=True)
-                UserDocuments.objects.get_or_create(user=user)
-                UserPreferences.objects.get_or_create(user=user)
+                    user_profile.is_host_user=True
+                    user_profile.save()
                 
                 # Generate JWT tokens
                 refresh = RefreshToken.for_user(user)
-                return Response({
+                response= Response({
                     'message': 'Signup successful',
                     'access': str(refresh.access_token),
                     'refresh': str(refresh)
                 }, status=status.HTTP_200_OK)
+                response.set_cookie(
+                    key='refreshToken',
+                    value=str(refresh),
+                    httponly=True,
+                    max_age=settings.REFRESH_TOKEN_COOKIE_MAX_AGE,  # Set the cookie's lifetime
+                    path=settings.REFRESH_TOKEN_COOKIE_PATH,  # Set the cookie path (typically /api/refresh)
+                )
+                return response
             else:
                 return Response({'message': 'Signup successful but login failed'}, status=status.HTTP_400_BAD_REQUEST)
         else:
