@@ -2,7 +2,7 @@ from rest_framework import serializers
 from userapp.models import UserScholarshipStatus,UserProfile,UserProfileScholarshipProvider,UserPreferences,UserDocuments
 from django.contrib.auth.models import User
 
-from userapp.serializers import ScholarshipDataSerializer
+from userapp.serializers.scholarships import ScholarshipDataSerializer
 
 class UserScholarshipStatusSerializer(serializers.ModelSerializer):
     class Meta:
