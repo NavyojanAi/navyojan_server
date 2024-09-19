@@ -105,7 +105,7 @@ class UserScholarshipApplicationDataViewset(viewsets.ModelViewSet):
 
         # Check if the application already exists for the user and scholarship
         try:
-            application = UserScholarshipApplicationData.objects.get(user=user, scholarship_id=scholarship_id)
+            application = self.queryset.get(user=user, scholarship__id=scholarship_id)
             # Update the existing application based on the incoming data
             serializer = self.get_serializer(application, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
