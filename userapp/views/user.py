@@ -128,6 +128,14 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+    
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_queryset()[0]
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserProfileScholarshipProviderViewset(viewsets.ModelViewSet):
     queryset= UserProfileScholarshipProvider.objects.all()
@@ -138,6 +146,14 @@ class UserProfileScholarshipProviderViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+    
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_queryset()[0]
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserDocumentsViewset(viewsets.ModelViewSet):
     queryset=UserDocuments.objects.all()
@@ -148,6 +164,14 @@ class UserDocumentsViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+    
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_queryset()[0]
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserPreferencesViewset(viewsets.ModelViewSet):
     queryset = UserPreferences.objects.all()
@@ -158,6 +182,14 @@ class UserPreferencesViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+    
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_queryset()[0]
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 class GenerateOTP(APIView):
     def post(self, request):

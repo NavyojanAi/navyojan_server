@@ -25,11 +25,11 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField()
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    # user = UserSerializer(read_only=True)
+    user = UserDisplaySerializer()
 
     class Meta:
         model = UserProfile
-        fields = ['phone_number', 'education_level', 'field_of_study', 'country', 'gender']
+        fields = ['user','phone_number', 'education_level', 'field_of_study', 'country', 'gender']
 
 class UserProfileScholarshipProviderSerializer(serializers.ModelSerializer):
     hosted_scholarships = ScholarshipDataSerializer(many=True, read_only=True)
