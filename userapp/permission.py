@@ -47,15 +47,24 @@ class IsActiveAndCanHostOrIsReviewer(permissions.BasePermission):
     - An active reviewer (IsActivePermission + IsReviewerUser).
     """
     def has_permission(self, request, view):
-        # Check if the user is active and can host sites, or if they are an active reviewer
+        is_active = request.user.is_active and request.user.is_authenticated
+        
+        can_host_sites = hasattr(request.user, 'can_host_sites') and request.user.can_host_sites
+        is_reviewer = hasattr(request.user, 'is_reviewer') and request.user.is_reviewer
+        
         return (
-            (IsActivePermission().has_permission(request, view) and CanHostSites().has_permission(request, view)) or
-            (IsActivePermission().has_permission(request, view) and IsReviewerUser().has_permission(request, view))
+            (is_active and can_host_sites) or
+            (is_active and is_reviewer)
         )
     
     def has_object_permission(self, request, view, obj):
-        # Check for object-level permission using the same logic
+        is_active = request.user.is_active and request.user.is_authenticated
+        
+        can_host_sites = hasattr(request.user, 'can_host_sites') and request.user.can_host_sites
+        is_reviewer = hasattr(request.user, 'is_reviewer') and request.user.is_reviewer
+        
         return (
-            (IsActivePermission().has_object_permission(request, view, obj) and CanHostSites().has_object_permission(request, view, obj)) or
-            (IsActivePermission().has_object_permission(request, view, obj) and IsReviewerUser().has_object_permission(request, view, obj))
+            (is_active and can_host_sites) or
+            (is_active and is_reviewer)
         )
+

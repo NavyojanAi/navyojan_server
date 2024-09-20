@@ -5,19 +5,18 @@ from rest_framework.response import Response
 from django.core.paginator import Paginator
 
 from django.utils.timezone import now
-from userapp.models import ScholarshipData, UserScholarshipApplicationData, Category
+from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category
 from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer
 from userapp.authentication import FirebaseAuthentication
 from userapp.permission import IsActivePermission,CanHostSites,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission
 from userapp.filters import ScholarshipDataFilter
 
-from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import viewsets
-
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 
-DEFAULT_AUTH_CLASSES = [SessionAuthentication, FirebaseAuthentication]
+DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 
 
 class ScholarshipDataViewSet(viewsets.ModelViewSet):
@@ -35,10 +34,14 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
             return [IsActiveAndCanHostOrIsReviewer()]
         else:
             return []
+    def get_authenticators(self):
+        if self.request.method in ['POST', 'PATCH', 'DELETE']:
+            return [auth() for auth in DEFAULT_AUTH_CLASSES]
+        return []
+
         
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
-        # Default filter for deadline: only show scholarships with deadline >= today
         return queryset.filter(deadline__gte=now())
     
 
@@ -67,6 +70,7 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
             scholarship=serializer.save()
             user = self.request.user
             user.hostprofile.hosted_scholarships.add(scholarship)
+            UserScholarshipStatus.objects.get_or_create(user=user,scholarship=scholarship)
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -104,7 +108,7 @@ class UserScholarshipApplicationDataViewset(viewsets.ModelViewSet):
 
         # Check if the application already exists for the user and scholarship
         try:
-            application = UserScholarshipApplicationData.objects.get(user=user, scholarship_id=scholarship_id)
+            application = self.queryset.get(user=user, scholarship__id=scholarship_id)
             # Update the existing application based on the incoming data
             serializer = self.get_serializer(application, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
