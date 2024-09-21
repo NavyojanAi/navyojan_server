@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
@@ -20,8 +20,11 @@ jobs:
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
       - name: Deploy to Droplet
+        env:
+          HOST: 159.65.158.135
+          USER: root
         run: |
-          ssh root@159.65.158.135 '
+          ssh -o StrictHostKeyChecking=accept-new $USER@$HOST '
             cd navyojan_server &&
             sudo docker-compose down &&
             git pull origin dev &&
