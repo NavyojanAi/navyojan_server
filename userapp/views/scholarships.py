@@ -16,7 +16,7 @@ from rest_framework import viewsets
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 
-DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
+DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication] 
 
 
 class ScholarshipDataViewSet(viewsets.ModelViewSet):
