@@ -123,17 +123,21 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()      
     serializer_class = UserProfileSerializer  
     authentication_classes = DEFAULT_AUTH_CLASSES  
-    http_method_names = ["get", "patch"]
+    http_method_names = ["get"]
     permission_classes = [IsActivePermission]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
-    
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_queryset()[0]
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+class UserProfilePatchView(APIView):
+    authentication_classes = DEFAULT_AUTH_CLASSES
+    permission_classes = [IsActivePermission]
+
+    def patch(self, request):
+        instance = get_object_or_404(UserProfile, user=request.user)
+        serializer = UserProfileSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        serializer.save()
         
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -141,35 +145,44 @@ class UserProfileScholarshipProviderViewset(viewsets.ModelViewSet):
     queryset= UserProfileScholarshipProvider.objects.all()
     serializer_class = UserProfileScholarshipProviderSerializer
     authentication_classes = DEFAULT_AUTH_CLASSES
-    http_method_names = ["get","patch"]
+    http_method_names = ["get"]
     permission_classes = [IsActivePermission] 
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
     
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_queryset()[0]
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+class UserProfileScholarshipProviderPatchView(APIView):
+    authentication_classes = DEFAULT_AUTH_CLASSES
+    permission_classes = [IsActivePermission]
+
+    def patch(self, request):
+        instance = get_object_or_404(UserProfileScholarshipProvider, user=request.user)
+        serializer = UserProfileScholarshipProviderSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        serializer.save()
         
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class UserDocumentsViewset(viewsets.ModelViewSet):
     queryset=UserDocuments.objects.all()
     serializer_class=UserDocumentsSerializer
     authentication_classes = DEFAULT_AUTH_CLASSES
-    http_method_names = ["get","patch"]
+    http_method_names = ["get"]
     permission_classes=[IsActivePermission]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
-    
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_queryset()[0]
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+class UserDocumentsPatchView(APIView):
+    authentication_classes = DEFAULT_AUTH_CLASSES
+    permission_classes = [IsActivePermission]
+
+    def patch(self, request):
+        instance = get_object_or_404(UserDocuments, user=request.user)
+        serializer = UserDocumentsSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        serializer.save()
         
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -177,17 +190,21 @@ class UserPreferencesViewset(viewsets.ModelViewSet):
     queryset = UserPreferences.objects.all()
     serializer_class = UserPreferencesSerializer
     authentication_classes=DEFAULT_AUTH_CLASSES
-    http_method_names=["get","patch"]
+    http_method_names=["get"]
     permission_classes=[IsActivePermission]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
-    
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_queryset()[0]
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+class UserPreferencesPatchView(APIView):
+    authentication_classes = DEFAULT_AUTH_CLASSES
+    permission_classes = [IsActivePermission]
+
+    def patch(self, request):
+        instance = get_object_or_404(UserPreferences, user=request.user)
+        serializer = UserPreferencesSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        serializer.save()
         
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -247,6 +264,5 @@ class VerifyOTP(APIView):
             return Response({"message": f"{otp_type.capitalize()} verified"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
