@@ -7,10 +7,36 @@ from django.utils.timezone import now
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 
+class Documents(BaseModel):
+    name = models.CharField(max_length=255, unique=True)
+    display_name = models.CharField(max_length=255, unique=True, null=True)
+    description = models.TextField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.display_name:
+            self.display_name = ''.join(word.capitalize() for word in self.name.split('_'))
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.display_name
+
+class Eligibility(BaseModel):
+    name = models.CharField(max_length=255, unique=True)
+    display_name = models.CharField(max_length=255, unique=True, null=True)
+    description = models.TextField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.display_name:
+            self.display_name = ''.join(word.capitalize() for word in self.name.split('_'))
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.display_name
+
 class ScholarshipData(BaseModel):
     title = models.CharField(max_length=255,null=True)
-    eligibility = ArrayField(models.CharField(null=True,blank=True,max_length=512),default=list,null=True,blank=True)
-    document_needed = ArrayField(models.CharField(default=None,null=True,blank=True,max_length=512),default=list,null=True,blank=True)
+    eligibility = models.ManyToManyField(Eligibility,related_name='scholarships',blank=True)
+    document_needed = models.ManyToManyField(Documents,related_name='scholarships',blank=True)
     how_to_apply = ArrayField(models.CharField(null=True,blank=True,max_length=512),default=list,null=True,blank=True)
     amount = models.IntegerField(null=True,blank=True)      #filter
     published_on = models.DateField(null = True,default=None,blank=True)   #filter
@@ -22,8 +48,6 @@ class ScholarshipData(BaseModel):
     
     def __str__(self):
         return f"{self.id} - {self.title}"
-    
-    
 class Category(BaseModel):
     name = models.CharField(max_length=255, unique=True)
     display_name = models.CharField(max_length=255, unique=True, null=True)

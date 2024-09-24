@@ -9,7 +9,8 @@ from userapp.views import (
     ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,
     UserScholarshipApplicationDataViewset, UserProfileScholarshipProviderViewset,
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
-    UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView
+    UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
+    DocumentViewSet,EligibilityViewSet
 )
 
 router = DefaultRouter()
@@ -21,6 +22,8 @@ router.register(r'profile_sp',UserProfileScholarshipProviderViewset)
 router.register(r'documents',UserDocumentsViewset)
 router.register(r'preferences',UserPreferencesViewset)
 router.register(r'scholarship_status',UserScholarshipStatusViewset)
+router.register(r'documents',DocumentViewSet)
+router.register(r'eligibility',EligibilityViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -1,10 +1,19 @@
-from userapp.models import ScholarshipData, UserScholarshipApplicationData
+from userapp.models import ScholarshipData, UserScholarshipApplicationData,Documents,Eligibility
 from userapp.models.scholarships import Category
 
 from django.utils import timezone
 
 from rest_framework import serializers
 
+class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Documents
+        fields = '__all__'
+
+class EligibilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Eligibility
+        fields = '__all__'
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,6 +24,8 @@ class CategorySerializer(serializers.ModelSerializer):
 class ScholarshipDataSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
     is_expired = serializers.SerializerMethodField()
+    document_needed = DocumentSerializer(many=True, read_only=True)
+    eligibility = EligibilitySerializer(many=True, read_only=True)
 
     class Meta:
         model = ScholarshipData

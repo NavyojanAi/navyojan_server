@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from django.core.paginator import Paginator
 
 from django.utils.timezone import now
-from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category
-from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer
+from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category,Documents,Eligibility
+from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer,DocumentSerializer,EligibilitySerializer
 from userapp.authentication import FirebaseAuthentication
 from userapp.permission import IsActivePermission,CanHostSites,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission
 from userapp.filters import ScholarshipDataFilter
@@ -85,6 +85,15 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_202_ACCEPTED)
 
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Documents.objects.all()
+    serializer_class = DocumentSerializer
+    http_method_names = ["get"]
+
+class EligibilityViewSet(viewsets.ModelViewSet):
+    queryset = Eligibility.objects.all()
+    serializer_class = EligibilitySerializer
+    http_method_names = ["get"]
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
