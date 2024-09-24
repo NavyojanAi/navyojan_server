@@ -38,7 +38,7 @@ class UserProfile(BaseUserProfile):
     #following are permission assigned based on user's package
     is_reviewer = models.BooleanField(default=False)
     is_host_user= models.BooleanField(default=False) # True if he is scholarshipprovider
-    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, related_name='users')
+    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE,blank=True, null=True, related_name='userprofiles')
 
 class UserProfileScholarshipProvider(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE,related_name="hostprofile")
