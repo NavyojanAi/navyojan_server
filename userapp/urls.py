@@ -4,7 +4,13 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from userapp.views import UserScholarshipStatusViewset,UserListView,HostUserListView,UserProfileViewSet, ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,UserScholarshipApplicationDataViewset,UserProfileScholarshipProviderViewset,UserDocumentsViewset,UserPreferencesViewset,AdminStatisticsView
+from userapp.views import (
+    UserScholarshipStatusViewset, UserListView, HostUserListView, UserProfileViewSet,
+    ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,
+    UserScholarshipApplicationDataViewset, UserProfileScholarshipProviderViewset,
+    UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
+    UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView
+)
 
 router = DefaultRouter()
 router.register(r'profiles', UserProfileViewSet)
@@ -25,4 +31,8 @@ urlpatterns = [
     path('stats/', AdminStatisticsView.as_view(), name='navyojan-stats'),
     path('host-users/', HostUserListView.as_view(), name='host-user-list'),
     path('users/', UserListView.as_view(), name='user-list'),
+    path('profiles/edit', UserProfilePatchView.as_view(), name='profile-patch'),
+    path('profile_sp/edit', UserProfileScholarshipProviderPatchView.as_view(), name='profile-sp-patch'),
+    path('documents/edit', UserDocumentsPatchView.as_view(), name='documents-patch'),
+    path('preferences/edit', UserPreferencesPatchView.as_view(), name='user-preferences-patch'),
 ]

@@ -16,13 +16,13 @@ from rest_framework import viewsets
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 
-DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
+DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication] 
 
 
 class ScholarshipDataViewSet(viewsets.ModelViewSet):
-    queryset = ScholarshipData.objects.filter(is_approved=True)
+    queryset = ScholarshipData.objects.filter(is_approved=True) 
     serializer_class = ScholarshipDataSerializer
-    http_method_names = ["get","post","patch","delete"]
+    http_method_names = ["get","post","patch","delete"] 
 
     filter_backends = [DjangoFilterBackend]
     filterset_class = ScholarshipDataFilter

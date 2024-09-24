@@ -17,19 +17,38 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserDisplaySerializer(serializers.ModelSerializer):
     class Meta:
-        model=User
-        fields = "__all__"
+        model = User
+        fields = ["email", "first_name", "last_name"]
+        read_only_fields = ["is_active", "is_staff", "username"]  # Sensitive fields are read-only
+
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    # user = UserSerializer(read_only=True)
+    user = UserDisplaySerializer()
 
     class Meta:
         model = UserProfile
-        fields = ['phone_number', 'education_level', 'field_of_study', 'country', 'gender']
+        fields = ['user','phone_number', 'education_level', 'field_of_study', 'country', 'gender','profile_photo']
+    
+    def validate_profile_photo(self, value):
+        if value:
+            max_size = 5 * 1024 * 1024  # 5 MB
+            if value.size > max_size:
+                raise serializers.ValidationError("The profile photo size should not exceed 5 MB.")
+            return value
+    
+    def update(self, instance, validated_data):
+        # Handle nested user update
+        user_data = validated_data.pop('user', None)
+        if user_data:
+            user_serializer = UserDisplaySerializer(instance=instance.user, data=user_data, partial=True)
+            if user_serializer.is_valid(raise_exception=True):
+                user_serializer.save()
+
+        return super().update(instance, validated_data)
 
 class UserProfileScholarshipProviderSerializer(serializers.ModelSerializer):
     hosted_scholarships = ScholarshipDataSerializer(many=True, read_only=True)

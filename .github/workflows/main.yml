@@ -1,0 +1,32 @@
+name: Navyojan Automation
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Deploy to Droplet
+        env:
+          HOST: 159.65.158.135
+          USER: root
+        run: |
+          ssh -o StrictHostKeyChecking=accept-new $USER@$HOST '
+            cd navyojan_server &&
+            git pull origin dev &&
+            sudo docker-compose down &&
+            sudo docker-compose up -d --build
+          '
