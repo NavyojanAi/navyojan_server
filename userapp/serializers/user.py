@@ -34,10 +34,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['user','phone_number', 'education_level', 'field_of_study', 'country', 'gender','profile_photo']
     
     def validate_profile_photo(self, value):
-        max_size = 5 * 1024 * 1024  # 5 MB
-        if value.size > max_size:
-            raise serializers.ValidationError("The profile photo size should not exceed 5 MB.")
-        return value
+        if value:
+            max_size = 5 * 1024 * 1024  # 5 MB
+            if value.size > max_size:
+                raise serializers.ValidationError("The profile photo size should not exceed 5 MB.")
+            return value
     
     def update(self, instance, validated_data):
         # Handle nested user update
