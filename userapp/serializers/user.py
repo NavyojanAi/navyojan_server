@@ -27,7 +27,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['user','phone_number', 'education_level', 'field_of_study', 'country', 'gender','profile_photo']
-        read_only_fields = ['is_reviewer','is_host_user','free_account_privilages','premium_account_privilages']
+        read_only_fields = ['is_reviewer','is_host_user']
     
     def validate_profile_photo(self, value):
         if value:

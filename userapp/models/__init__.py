@@ -1,2 +1,4 @@
+from .user_plans import SubscriptionPlan,UserPlanTracker
 from .scholarships import ScholarshipData,UserScholarshipApplicationData,Category,Documents,Eligibility
 from .user import UserScholarshipStatus,UserProfile, OTP,UserDocuments,UserPreferences,UserProfileScholarshipProvider
+

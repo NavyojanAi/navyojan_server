@@ -15,11 +15,6 @@ class IsVerfiedPermission(permissions.BasePermission):
     def has_object_permission(self, request,view, obj):
         return request.user.userprofile.is_email_verified and request.user.userprofile.is_phone_number_verified
     
-class IsPremiumUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.userprofile.premium_account_privilages
-    def has_object_permission(self, request, view):
-        return request.user.userprofile.premium_account_privilages
     
 class IsReviewerUser(permissions.BasePermission):
     def has_permission(self, request, view):

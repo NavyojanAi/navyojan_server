@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from navyojan.models import BaseModel
 from userapp.validators import validate_pdf
-from userapp.models import Category,ScholarshipData
+from userapp.models import Category,ScholarshipData,SubscriptionPlan
 
 
 class BaseUserProfile(BaseModel):
@@ -38,8 +38,7 @@ class UserProfile(BaseUserProfile):
     #following are permission assigned based on user's package
     is_reviewer = models.BooleanField(default=False)
     is_host_user= models.BooleanField(default=False) # True if he is scholarshipprovider
-    free_account_privilages = models.BooleanField(default=True)
-    premium_account_privilages = models.BooleanField(default=False)
+    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, related_name='users')
 
 class UserProfileScholarshipProvider(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE,related_name="hostprofile")
