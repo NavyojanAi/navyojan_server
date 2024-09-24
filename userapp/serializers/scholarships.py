@@ -1,7 +1,8 @@
 from userapp.models import ScholarshipData, UserScholarshipApplicationData,Documents,Eligibility
 from userapp.models.scholarships import Category
-
 from django.utils import timezone
+from django.contrib.auth.models import User
+
 
 from rest_framework import serializers
 
@@ -35,9 +36,16 @@ class ScholarshipDataSerializer(serializers.ModelSerializer):
         # Check if the 'deadline' field is less than the current date
         return obj.deadline < timezone.now().date()
                 
+class UserDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "first_name", "last_name"]
+        read_only_fields = ["is_active", "is_staff", "username"]  # Sensitive fields are read-only
+
 
 class UserScholarshipDataSerializer(serializers.ModelSerializer):
     scholarship = ScholarshipDataSerializer()
+    user = UserDisplaySerializer()
 
     class Meta:
         model = UserScholarshipApplicationData

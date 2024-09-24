@@ -58,6 +58,7 @@ class UserScholarshipStatus(BaseModel):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     scholarship = models.ForeignKey(ScholarshipData,on_delete=models.CASCADE)
     status = models.CharField(max_length = 10, default="pending", choices = STATUS)
+    
     def __str__(self):
         return f"{self.user.username} - {self.scholarship.title} - {self.status}"
 
