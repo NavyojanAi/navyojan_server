@@ -57,14 +57,18 @@ class Category(BaseModel):
         return self.name
 
 class UserScholarshipApplicationData(BaseModel):
+    STATUS=(
+        ('applied', 'Applied'),
+        ('selected', 'Selected'),
+        ('rejected','Rejected')
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='scholarship_applications')
     scholarship = models.ForeignKey(ScholarshipData,on_delete=models.CASCADE,related_name='applicants')
     is_interested = models.BooleanField(default=False)
-    is_applied = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
+    status = models.CharField(max_length = 10, default="applied", choices = STATUS)
 
     class Meta:
         unique_together = ('user', 'scholarship')
 
     def __str__(self):
-        return f"{self.user.username} - {self.scholarship.title}"
+        return f"{self.user.username} - {self.scholarship.title} - {self.status}"

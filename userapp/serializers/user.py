@@ -2,7 +2,7 @@ from rest_framework import serializers
 from userapp.models import UserScholarshipStatus,UserProfile,UserProfileScholarshipProvider,UserPreferences,UserDocuments
 from django.contrib.auth.models import User
 
-from userapp.serializers.scholarships import ScholarshipDataSerializer
+from userapp.serializers.scholarships import ScholarshipDataSerializer,UserDisplaySerializer
 
 class UserScholarshipStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,11 +15,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
-class UserDisplaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["email", "first_name", "last_name"]
-        read_only_fields = ["is_active", "is_staff", "username"]  # Sensitive fields are read-only
 
 
 class LoginSerializer(serializers.Serializer):
@@ -32,7 +27,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['user','phone_number', 'education_level', 'field_of_study', 'country', 'gender','profile_photo']
-        read_only_fields = ['is_reviewer','is_host_user','free_account_privilages','premium_account_privilages']
+        read_only_fields = ['is_reviewer','is_host_user']
     
     def validate_profile_photo(self, value):
         if value:

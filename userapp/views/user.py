@@ -16,7 +16,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from userapp.models import UserScholarshipStatus,UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences, ScholarshipData, UserScholarshipApplicationData
 from userapp.serializers import UserScholarshipStatusSerializer,UserDisplaySerializer,UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
-from userapp.permission import IsActivePermission, IsReviewerUser,CanHostSites
+from userapp.permission import IsActivePermission, IsReviewerUser,CanHostScholarships
 from userapp.authentication import FirebaseAuthentication
 
 
@@ -98,9 +98,9 @@ class UserScholarshipStatusViewset(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in ['PATCH']:
-            return [IsActivePermission, IsAdminUser, IsReviewerUser, CanHostSites]
+            return [IsActivePermission, IsAdminUser, IsReviewerUser, CanHostScholarships]
         else:
-            return [IsActivePermission, CanHostSites]
+            return [IsActivePermission, CanHostScholarships]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)

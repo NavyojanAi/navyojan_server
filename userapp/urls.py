@@ -10,7 +10,7 @@ from userapp.views import (
     UserScholarshipApplicationDataViewset, UserProfileScholarshipProviderViewset,
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
-    DocumentViewSet,EligibilityViewSet
+    DocumentViewSet,EligibilityViewSet,SubscriptionPlanViewSet,PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView
 )
 
 router = DefaultRouter()
@@ -27,6 +27,10 @@ router.register(r'eligibility',EligibilityViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('plans/', SubscriptionPlanViewSet.as_view({'get': 'list'}), name='subscription-plans'),
+    path('paymenthandler/', PaymentHandlerView.as_view(), name='paymenthandler'),
+    path('paymentrequest/', PaymentRequestView.as_view(), name='paymentrequest'),
+    path('check_subscription/', CheckUserSubscriptionView.as_view(), name='check_subscription'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profiles/generate-otp/', GenerateOTP.as_view(), name='generate-otp'),

@@ -47,14 +47,13 @@ def perform():
                 if is_eligible == "yes":
                     final_users.append(user)
                     
-                    application ,created=UserScholarshipApplicationData.objects.get_or_create(
+                    application, created = UserScholarshipApplicationData.objects.get_or_create(
                         user=user,
                         scholarship=scholarship,
-                        is_applied=True
-                        )
+                        defaults={'status': 'applied'}
+                    )
                     if not created:
-                        application.is_interested=True
-                        application.is_applied=True
+                        application.status = 'applied'
                         application.save()
 
 
