@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from userapp.models import UserScholarshipStatus,UserProfile,UserProfileScholarshipProvider,UserPreferences,UserDocuments
 from django.contrib.auth.models import User
-
+from userapp.models import UserPlanTracker
 from userapp.serializers.scholarships import ScholarshipDataSerializer,UserDisplaySerializer
 
 class UserScholarshipStatusSerializer(serializers.ModelSerializer):
@@ -23,12 +23,27 @@ class LoginSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserDisplaySerializer()
+    is_subscribed = serializers.SerializerMethodField()
+    current_plan = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['user','phone_number', 'education_level', 'field_of_study', 'country', 'gender','profile_photo']
-        read_only_fields = ['is_reviewer','is_host_user']
-    
+        fields = ['user', 'phone_number', 'education_level', 'field_of_study', 'country', 'gender', 'profile_photo', 'is_subscribed', 'current_plan']
+        read_only_fields = ['is_reviewer', 'is_host_user', 'is_subscribed', 'current_plan']
+
+    def get_is_subscribed(self, obj):
+        return obj.user.is_subscribed()
+
+    def get_current_plan(self, obj):
+        plan = obj.user.get_current_plan()
+        if plan:
+            return {
+                'title': plan.title,
+                'amount': plan.amount,
+                'duration': plan.duration
+            }
+        return None
+
     def validate_profile_photo(self, value):
         if value:
             max_size = 5 * 1024 * 1024  # 5 MB

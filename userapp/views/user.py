@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-from userapp.models import UserScholarshipStatus,UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences, ScholarshipData, UserScholarshipApplicationData
+from userapp.models import UserScholarshipStatus,UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences, ScholarshipData, UserScholarshipApplicationData, UserPlanTracker
 from userapp.serializers import UserScholarshipStatusSerializer,UserDisplaySerializer,UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
 from userapp.permission import IsActivePermission, IsReviewerUser,CanHostScholarships
 from userapp.authentication import FirebaseAuthentication
@@ -44,6 +44,9 @@ class AdminStatisticsView(APIView):
         total_providers = UserProfile.objects.filter(is_host_user=True).count()
         total_admins = User.objects.filter(is_staff=True).count()
         total_subscribed_users = UserProfile.objects.filter(premium_account_privilages=True)
+        # total_subscribed_users = User.objects.filter(
+        #     plan_tracker__end_date__gt=timezone.now()
+        # ).distinct().count()
 
         # Scholarship statistics
         total_scholarships = ScholarshipData.objects.count()
@@ -128,6 +131,26 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        
+        # Add subscription information
+        user = instance.user
+        data['is_subscribed'] = user.is_subscribed()
+        current_plan = user.get_current_plan()
+        if current_plan:
+            data['current_plan'] = {
+                'title': current_plan.title,
+                'amount': current_plan.amount,
+                'duration': current_plan.duration
+            }
+        else:
+            data['current_plan'] = None
+
+        return Response(data)
 
 class UserProfilePatchView(APIView):
     authentication_classes = DEFAULT_AUTH_CLASSES
