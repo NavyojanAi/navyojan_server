@@ -31,6 +31,7 @@ class BaseUserProfile(BaseModel):
 
 class UserProfile(BaseUserProfile):
     user = models.OneToOneField(User, on_delete=models.CASCADE,related_name="userprofile")
+    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
     education_level = models.CharField(max_length=50, blank=True)
     field_of_study = models.CharField(max_length=100, blank=True)
 
