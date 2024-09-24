@@ -1,2 +1,2 @@
-from .scholarships import ScholarshipData,UserScholarshipApplicationData,Category
+from .scholarships import ScholarshipData,UserScholarshipApplicationData,Category,Documents,Eligibility
 from .user import UserScholarshipStatus,UserProfile, OTP,UserDocuments,UserPreferences,UserProfileScholarshipProvider
