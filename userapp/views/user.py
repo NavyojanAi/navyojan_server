@@ -24,7 +24,7 @@ DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 
 
 class AdminStatisticsView(APIView):
-    permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]  # Allow only admin users to view these statistics
+    permission_classes = [IsActivePermission,IsAdminUser]  # Allow only admin users to view these statistics
     authentication_classes = DEFAULT_AUTH_CLASSES
 
     def get(self, request, *args, **kwargs):
@@ -43,7 +43,7 @@ class AdminStatisticsView(APIView):
         total_customers = UserProfile.objects.filter(is_host_user=False).count()  # non-host users
         total_providers = UserProfile.objects.filter(is_host_user=True).count()
         total_admins = User.objects.filter(is_staff=True).count()
-        total_subscribed_users = UserProfile.objects.filter(premium_account_privilages=True)
+        total_subscribed_users = UserProfile.objects.exclude(plan=None).count()
 
         # Scholarship statistics
         total_scholarships = ScholarshipData.objects.count()
@@ -53,6 +53,16 @@ class AdminStatisticsView(APIView):
         # applications
         total_applications = UserScholarshipApplicationData.objects.count()
 
+
+        # Monthly application data
+        current_year = timezone.now().year
+        last_year = current_year - 1
+
+        current_year_data = self.get_monthly_application_data(current_year)
+        last_year_data = self.get_monthly_application_data(last_year)
+
+        # Latest scholarships with status
+        latest_scholarships = self.get_latest_scholarships()
 
         data = {
             "user_stats": {
@@ -69,10 +79,37 @@ class AdminStatisticsView(APIView):
                 "approved_scholarships": total_approved_scholarships,
                 "unapproved_scholarships": total_unapproved_scholarships,
                 "total_applications":total_applications
-            }
+            },
+            "monthly_application_data": [
+                {"name": "This year", "data": current_year_data},
+                {"name": "Last year", "data": last_year_data},
+            ],
+            "latest_scholarships": latest_scholarships
         }
 
         return Response(data)
+
+    def get_monthly_application_data(self, year):
+        monthly_data = []
+        for month in range(1, 13):
+            count = UserScholarshipApplicationData.objects.filter(
+                datetime_created__year=year,
+                datetime_created__month=month
+            ).count()
+            monthly_data.append(count)
+        return monthly_data
+
+    def get_latest_scholarships(self):
+        latest_scholarships = ScholarshipData.objects.order_by('-datetime_created')[:5]
+        scholarship_data = []
+        for scholarship in latest_scholarships:
+            status = UserScholarshipStatus.objects.filter(scholarship=scholarship).first()
+            scholarship_data.append({
+                "id": scholarship.id,
+                "title": scholarship.title,
+                "status": status.status if status else "Unknown"
+            })
+        return scholarship_data
     
 class HostUserListView(generics.ListAPIView):
     permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]
@@ -90,6 +127,14 @@ class UserListView(generics.ListAPIView):
         # Fetch all UserProfile objects where is_host_user=True
         return User.objects.filter(userprofile__is_host_user=False)
 
+class userScholarshipStatusListView(generics.ListAPIView):
+    permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]
+    serializer_class = UserScholarshipStatusSerializer
+    authentication_classes = DEFAULT_AUTH_CLASSES
+
+    def get_queryset(self):
+        return UserScholarshipStatus.objects.all()
+
 class UserScholarshipStatusViewset(viewsets.ModelViewSet):
     queryset = UserScholarshipStatus.objects.all()
     serializer_class = UserScholarshipStatusSerializer
@@ -98,7 +143,7 @@ class UserScholarshipStatusViewset(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in ['PATCH']:
-            return [IsActivePermission, IsAdminUser, IsReviewerUser, CanHostScholarships]
+            return [IsActivePermission, IsAdminUser, IsReviewerUser]
         else:
             return [IsActivePermission, CanHostScholarships]
 
