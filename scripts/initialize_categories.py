@@ -36,9 +36,17 @@ def initialize_eligibility():
     eligibility_criteria = {
         "state_domicile": "Applicant must be a permanent resident of the specified state.",
         "caste_category": "Applicant must belong to a specific caste category (e.g., SC, ST, OBC).",
+        "sc_caste": "Applicant must belong to a specific caste category of SC.",    
+        "st_caste": "Applicant must belong to a specific caste category of ST.",
+        "obc_caste": "Applicant must belong to a specific caste category of OBC.",
+        "general_category": "Applicant must belong to a specific caste category of General.",
         "annual_family_income": "Total yearly income of the applicant's family should be within the specified limit.",
-        "minimum_marks": "Applicant must have achieved the minimum required marks in their previous examination.",
+        # "minimum_marks": "Applicant must have achieved the minimum required marks in their previous examination.",
         "gender": "Scholarship may be specific to a particular gender.",
+        "male": "Applicant must be male.",  
+        "female": "Applicant must be female.",
+        "others": "Applicant must be of other gender.",
+        
         "course_level": "Applicable for students studying at a specific education level (e.g., high school, undergraduate, postgraduate).",
         "disability_status": "Applicant must have a recognized disability as per government norms.",
         "minority_status": "Applicant must belong to a recognized minority community.",
@@ -73,21 +81,22 @@ def initialize_documents():
     print("Required documents initialized successfully.")
     
 #TODO: add display_name and description to all the models
-#TODO: add subscribed or not
+#TODO: check if data which is coming from scraped scholarships has key:value pair for eligibility, documents, etc.,
+#       and after that add them to the database in that structure only.
 #TODO: make an initialization for the subscribed scholarships, 14900 - 149, get_notified
 #TODO: make an initialization for the subscribed scholarships, 24900 - 249, get_notified and auto_applied
 
 def initialize_subscription_plans():
     subscription_plans = [
         {
-            "title": "Get_Notified",
-            "amount": Decimal('149.00'),
+            "title": "Get Notified",
+            "amount": 14900,   #Decimal('149.00'),
             "duration": 365,  # 1 year in days
             # "description": "Receive notifications for new scholarships"
         },
         {
-            "title": "Get_Notified_and_Auto_Applied",
-            "amount": Decimal('249.00'),
+            "title": "Get Notified and Auto Apply",
+            "amount": 24900,   #Decimal('249.00')
             "duration": 365,  # 1 year in days
             # "description": "Receive notifications and automatic application for new scholarships"
         }

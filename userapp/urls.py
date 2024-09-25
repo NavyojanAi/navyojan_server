@@ -10,8 +10,7 @@ from userapp.views import (
     UserScholarshipApplicationDataViewset, UserProfileScholarshipProviderViewset,
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
-    DocumentViewSet,EligibilityViewSet,SubscriptionPlanViewSet,PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView,
-    SubscribeUserView  # Add this import
+    DocumentViewSet,EligibilityViewSet,SubscriptionPlanViewSet,PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView,  # Add this import
 )
 
 router = DefaultRouter()
@@ -25,7 +24,6 @@ router.register(r'preferences',UserPreferencesViewset)
 router.register(r'scholarship_status',UserScholarshipStatusViewset)
 router.register(r'documents',DocumentViewSet)
 router.register(r'eligibility',EligibilityViewSet)
-router.register(r'plans',SubscriptionPlanViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -44,5 +42,4 @@ urlpatterns = [
     path('profile_sp/edit', UserProfileScholarshipProviderPatchView.as_view(), name='profile-sp-patch'),
     path('documents/edit', UserDocumentsPatchView.as_view(), name='documents-patch'),
     path('preferences/edit', UserPreferencesPatchView.as_view(), name='user-preferences-patch'),
-    path('subscribe/', SubscribeUserView.as_view(), name='subscribe-user'),
 ]

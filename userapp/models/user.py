@@ -86,15 +86,29 @@ class OTP(BaseModel):
     verified = models.BooleanField(default=False)
     
     
-    
-class User(User):
+
+class UserSubscriptionInfo:
+    def __init__(self,user):
+        self.user = user 
+
     def is_subscribed(self):
-        return self.userplantracker_set.filter(end_date__gt=timezone.now()).exists()     #return self.plan_tracker.filter(end_date__gt=timezone.now()).exists()
+        return self.user.plan_tracker.filter(end_date__gte=timezone.now()).exists()
 
     def get_current_plan(self):
-        current_plan = self.userplantracker_set.filter(end_date__gt=timezone.now()).order_by('-plan__amount').first()
+        current_plan = self.user.plan_tracker.filter(end_date__gte=timezone.now()).order_by('-plan__amount').first()
         return current_plan.plan if current_plan else None
 
     def is_eligible_for_auto_apply(self):
         current_plan = self.get_current_plan()
-        return current_plan and current_plan.title == "Get_Notified_and_Auto_Applied"          
+        return current_plan and current_plan.title == "Get Notified and Auto Apply"          
+    
+    
+# user = User.objects.get(id=1)
+# subscription_info = UserSubscriptionInfo(user)
+# print(subscription_info.is_subscribed())
+# print(subscription_info.get_current_plan())
+# print(subscription_info.is_eligible_for_auto_apply())
+
+# is_subscribed() method checks if the user has any active subscription plan. It returns True if there's any UserPlanTracker entry for this user with an end date in the future.
+# get_current_plan() method retrieves the current active plan for the user. If the user has multiple active plans, it returns the most expensive one.
+# is_eligible_for_auto_apply() checks if the user's current plan is the "Get Notified and Auto Applied" plan.

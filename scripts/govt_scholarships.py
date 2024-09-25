@@ -150,7 +150,7 @@ def save_scholarship(name, details):
         'published_on',
         'state',
         'deadline',
-        # 'link',
+        'link',
     ]
 
     scholarship_data = {

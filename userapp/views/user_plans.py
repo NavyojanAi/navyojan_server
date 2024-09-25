@@ -26,24 +26,5 @@ class SubscriptionPlanViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
 
 
-class SubscribeUserView(APIView):
-    permission_classes = [IsAuthenticated, IsVerfiedPermission]
-    authentication_classes = DEFAULT_AUTH_CLASSES
 
-    def post(self, request):
-        plan_id = request.data.get('plan_id')
-        try:
-            plan = SubscriptionPlan.objects.get(id=plan_id)
-        except SubscriptionPlan.DoesNotExist:
-            return Response({"error": "Invalid plan ID"}, status=status.HTTP_400_BAD_REQUEST)
-
-        end_date = timezone.now() + timedelta(days=plan.duration)
-        
-        UserPlanTracker.objects.create(
-            user=request.user,
-            plan=plan,
-            end_date=end_date
-        )
-
-        return Response({"message": "Successfully subscribed to plan"}, status=status.HTTP_200_OK)
 

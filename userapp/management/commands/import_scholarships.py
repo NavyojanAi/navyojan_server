@@ -11,17 +11,17 @@ class Command(BaseCommand):
             initialize_categories()
             self.stdout.write(self.style.SUCCESS("Categories initialized successfully."))
             
-            # self.stdout.write("Initializing documents...")
-            # initialize_documents()
-            # self.stdout.write(self.style.SUCCESS("Documents initialized successfully."))
+            self.stdout.write("Initializing documents...")
+            initialize_documents()
+            self.stdout.write(self.style.SUCCESS("Documents initialized successfully."))
 
-            # self.stdout.write("Initializing eligibility...")
-            # initialize_eligibility()
-            # self.stdout.write(self.style.SUCCESS("Eligibility initialized successfully."))
+            self.stdout.write("Initializing eligibility...")
+            initialize_eligibility()
+            self.stdout.write(self.style.SUCCESS("Eligibility initialized successfully."))
 
-            # self.stdout.write("Initializing subscription plans...")
-            # initialize_subscription_plans()
-            # self.stdout.write(self.style.SUCCESS("Subscription plans initialized successfully."))
+            self.stdout.write("Initializing subscription plans...")
+            initialize_subscription_plans()
+            self.stdout.write(self.style.SUCCESS("Subscription plans initialized successfully."))
             
             
             asyncio.run(main())
