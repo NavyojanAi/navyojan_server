@@ -25,6 +25,7 @@ router.register(r'preferences',UserPreferencesViewset)
 router.register(r'scholarship_status',UserScholarshipStatusViewset)
 router.register(r'documents',DocumentViewSet)
 router.register(r'eligibility',EligibilityViewSet)
+router.register(r'plans',SubscriptionPlanViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
