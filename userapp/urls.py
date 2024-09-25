@@ -10,7 +10,8 @@ from userapp.views import (
     UserScholarshipApplicationDataViewset, UserProfileScholarshipProviderViewset,
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
-    DocumentViewSet,EligibilityViewSet,SubscriptionPlanViewSet,PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView,  # Add this import
+    DocumentViewSet,EligibilityViewSet,SubscriptionPlanViewSet,PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView,userScholarshipStatusListView
+
 )
 
 router = DefaultRouter()
@@ -38,6 +39,7 @@ urlpatterns = [
     path('stats/', AdminStatisticsView.as_view(), name='navyojan-stats'),
     path('host-users/', HostUserListView.as_view(), name='host-user-list'),
     path('users/', UserListView.as_view(), name='user-list'),
+    path('user_scholarship_status/', userScholarshipStatusListView.as_view(), name='user-scholarship-status-list'),
     path('profiles/edit', UserProfilePatchView.as_view(), name='profile-patch'),
     path('profile_sp/edit', UserProfileScholarshipProviderPatchView.as_view(), name='profile-sp-patch'),
     path('documents/edit', UserDocumentsPatchView.as_view(), name='documents-patch'),

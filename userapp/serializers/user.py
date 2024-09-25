@@ -63,9 +63,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserProfileScholarshipProviderSerializer(serializers.ModelSerializer):
     hosted_scholarships = ScholarshipDataSerializer(many=True, read_only=True)
+    user = UserDisplaySerializer()
     class Meta:
         model = UserProfileScholarshipProvider
-        fields = ["organisation", "org_site", "hosted_scholarships"]
+        fields = ["user","organisation", "org_site", "hosted_scholarships"]
+    
+    def update(self, instance, validated_data):
+        # Handle nested user update
+        user_data = validated_data.pop('user', None)
+        if user_data:
+            user_serializer = UserDisplaySerializer(instance=instance.user, data=user_data, partial=True)
+            if user_serializer.is_valid(raise_exception=True):
+                user_serializer.save()
+
+        return super().update(instance, validated_data)
 
 class UserDocumentsSerializer(serializers.ModelSerializer):
     class Meta:
