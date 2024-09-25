@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from navyojan.models import BaseModel
 from userapp.validators import validate_pdf
 from userapp.models import Category,ScholarshipData,SubscriptionPlan
-
+from django.utils import timezone
 
 class BaseUserProfile(BaseModel):
     ACCOUNT_TYPE_CHOICES = (
@@ -84,3 +84,31 @@ class OTP(BaseModel):
     otp = models.CharField(max_length=6)
     otp_type = models.CharField(max_length=5, choices=OTP_TYPE_CHOICES)
     verified = models.BooleanField(default=False)
+    
+    
+
+class UserSubscriptionInfo:
+    def __init__(self,user):
+        self.user = user 
+
+    def is_subscribed(self):
+        return self.user.plan_tracker.filter(end_date__gte=timezone.now()).exists()
+
+    def get_current_plan(self):
+        current_plan = self.user.plan_tracker.filter(end_date__gte=timezone.now()).order_by('-plan__amount').first()
+        return current_plan.plan if current_plan else None
+
+    def is_eligible_for_auto_apply(self):
+        current_plan = self.get_current_plan()
+        return current_plan and current_plan.title == "Get Notified and Auto Apply"          
+    
+    
+# user = User.objects.get(id=1)
+# subscription_info = UserSubscriptionInfo(user)
+# print(subscription_info.is_subscribed())
+# print(subscription_info.get_current_plan())
+# print(subscription_info.is_eligible_for_auto_apply())
+
+# is_subscribed() method checks if the user has any active subscription plan. It returns True if there's any UserPlanTracker entry for this user with an end date in the future.
+# get_current_plan() method retrieves the current active plan for the user. If the user has multiple active plans, it returns the most expensive one.
+# is_eligible_for_auto_apply() checks if the user's current plan is the "Get Notified and Auto Applied" plan.

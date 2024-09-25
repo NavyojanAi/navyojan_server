@@ -11,6 +11,7 @@ from userapp.views import (
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
     DocumentViewSet,EligibilityViewSet,SubscriptionPlanViewSet,PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView,userScholarshipStatusListView
+
 )
 
 router = DefaultRouter()
