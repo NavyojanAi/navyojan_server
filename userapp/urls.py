@@ -1,6 +1,4 @@
 from django.urls import path, include
-from django.urls import path
-
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -10,8 +8,8 @@ from userapp.views import (
     UserScholarshipApplicationDataViewset, UserProfileScholarshipProviderViewset,
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
-    DocumentViewSet,EligibilityViewSet,SubscriptionPlanViewSet,PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView,userScholarshipStatusListView
-
+    DocumentViewSet, EligibilityViewSet, SubscriptionPlanViewSet, PaymentHandlerView,
+    PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView
 )
 
 router = DefaultRouter()
@@ -23,7 +21,7 @@ router.register(r'profile_sp',UserProfileScholarshipProviderViewset)
 router.register(r'documents',UserDocumentsViewset)
 router.register(r'preferences',UserPreferencesViewset)
 router.register(r'scholarship_status',UserScholarshipStatusViewset)
-router.register(r'documents',DocumentViewSet)
+router.register(r'documents_required',DocumentViewSet)
 router.register(r'eligibility',EligibilityViewSet)
 
 urlpatterns = [

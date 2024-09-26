@@ -20,6 +20,7 @@ DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 
 
 class ScholarshipDataViewSet(viewsets.ModelViewSet):
+    queryset = ScholarshipData.objects.all()
     serializer_class = ScholarshipDataSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ScholarshipDataFilter
