@@ -67,6 +67,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "*",
+    "http://139.59.91.194/",
     "159.65.158.135",
     "159.65.158.135:8080",  # Your server's IP address
     "localhost",
