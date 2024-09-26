@@ -72,8 +72,9 @@ ALLOWED_HOSTS = [
     "159.65.158.135:8080",  # Your server's IP address
     "localhost",
     "127.0.0.1",
-    "navyojan.in",
-    "www.navyojan.in"
+    "http://navyojan.in",
+    "http://www.navyojan.in",
+    "http://www.navyojan.in/",
     # Add any other hosts or domain names here
 ]
 
