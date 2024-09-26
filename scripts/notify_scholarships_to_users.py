@@ -6,7 +6,7 @@ from ai.config import OPEN_AI_KEY
 from userapp.models.user import (
     User, UserProfile, UserDocuments, UserPreferences, UserScholarshipStatus
 )
-from userapp.models.scholarships import ScholarshipData, Category
+from userapp.models.scholarships import ScholarshipData, Category, Eligibility, Documents
 
 def perform():
     now = timezone.now()
@@ -21,7 +21,8 @@ def perform():
     for scholarship in scholarships:
         # Get users who have preferences matching the scholarship categories and an active subscription
         users = User.objects.filter(
-            userplantracker__end_date__gt=timezone.now(),
+            # userplantracker__end_date__gt=timezone.now(),
+            userprofile__plan__isnull=False,
             category_preferences__categories__in=scholarship.categories.all()
         ).distinct()
 
@@ -32,9 +33,13 @@ def perform():
 def check_eligibility_with_gpt(user, scholarship):
     client = OpenAI(api_key=OPEN_AI_KEY)
 
-    # Prepare user profile data
-    user_profile = user.userprofile
-    user_documents = user.documents
+    # Correct way to access UserProfile and UserDocuments
+    user_profile = UserProfile.objects.get(user=user)
+    try:
+        user_documents = UserDocuments.objects.get(user=user)
+    except UserDocuments.DoesNotExist:
+        user_documents = None
+
     user_data = f"""
     User Profile:
     - Gender: {user_profile.gender}
@@ -43,10 +48,10 @@ def check_eligibility_with_gpt(user, scholarship):
     - Country: {user_profile.country}
 
     User Documents:
-    - 10th Marksheet: {"Uploaded" if user_documents.certificate_tenth else "Not Uploaded"}
-    - 12th Marksheet: {"Uploaded" if user_documents.certificate_inter else "Not Uploaded"}
-    - Disability Certificate: {"Uploaded" if user_documents.certificate_disability else "Not Uploaded"}
-    - Sports Certificate: {"Uploaded" if user_documents.certificate_sports else "Not Uploaded"}
+    - 10th Marksheet: {"Uploaded" if user_documents and user_documents.certificate_tenth else "Not Uploaded"}
+    - 12th Marksheet: {"Uploaded" if user_documents and user_documents.certificate_inter else "Not Uploaded"}
+    - Disability Certificate: {"Uploaded" if user_documents and user_documents.certificate_disability else "Not Uploaded"}
+    - Sports Certificate: {"Uploaded" if user_documents and user_documents.certificate_sports else "Not Uploaded"}
     """
 
     # Prepare scholarship eligibility and document requirements
@@ -70,7 +75,7 @@ def check_eligibility_with_gpt(user, scholarship):
     """
 
     response = client.chat.completions.create(
-        model="gpt-4-mini",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are an AI assistant that determines scholarship eligibility."},
             {"role": "user", "content": prompt}

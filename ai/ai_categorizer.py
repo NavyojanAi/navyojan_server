@@ -55,7 +55,7 @@ async def update_recent_scholarships():
     recent_scholarships = await get_recent_scholarships()
 
     for scholarship in recent_scholarships:
-        details = f"Title: {scholarship.title}\nEligibility: {scholarship.eligibility}\nDocuments Needed: {scholarship.documents_needed}\nHow To Apply: {scholarship.how_to_apply}\nPublished On: {scholarship.published_on}\nState: {scholarship.state}\nDeadline: {scholarship.deadline}\nLink: {scholarship.link}"
+        details = f"Title: {scholarship.title}\nEligibility: {scholarship.eligibility}\nDocuments Needed: {scholarship.document_needed}\nHow To Apply: {scholarship.how_to_apply}\nPublished On: {scholarship.published_on}\nState: {scholarship.state}\nDeadline: {scholarship.deadline}\nLink: {scholarship.link}"
         categories = await sync_to_async(categorize_scholarship)(details)
         
         await save_scholarship_categories(scholarship, categories)
