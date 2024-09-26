@@ -75,6 +75,8 @@ ALLOWED_HOSTS = [
     "http://navyojan.in",
     "http://www.navyojan.in",
     "http://www.navyojan.in/",
+    "http://navyojan.in/",
+    "http://navyojan.in"
     # Add any other hosts or domain names here
 ]
 
