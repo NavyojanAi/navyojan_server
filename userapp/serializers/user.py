@@ -1,10 +1,13 @@
+from userapp.serializers.user_plans import SubscriptionPlanSerializer
 from rest_framework import serializers
 from userapp.models import UserScholarshipStatus,UserProfile,UserProfileScholarshipProvider,UserPreferences,UserDocuments
 from django.contrib.auth.models import User
-from userapp.models import UserPlanTracker
+from userapp.models import UserPlanTracker,UserSubscriptionInfo
 from userapp.serializers.scholarships import ScholarshipDataSerializer,UserDisplaySerializer
 
 class UserScholarshipStatusSerializer(serializers.ModelSerializer):
+    user = UserDisplaySerializer()
+    scholarship = ScholarshipDataSerializer()
     class Meta:
         model = UserScholarshipStatus
         fields = "__all__"
@@ -32,16 +35,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['is_reviewer', 'is_host_user', 'is_subscribed', 'current_plan']
 
     def get_is_subscribed(self, obj):
-        return obj.user.is_subscribed()
+        return UserSubscriptionInfo(obj.user).is_subscribed()
 
     def get_current_plan(self, obj):
-        plan = obj.user.get_current_plan()
+        plan = UserSubscriptionInfo(obj.user).get_current_plan()
         if plan:
-            return {
-                'title': plan.title,
-                'amount': plan.amount,
-                'duration': plan.duration
-            }
+            return SubscriptionPlanSerializer(plan).data
         return None
 
     def validate_profile_photo(self, value):
