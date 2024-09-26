@@ -65,7 +65,7 @@ class UserProfileScholarshipProviderSerializer(serializers.ModelSerializer):
     user = UserDisplaySerializer()
     class Meta:
         model = UserProfileScholarshipProvider
-        fields = ["user","organisation", "org_site", "hosted_scholarships"]
+        fields = "__all__"
     
     def update(self, instance, validated_data):
         # Handle nested user update

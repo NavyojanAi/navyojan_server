@@ -1,6 +1,8 @@
 import random
 
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -123,13 +125,52 @@ class AdminStatisticsView(APIView):
         data = UserScholarshipDataSerializer(latest_applications, many=True).data
         return data
     
-class HostUserListView(generics.ListAPIView):
-    permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]
-    serializer_class = UserDisplaySerializer
+class HostUserListViewset(APIView):
+    permission_classes = [IsActivePermission, IsAdminUser, IsReviewerUser]
+    serializer_class = UserProfileScholarshipProviderSerializer
     authentication_classes = DEFAULT_AUTH_CLASSES
-    def get_queryset(self):
+
+    def get(self, request):
         # Fetch all UserProfile objects where is_host_user=True
-        return User.objects.filter(userprofile__is_host_user=True)
+        queryset = UserProfileScholarshipProvider.objects.filter(user__userprofile__is_host_user=True)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name="user_id",
+                in_=openapi.IN_QUERY,
+                required=True,
+                type=openapi.TYPE_INTEGER,
+                description="ID of the user",
+            ),
+            openapi.Parameter(
+                name="can_host_scholarships",
+                in_=openapi.IN_QUERY,
+                required=True,
+                type=openapi.TYPE_BOOLEAN,
+                description="boolean to decide whether user can host scholarships",
+            )
+        ],
+        responses={200: UserProfileScholarshipProviderSerializer(many=True)},
+    )
+    def patch(self, request):
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            obj = UserProfileScholarshipProvider.objects.get(user_id=user_id)
+        except UserProfileScholarshipProvider.DoesNotExist:
+            return Response({"error": "UserProfileScholarshipProvider not found for this user_id"}, status=status.HTTP_404_NOT_FOUND)
+
+        can_host_scholarships = request.data.get('can_host_scholarships')
+        if can_host_scholarships is not None:
+            obj.can_host_scholarships = can_host_scholarships
+            obj.save()
+            return Response({"success": "Updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "can_host_scholarships field is required"}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserListView(generics.ListAPIView):
     permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]
