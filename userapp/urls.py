@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from userapp.views import (
-    UserScholarshipStatusViewset, UserListView, HostUserListView, UserProfileViewSet,
+    UserScholarshipStatusViewset, UserListView, HostUserListViewset, UserProfileViewSet,
     ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,
     UserScholarshipApplicationDataViewset, UserProfileScholarshipProviderViewset,
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
@@ -35,7 +35,7 @@ urlpatterns = [
     path('profiles/generate-otp/', GenerateOTP.as_view(), name='generate-otp'),
     path('profiles/verify-otp/', VerifyOTP.as_view(), name='verify-otp'),
     path('stats/', AdminStatisticsView.as_view(), name='navyojan-stats'),
-    path('host-users/', HostUserListView.as_view(), name='host-user-list'),
+    path('host-users/', HostUserListViewset.as_view(), name='host-user-list'),
     path('users/', UserListView.as_view(), name='user-list'),
     path('user_scholarship_status', userScholarshipStatusListView.as_view(), name='user-scholarship-status-list'),
     path('profiles/edit', UserProfilePatchView.as_view(), name='profile-patch'),
