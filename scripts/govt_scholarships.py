@@ -3,15 +3,16 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import django
-from userapp.models.scholarships import ScholarshipData
-from ai.ai_categorizer import update_recent_scholarships
-from ai.ai_categorizer import categorize_scholarship
+from userapp.models.scholarships import ScholarshipData, Eligibility, Documents, Category
+from ai.ai_categorizer import update_recent_scholarships, categorize_scholarship
+from openai import OpenAI
+from ai.config import OPEN_AI_KEY
+import json
 
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from asgiref.sync import sync_to_async
-from userapp.models.scholarships import Category
 import re 
 
 
@@ -96,6 +97,37 @@ fields = [
 
 from dateutil import parser as date_parser
 
+client = OpenAI(api_key=OPEN_AI_KEY)
+
+@sync_to_async
+def get_predefined_keys():
+    eligibility_keys = list(Eligibility.objects.values_list('name', flat=True))
+    document_keys = list(Documents.objects.values_list('name', flat=True))
+    return eligibility_keys, document_keys
+
+async def categorize_with_gpt(text, category_type, predefined_keys):
+    keys_str = ", ".join(predefined_keys)
+    prompt = f"""
+    Given the following {category_type} information, categorize it into key-value pairs. 
+    Use ONLY the following predefined keys: {keys_str}
+    If a piece of information doesn't match any key, skip it.
+
+    Information:
+    {text}
+
+    Output format: JSON with only the predefined keys used.
+    """
+    
+    response = await sync_to_async(client.chat.completions.create)(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that categorizes scholarship information using only predefined keys."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    
+    return response.choices[0].message.content
+
 @sync_to_async
 def save_scholarship(name, details):
     def parse_date(date_string):
@@ -150,14 +182,14 @@ def save_scholarship(name, details):
         'published_on',
         'state',
         'deadline',
-        # 'link',
+        'link',
     ]
 
     scholarship_data = {
         'title': name,
-        'eligibility': details.get('Eligibility', '').strip().split('\n'),
-        'document_needed': details.get('Documents Needed', '').strip().split('\n'),
-        'how_to_apply': details.get('How To Apply', '').strip().split('\n'),
+        # 'eligibility': details.get('Eligibility', '').strip().split('\n'),
+        # 'document_needed': details.get('Documents Needed', '').strip().split('\n'),
+        # 'how_to_apply': details.get('How To Apply', '').strip().split('\n'),
         'amount': extract_amount(details.get('Amount', '')),
         'published_on': parse_date(details.get('Published on', '')),
         'state': details.get('State', ''),
@@ -166,27 +198,42 @@ def save_scholarship(name, details):
         'is_approved': True,
     }
     
-    scholarship_data['eligibility'] = [
-    item.strip() for item in scholarship_data['eligibility'] if item.strip()]
+    # scholarship_data['eligibility'] = [
+    # item.strip() for item in scholarship_data['eligibility'] if item.strip()]
 
-    scholarship_data['document_needed'] = [
-    item.strip() for item in scholarship_data['document_needed'] if item.strip()]
+    # scholarship_data['document_needed'] = [
+    # item.strip() for item in scholarship_data['document_needed'] if item.strip()]
     
-    scholarship_data['how_to_apply'] = [
-    item.strip() for item in scholarship_data['how_to_apply'] if item.strip()]
+    # scholarship_data['how_to_apply'] = [
+    # item.strip() for item in scholarship_data['how_to_apply'] if item.strip()]
 
     # Check if all required fields have valid data
     if all(scholarship_data.get(field) for field in required_fields):
         scholarship = ScholarshipData(**scholarship_data)
-        scholarship.save()        
-        
+        scholarship.save()
+
+        # Process eligibility
+        eligibility_data = json.loads(details["categorized_eligibility"])
+        for key, value in eligibility_data.items():
+            eligibility = Eligibility.objects.get(name=key)
+            scholarship.eligibility.add(eligibility)
+
+        # Process documents
+        document_data = json.loads(details["categorized_documents"])
+        for key, value in document_data.items():
+            document = Documents.objects.get(name=key)
+            scholarship.document_needed.add(document)
+
+        # Process how to apply
+        scholarship.how_to_apply = details.get('How To Apply', '').strip().split('\n')
+
         categories = categorize_scholarship(details)
         for category_name in categories:
             category, created = Category.objects.get_or_create(name=category_name)
             scholarship.categories.add(category)
         
+        scholarship.save()
         print(f"Saved and categorized scholarship: {name}")
-        
     else:
         missing_fields = [field for field in required_fields if not scholarship_data.get(field)]
         print(f"Skipping scholarship '{name}' due to missing required fields: {', '.join(missing_fields)}")
@@ -236,6 +283,11 @@ async def scrape_scholarship_details(page, endpoint):
                     if label in details:
                         details[label] = value
         
+        eligibility_keys, document_keys = await get_predefined_keys()
+        
+        details["categorized_eligibility"] = await categorize_with_gpt(details.get('Eligibility', ''), "eligibility", eligibility_keys)
+        details["categorized_documents"] = await categorize_with_gpt(details.get('Documents Needed', ''), "documents", document_keys)
+
         await save_scholarship(name, details)
         
         print(f"Saved scholarship: {name}")

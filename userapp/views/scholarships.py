@@ -1,14 +1,14 @@
 from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import viewsets,generics
 from rest_framework.response import Response
 
 from django.core.paginator import Paginator
 
 from django.utils.timezone import now
-from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category
-from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer
+from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category,Documents,Eligibility
+from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer,DocumentSerializer,EligibilitySerializer
 from userapp.authentication import FirebaseAuthentication
-from userapp.permission import IsActivePermission,CanHostSites,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission
+from userapp.permission import IsActivePermission,CanHostScholarships,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission,IsReviewerUser
 from userapp.filters import ScholarshipDataFilter
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -29,7 +29,7 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in ['POST', 'DELETE']:
-            return [IsActivePermission(), CanHostSites()]
+            return [IsActivePermission(), CanHostScholarships()]
         elif self.request.method in ['PATCH']:
             return [IsActiveAndCanHostOrIsReviewer()]
         else:
@@ -48,8 +48,10 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         
-        paginator = Paginator(queryset, 10)
+        page_size = self.request.query_params.get('page_size', 10)
         page_number = self.request.query_params.get('page', 1)
+        paginator = Paginator(queryset, page_size)
+
         page_queryset = paginator.get_page(page_number)
 
         # Serialize the data
@@ -58,7 +60,10 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
         # Create response structure
         response_data = {
             'results': serializer.data,
-            'total_pages': paginator.num_pages
+            'total_pages': paginator.num_pages,
+            'current_page': page_queryset.number,
+            'has_next': page_queryset.has_next(),
+            'has_previous': page_queryset.has_previous(),
         }
 
         return Response(response_data)
@@ -70,7 +75,7 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
             scholarship=serializer.save()
             user = self.request.user
             user.hostprofile.hosted_scholarships.add(scholarship)
-            UserScholarshipStatus.objects.get_or_create(user=user,scholarship=scholarship)
+            UserScholarshipStatus.objects.get_or_create(user=user,scholarship=scholarship) # Reviewer needs to approve this scholarship
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -85,6 +90,15 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_202_ACCEPTED)
 
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Documents.objects.all()
+    serializer_class = DocumentSerializer
+    http_method_names = ["get"]
+
+class EligibilityViewSet(viewsets.ModelViewSet):
+    queryset = Eligibility.objects.all()
+    serializer_class = EligibilitySerializer
+    http_method_names = ["get"]
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -117,3 +131,31 @@ class UserScholarshipApplicationDataViewset(viewsets.ModelViewSet):
         except UserScholarshipApplicationData.DoesNotExist:
             # If the application does not exist, create a new one
             return super().create(request, *args, **kwargs)
+
+class UserScholarshipApplicationListView(generics.ListAPIView):
+    queryset = UserScholarshipApplicationData.objects.all()
+    serializer_class = UserScholarshipDataSerializer
+    authentication_classes = DEFAULT_AUTH_CLASSES
+    permission_classes = [IsActivePermission, CanHostScholarships]
+
+    def get_queryset(self):
+        return self.queryset.filter(scholarship__host=self.request.user,status='applied')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        
+        page_size = int(request.query_params.get('page_size', 10))
+        page_number = int(request.query_params.get('page', 1))
+        
+        paginator = Paginator(queryset, page_size)
+        page_obj = paginator.get_page(page_number)
+
+        serializer = self.get_serializer(page_obj, many=True)
+        
+        return Response({
+            'num_pages': paginator.num_pages,
+            'results': serializer.data,
+            'current_page': page_obj.number,
+            'has_next': page_obj.has_next(),
+            'has_previous': page_obj.has_previous(),
+        })

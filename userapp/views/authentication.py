@@ -43,17 +43,22 @@ def signup_view(request):
                 UserPreferences.objects.get_or_create(user=user)
                 signup_type = request.data.get('signup_type')
                 if signup_type == 'scholarshipProviders':
-                    UserProfileScholarshipProvider.objects.get_or_create(user=user)
+                    _,created=UserProfileScholarshipProvider.objects.get_or_create(user=user)
                     user_profile.is_host_user=True
                     user_profile.save()
                 
                 # Generate JWT tokens
                 refresh = RefreshToken.for_user(user)
-                response= Response({
+                response_data={
                     'message': 'Signup successful',
                     'access': str(refresh.access_token),
                     'refresh': str(refresh)
-                }, status=status.HTTP_200_OK)
+                }
+                if created:
+                    response_data['role']='scholarshipprovider'
+                else:
+                    response_data['role']='regular'
+                response= Response(response_data, status=status.HTTP_200_OK)
                 response.set_cookie(
                     key='refreshToken',
                     value=str(refresh),
@@ -94,6 +99,12 @@ def login_view(request):
                     'access': str(refresh.access_token),
                     'refresh': str(refresh)
                 }
+                if user.userprofile.is_host_user:
+                    response['role']='scholarshipprovider'
+                elif user.userprofile.is_reviewer:
+                    response['role']='reviewer'
+                else:
+                    response['role']='regular'
                 final_response=Response(response, status=status.HTTP_200_OK)
                 final_response.set_cookie(
                     key='refreshToken',

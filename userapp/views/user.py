@@ -14,9 +14,9 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-from userapp.models import UserScholarshipStatus,UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences, ScholarshipData, UserScholarshipApplicationData
+from userapp.models import UserScholarshipStatus,UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences, ScholarshipData, UserScholarshipApplicationData, UserPlanTracker
 from userapp.serializers import UserScholarshipStatusSerializer,UserDisplaySerializer,UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
-from userapp.permission import IsActivePermission, IsReviewerUser,CanHostSites
+from userapp.permission import IsActivePermission, IsReviewerUser,CanHostScholarships
 from userapp.authentication import FirebaseAuthentication
 
 
@@ -24,7 +24,7 @@ DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 
 
 class AdminStatisticsView(APIView):
-    permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]  # Allow only admin users to view these statistics
+    permission_classes = [IsActivePermission,IsAdminUser]  # Allow only admin users to view these statistics
     authentication_classes = DEFAULT_AUTH_CLASSES
 
     def get(self, request, *args, **kwargs):
@@ -43,7 +43,14 @@ class AdminStatisticsView(APIView):
         total_customers = UserProfile.objects.filter(is_host_user=False).count()  # non-host users
         total_providers = UserProfile.objects.filter(is_host_user=True).count()
         total_admins = User.objects.filter(is_staff=True).count()
-        total_subscribed_users = UserProfile.objects.filter(premium_account_privilages=True)
+
+        total_subscribed_users = UserProfile.objects.exclude(plan=None).count()
+
+        
+        # total_subscribed_users = User.objects.filter(
+        #     plan_tracker__end_date__gt=timezone.now()
+        # ).distinct().count()
+
 
         # Scholarship statistics
         total_scholarships = ScholarshipData.objects.count()
@@ -53,6 +60,16 @@ class AdminStatisticsView(APIView):
         # applications
         total_applications = UserScholarshipApplicationData.objects.count()
 
+
+        # Monthly application data
+        current_year = timezone.now().year
+        last_year = current_year - 1
+
+        current_year_data = self.get_monthly_application_data(current_year)
+        last_year_data = self.get_monthly_application_data(last_year)
+
+        # Latest scholarships with status
+        latest_scholarships = self.get_latest_scholarships()
 
         data = {
             "user_stats": {
@@ -69,10 +86,37 @@ class AdminStatisticsView(APIView):
                 "approved_scholarships": total_approved_scholarships,
                 "unapproved_scholarships": total_unapproved_scholarships,
                 "total_applications":total_applications
-            }
+            },
+            "monthly_application_data": [
+                {"name": "This year", "data": current_year_data},
+                {"name": "Last year", "data": last_year_data},
+            ],
+            "latest_scholarships": latest_scholarships
         }
 
         return Response(data)
+
+    def get_monthly_application_data(self, year):
+        monthly_data = []
+        for month in range(1, 13):
+            count = UserScholarshipApplicationData.objects.filter(
+                datetime_created__year=year,
+                datetime_created__month=month
+            ).count()
+            monthly_data.append(count)
+        return monthly_data
+
+    def get_latest_scholarships(self):
+        latest_scholarships = ScholarshipData.objects.order_by('-datetime_created')[:5]
+        scholarship_data = []
+        for scholarship in latest_scholarships:
+            status = UserScholarshipStatus.objects.filter(scholarship=scholarship).first()
+            scholarship_data.append({
+                "id": scholarship.id,
+                "title": scholarship.title,
+                "status": status.status if status else "Unknown"
+            })
+        return scholarship_data
     
 class HostUserListView(generics.ListAPIView):
     permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]
@@ -90,6 +134,14 @@ class UserListView(generics.ListAPIView):
         # Fetch all UserProfile objects where is_host_user=True
         return User.objects.filter(userprofile__is_host_user=False)
 
+class userScholarshipStatusListView(generics.ListAPIView):
+    permission_classes = [IsActivePermission,IsAdminUser, IsReviewerUser]
+    serializer_class = UserScholarshipStatusSerializer
+    authentication_classes = DEFAULT_AUTH_CLASSES
+
+    def get_queryset(self):
+        return UserScholarshipStatus.objects.all()
+
 class UserScholarshipStatusViewset(viewsets.ModelViewSet):
     queryset = UserScholarshipStatus.objects.all()
     serializer_class = UserScholarshipStatusSerializer
@@ -98,9 +150,9 @@ class UserScholarshipStatusViewset(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in ['PATCH']:
-            return [IsActivePermission, IsAdminUser, IsReviewerUser, CanHostSites]
+            return [IsActivePermission, IsAdminUser, IsReviewerUser]
         else:
-            return [IsActivePermission, CanHostSites]
+            return [IsActivePermission, CanHostScholarships]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
@@ -128,6 +180,26 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        
+        # Add subscription information
+        user = instance.user
+        data['is_subscribed'] = user.is_subscribed()
+        current_plan = user.get_current_plan()
+        if current_plan:
+            data['current_plan'] = {
+                'title': current_plan.title,
+                'amount': current_plan.amount,
+                'duration': current_plan.duration
+            }
+        else:
+            data['current_plan'] = None
+
+        return Response(data)
 
 class UserProfilePatchView(APIView):
     authentication_classes = DEFAULT_AUTH_CLASSES

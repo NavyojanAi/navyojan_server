@@ -1,73 +1,77 @@
-from userapp.models import ScholarshipData, Category, UserPreferences, UserScholarshipApplicationData,UserProfile
-from django.contrib.auth.models import User
-
 from django.utils import timezone
 from datetime import timedelta
-
 from openai import OpenAI
-import os
 from ai.config import OPEN_AI_KEY
 
+from userapp.models.user import (
+    User, UserProfile, UserDocuments, UserPreferences, UserScholarshipStatus
+)
+from userapp.models.scholarships import ScholarshipData, Category, Eligibility, Documents
 
 def perform():
     now = timezone.now()
     one_day_ago = now - timedelta(days=1)
-    categories = Category.objects.all()
+    
+    # Get scholarships created in the last day
+    scholarships = ScholarshipData.objects.filter(
+        datetime_created__date=one_day_ago.date(),
+        is_approved=True
+    )
 
-    for category in categories:
-        scholarships = ScholarshipData.objects.filter(
-            categories=category,
-            datetime_created__date=one_day_ago.date()
-            )
+    for scholarship in scholarships:
+        # Get users who have preferences matching the scholarship categories and an active subscription
         users = User.objects.filter(
-            userprofile__premium_account_privilages=True,
-            category_preferences__categories=category
-            )
-        # user_ids = UserPreferences.objects.filter(categories=category,user__userprofile__premium_account_privilages=True).values_list('user_id', flat=True)
+            # userplantracker__end_date__gt=timezone.now(),
+            userprofile__plan__isnull=False,
+            category_preferences__categories__in=scholarship.categories.all()
+        ).distinct()
 
-        # TODO: eligibility check
+        for user in users:
+            if check_eligibility_with_gpt(user, scholarship):
+                notify_user(user, scholarship)
 
-        final_users = []
-
-        for scholarship in scholarships:
-            for user in users:
-                user_profile = UserProfile.objects.get(user=user)
-                user_profile_data = f"""
-                Gender: {user_profile.gender}
-                Education Level: {user_profile.education_level}
-                Field of Study: {user_profile.field_of_study}
-                Country: {user_profile.country}
-                """
-                # "documents": {
-                #         "sports_certificate": user_profile.documents.certificate_sports if user.documents else None,
-                #         "disability_certificate": user_profile.documents.certificate_disability if user.documents else None,
-                #     }
-                
-                is_eligible = check_eligibility_with_gpt(scholarship.eligibility, user_profile_data)
-                if is_eligible == "yes":
-                    final_users.append(user)
-                    
-                    application ,created=UserScholarshipApplicationData.objects.get_or_create(
-                        user=user,
-                        scholarship=scholarship,
-                        is_applied=True
-                        )
-                    if not created:
-                        application.is_interested=True
-                        application.is_applied=True
-                        application.save()
-
-
-def check_eligibility_with_gpt(scholarship_eligibility, user_profile):
+def check_eligibility_with_gpt(user, scholarship):
     client = OpenAI(api_key=OPEN_AI_KEY)
-    prompt = f"""
-    Scholarship Eligibility Criteria:
-    {scholarship_eligibility}
 
+    # Correct way to access UserProfile and UserDocuments
+    user_profile = UserProfile.objects.get(user=user)
+    try:
+        user_documents = UserDocuments.objects.get(user=user)
+    except UserDocuments.DoesNotExist:
+        user_documents = None
+
+    user_data = f"""
     User Profile:
-    {user_profile}
+    - Gender: {user_profile.gender}
+    - Education Level: {user_profile.education_level}
+    - Field of Study: {user_profile.field_of_study}
+    - Country: {user_profile.country}
 
-    Based on the scholarship eligibility criteria and the user profile, is the user eligible for this scholarship? Respond with only 'Yes' or 'No'.
+    User Documents:
+    - 10th Marksheet: {"Uploaded" if user_documents and user_documents.certificate_tenth else "Not Uploaded"}
+    - 12th Marksheet: {"Uploaded" if user_documents and user_documents.certificate_inter else "Not Uploaded"}
+    - Disability Certificate: {"Uploaded" if user_documents and user_documents.certificate_disability else "Not Uploaded"}
+    - Sports Certificate: {"Uploaded" if user_documents and user_documents.certificate_sports else "Not Uploaded"}
+    """
+
+    # Prepare scholarship eligibility and document requirements
+    scholarship_data = f"""
+    Scholarship Eligibility Criteria:
+    {', '.join([f"{e.name}: {e.display_name}" for e in scholarship.eligibility.all()])}
+
+    Required Documents:
+    {', '.join([d.name for d in scholarship.document_needed.all()])}
+    """
+
+    prompt = f"""
+    Based on the following information, determine if the user is eligible for the scholarship.
+    Consider both the eligibility criteria and the required documents.
+
+    {scholarship_data}
+
+    {user_data}
+
+    Is the user eligible for this scholarship? Respond with only 'Yes' or 'No'.
     """
 
     response = client.chat.completions.create(
@@ -78,4 +82,18 @@ def check_eligibility_with_gpt(scholarship_eligibility, user_profile):
         ]
     )
 
-    return response.choices[0].message.content.strip().lower()
+    return response.choices[0].message.content.strip().lower() == 'yes'
+
+def notify_user(user, scholarship):
+    # Create or update UserScholarshipStatus
+    UserScholarshipStatus.objects.update_or_create(
+        user=user,
+        scholarship=scholarship,
+        defaults={'status': 'pending'}
+    )
+    
+    # Here you would typically send an email or push notification to the user
+    print(f"Notifying user {user.username} about scholarship {scholarship.title}")
+
+if __name__ == "__main__":
+    perform()

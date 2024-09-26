@@ -212,6 +212,9 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,  # Blacklist the old refresh token after it is rotated
 }
 
+RAZOR_KEY_ID = "YOUR_KEY_ID"
+RAZOR_KEY_SECRET = "YOUR_KEY_SECRET"
+
 
 # REST_FRAMEWORK = {
 #     # 'DEFAULT_FILTER_BACKENDS': [
