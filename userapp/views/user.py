@@ -24,7 +24,7 @@ DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 
 
 class AdminStatisticsView(APIView):
-    permission_classes = [IsActivePermission, IsAdminUser]  # Allow only admin users to view these statistics
+    permission_classes = [IsActivePermission, IsAdminUser,CanHostScholarships]  # Allow only admin users to view these statistics
     authentication_classes = DEFAULT_AUTH_CLASSES
 
     def get(self, request, *args, **kwargs):
