@@ -101,6 +101,8 @@ def login_view(request):
                 }
                 if user.userprofile.is_host_user:
                     response['role']='scholarshipprovider'
+                elif user.is_staff:
+                    response['role']='admin'
                 elif user.userprofile.is_reviewer:
                     response['role']='reviewer'
                 else:

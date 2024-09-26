@@ -2,7 +2,7 @@ from .user import UserScholarshipStatusViewset,UserListView,HostUserListView,Use
 from .scholarships import ScholarshipDataViewSet,CategoryViewSet,UserScholarshipApplicationDataViewset,DocumentViewSet,EligibilityViewSet
 from .authentication import signup_view,login_view,logout_view
 from .payment import PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView
-from .user_plans import SubscriptionPlanViewSet,SubscribeUserView
+from .user_plans import SubscriptionPlanViewSet
 
 
 
