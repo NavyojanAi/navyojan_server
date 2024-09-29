@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from userapp.views import (
-    UserScholarshipStatusViewset, UserListView, HostUserListViewset, UserProfileViewSet,
+    ScholarshipProviderStatisticsView,UserScholarshipStatusViewset, UserListView, HostUserListViewset, UserProfileViewSet,
     ScholarshipDataViewSet, GenerateOTP, VerifyOTP, CategoryViewSet,
     UserScholarshipApplicationDataViewset, UserProfileScholarshipProviderViewset,
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
@@ -26,6 +26,7 @@ router.register(r'eligibility',EligibilityViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('provider-stats/', ScholarshipProviderStatisticsView.as_view()),
     path('plans/', SubscriptionPlanViewSet.as_view({'get': 'list'}), name='subscription-plans'),
     path('paymenthandler', PaymentHandlerView.as_view(), name='paymenthandler'),
     path('paymentrequest', PaymentRequestView.as_view(), name='paymentrequest'),

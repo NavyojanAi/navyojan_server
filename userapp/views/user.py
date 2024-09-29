@@ -17,7 +17,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 from userapp.models import UserScholarshipStatus,UserProfile, OTP,UserProfileScholarshipProvider,UserDocuments,UserPreferences, ScholarshipData, UserScholarshipApplicationData, UserPlanTracker
-from userapp.serializers import UserScholarshipStatusSerializer,UserDisplaySerializer,UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
+from userapp.serializers import ScholarshipDataSerializer,UserScholarshipStatusSerializer,UserDisplaySerializer,UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
 from userapp.permission import IsActivePermission, IsReviewerUser,CanHostScholarships
 from userapp.authentication import FirebaseAuthentication
 
@@ -26,7 +26,7 @@ DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 
 
 class AdminStatisticsView(APIView):
-    permission_classes = [IsActivePermission, IsAdminUser,CanHostScholarships]  # Allow only admin users to view these statistics
+    permission_classes = [IsActivePermission, IsAdminUser]  # Allow only admin users to view these statistics
     authentication_classes = DEFAULT_AUTH_CLASSES
 
     def get(self, request, *args, **kwargs):
@@ -124,6 +124,81 @@ class AdminStatisticsView(APIView):
             latest_applications = UserScholarshipApplicationData.objects.order_by('-datetime_created')
         data = UserScholarshipDataSerializer(latest_applications, many=True).data
         return data
+class ScholarshipProviderStatisticsView(APIView):
+    permission_classes = [IsActivePermission, CanHostScholarships]
+    authentication_classes = DEFAULT_AUTH_CLASSES
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        host_profile = get_object_or_404(UserProfileScholarshipProvider, user=user)
+
+        # Scholarship statistics
+        hosted_scholarships = host_profile.hosted_scholarships.all()
+        total_scholarships = hosted_scholarships.count()
+        approved_scholarships = hosted_scholarships.filter(is_approved=True).count()
+        pending_scholarships = hosted_scholarships.filter(is_approved=False).count()
+
+        # Application statistics
+        total_applications = UserScholarshipApplicationData.objects.filter(scholarship__in=hosted_scholarships).count()
+        applied_applications = UserScholarshipApplicationData.objects.filter(scholarship__in=hosted_scholarships, status='applied').count()
+        selected_applications = UserScholarshipApplicationData.objects.filter(scholarship__in=hosted_scholarships, status='selected').count()
+        rejected_applications = UserScholarshipApplicationData.objects.filter(scholarship__in=hosted_scholarships, status='rejected').count()
+
+        # Monthly application data
+        current_year = timezone.now().year
+        last_year = current_year - 1
+
+        current_year_data = self.get_monthly_application_data(hosted_scholarships, current_year)
+        last_year_data = self.get_monthly_application_data(hosted_scholarships, last_year)
+
+        # Latest scholarships
+        latest_scholarships = self.get_latest_scholarships(hosted_scholarships)
+
+        # Latest applications
+        latest_applications = self.get_latest_applications(hosted_scholarships)
+
+        data = {
+            "scholarship_stats": {
+                "total_scholarships": total_scholarships,
+                "approved_scholarships": approved_scholarships,
+                "pending_scholarships": pending_scholarships,
+            },
+            "application_stats": {
+                "total_applications": total_applications,
+                "applied_applications": applied_applications,
+                "selected_applications": selected_applications,
+                "rejected_applications": rejected_applications,
+            },
+            "monthly_application_data": [
+                {"name": "This year", "data": current_year_data},
+                {"name": "Last year", "data": last_year_data},
+            ],
+            "latest_scholarships": latest_scholarships,
+            "latest_applications": latest_applications,
+        }
+
+        return Response(data)
+
+    def get_monthly_application_data(self, scholarships, year):
+        monthly_data = []
+        for month in range(1, 13):
+            count = UserScholarshipApplicationData.objects.filter(
+                scholarship__in=scholarships,
+                datetime_created__year=year,
+                datetime_created__month=month
+            ).count()
+            monthly_data.append(count)
+        return monthly_data
+
+    def get_latest_scholarships(self, scholarships):
+        latest_scholarships = scholarships.order_by('-datetime_created')[:5]
+        return ScholarshipDataSerializer(latest_scholarships, many=True).data
+
+    def get_latest_applications(self, scholarships):
+        latest_applications = UserScholarshipApplicationData.objects.filter(
+            scholarship__in=scholarships
+        ).order_by('-datetime_created')[:5]
+        return UserScholarshipDataSerializer(latest_applications, many=True).data
     
 class HostUserListViewset(APIView):
     permission_classes = [IsActivePermission, IsAdminUser, IsReviewerUser]
