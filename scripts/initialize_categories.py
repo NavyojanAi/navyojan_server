@@ -45,12 +45,13 @@ def initialize_eligibility():
         "gender": "Scholarship may be specific to a particular gender.",
         "male": "Applicant must be male.",  
         "female": "Applicant must be female.",
-        "others": "Applicant must be of other gender.",
+        "other_gender": "Applicant must be of other gender.",
         
         "course_level": "Applicable for students studying at a specific education level (e.g., high school, undergraduate, postgraduate).",
         "disability_status": "Applicant must have a recognized disability as per government norms.",
         "minority_status": "Applicant must belong to a recognized minority community.",
-        "nationality": "Applicant must be a citizen of the specified country."
+        "nationality": "Applicant must be a citizen of the specified country.",
+        "others": "Details to be specified by the scholarship provider.",
     }
 
     for name, description in eligibility_criteria.items():
@@ -72,7 +73,7 @@ def initialize_documents():
         "disability_certificate": "An official document certifying the nature and extent of the applicant's disability.",
         "ration_card": "A document issued by the government that entitles households to obtain essential goods at subsidized rates.",
         "parivar_pehchan_patra": "A family ID card issued by some state governments in India.",
-
+        "others": "Details to be specified by the scholarship provider.",
     }
 
     for name, description in required_documents.items():
