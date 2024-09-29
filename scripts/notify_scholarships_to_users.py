@@ -1,3 +1,5 @@
+import os
+import django
 from django.utils import timezone
 from datetime import timedelta
 from openai import OpenAI
@@ -7,6 +9,9 @@ from userapp.models.user import (
     User, UserProfile, UserDocuments, UserPreferences, UserScholarshipStatus
 )
 from userapp.models.scholarships import ScholarshipData, Category
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
+django.setup()
+
 
 def perform():
     now = timezone.now()
