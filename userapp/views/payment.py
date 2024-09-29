@@ -66,6 +66,9 @@ class PaymentHandlerView(APIView):
                     razorpay_client.payment.capture(payment_id, amount)
                     user = request.user
                     user_plan = UserPlanTracker.objects.create(user=user, plan=plan, end_date=now() + timedelta(days=plan.duration))
+                    userprofile = user.userprofile
+                    userprofile.plan = plan
+                    userprofile.save()
                     return Response({'message': 'Payment successful'}, status=status.HTTP_200_OK)
                 except:
                     return Response({'error': 'Payment capture failed'}, status=status.HTTP_400_BAD_REQUEST)
