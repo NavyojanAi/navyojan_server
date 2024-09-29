@@ -19,15 +19,16 @@ def perform():
     
     # Get scholarships created in the last day
     scholarships = ScholarshipData.objects.filter(
-        datetime_created__date=one_day_ago.date(),
+        datetime_created__gte=one_day_ago,
+        datetime_created__lte=now,
         is_approved=True
     )
 
     for scholarship in scholarships:
         # Get users who have preferences matching the scholarship categories and an active subscription
         users = User.objects.filter(
-            # userplantracker__end_date__gt=timezone.now(),
-            userprofile__plan__isnull=False,
+            plan_tracker__end_date__gt=timezone.now(),
+            # userprofile__plan__isnull=False,
             category_preferences__categories__in=scholarship.categories.all()
         ).distinct()
 
