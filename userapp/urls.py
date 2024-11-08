@@ -9,7 +9,7 @@ from userapp.views import (
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
     DocumentViewSet, EligibilityViewSet, SubscriptionPlanViewSet, PaymentHandlerView,
-    PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView
+    PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView,UserPaymentsViewset
 )
 
 router = DefaultRouter()
@@ -23,13 +23,14 @@ router.register(r'preferences',UserPreferencesViewset)
 router.register(r'scholarship_status',UserScholarshipStatusViewset)
 router.register(r'documents_required',DocumentViewSet)
 router.register(r'eligibility',EligibilityViewSet)
+router.register(r'user_payments', UserPaymentsViewset)
 
 urlpatterns = [
     path('', include(router.urls)),
     path('provider-stats/', ScholarshipProviderStatisticsView.as_view()),
     path('plans/', SubscriptionPlanViewSet.as_view({'get': 'list'}), name='subscription-plans'),
-    path('paymenthandler', PaymentHandlerView.as_view(), name='paymenthandler'),
-    path('paymentrequest', PaymentRequestView.as_view(), name='paymentrequest'),
+    path('paymenthandler/', PaymentHandlerView.as_view(), name='paymenthandler'),
+    path('paymentrequest/', PaymentRequestView.as_view(), name='paymentrequest'),
     path('check_subscription', CheckUserSubscriptionView.as_view(), name='check_subscription'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
