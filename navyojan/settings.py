@@ -55,6 +55,18 @@ FIREBASE_CREDENTIALS = credentials.Certificate(
 
 firebase_admin.initialize_app(FIREBASE_CREDENTIALS)
 
+# Email configuration
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # For Gmail SMTP
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]  # Your email address
+EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]  # Your email password or App Password
+
+
+FERNET_KEY = os.environ["FERNET_KEY"]
+
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/

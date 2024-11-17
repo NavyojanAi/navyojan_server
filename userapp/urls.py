@@ -9,7 +9,8 @@ from userapp.views import (
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
     DocumentViewSet, EligibilityViewSet, SubscriptionPlanViewSet, PaymentHandlerView,
-    PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView,UserPaymentsViewset
+    PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView,UserPaymentsViewset,
+    EmailVerificationViewSet
 )
 
 router = DefaultRouter()
@@ -24,6 +25,7 @@ router.register(r'scholarship_status',UserScholarshipStatusViewset)
 router.register(r'documents_required',DocumentViewSet)
 router.register(r'eligibility',EligibilityViewSet)
 router.register(r'user_payments', UserPaymentsViewset)
+router.register(r'email_verification', EmailVerificationViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
