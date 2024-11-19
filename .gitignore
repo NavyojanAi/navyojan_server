@@ -3,3 +3,4 @@ ai/config.py
 ai/__pycache__/
 userapp/management/commands/update_categories.py
 test.py
+fernet_key_gen.py
