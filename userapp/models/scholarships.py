@@ -56,11 +56,14 @@ class Category(BaseModel):
     def __str__(self):
         return self.name
 
+
+# THIS KEEPS TRACK OF APPLICATIONS FOR SCHOLARSHIP BY USERS
 class UserScholarshipApplicationData(BaseModel):
     STATUS=(
         ('applied', 'Applied'),
         ('selected', 'Selected'),
-        ('rejected','Rejected')
+        ('rejected','Rejected'),
+        ('eligible','Eligible'),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='scholarship_applications')
     scholarship = models.ForeignKey(ScholarshipData,on_delete=models.CASCADE,related_name='applicants')

@@ -48,6 +48,11 @@ class UserProfileScholarshipProvider(BaseModel):
 
     can_host_scholarships = models.BooleanField(default=False)
 
+# ScholarshipData.host = who actually hosted it 
+# ScholarshipData.host.user.email
+
+
+# THIS KEEPS TRACK OF FOR WHICH SCHOLARSHIP ARE OPENED FOR USERS AND ARE APPROVED OR REJECTED BY ADMIN
 class UserScholarshipStatus(BaseModel):
     STATUS=(
         ('pending', 'Pending'),

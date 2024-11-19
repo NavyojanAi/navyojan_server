@@ -6,20 +6,21 @@ from ai.config import OPEN_AI_KEY
 from userapp.models.user import (
     User, UserProfile, UserDocuments, UserPreferences, UserScholarshipStatus
 )
-from userapp.models.scholarships import ScholarshipData, Category, Eligibility, Documents
+from userapp.models.scholarships import ScholarshipData, Category, Eligibility, Documents, UserScholarshipApplicationData
 
 def perform():
     now = timezone.now()
-    one_day_ago = now - timedelta(days=1)
+    # one_day_ago = now - timedelta(days=1)
     
-    # Get scholarships created in the last day
+    # Get all available scholarships that are not expired
     scholarships = ScholarshipData.objects.filter(
-        datetime_created__date=one_day_ago.date(),
-        is_approved=True
+        # datetime_created__date=one_day_ago.date(),
+        is_approved=True,
+        deadline__gte=now  #ensures the scholarship is not expired
     )
 
     for scholarship in scholarships:
-        # Get users who have preferences matching the scholarship categories and an active subscription
+        # Get users who have preferences matching the scholarship categories
         users = User.objects.filter(
             # userplantracker__end_date__gt=timezone.now(),
             userprofile__plan__isnull=False,
@@ -28,7 +29,10 @@ def perform():
 
         for user in users:
             if check_eligibility_with_gpt(user, scholarship):
-                notify_user(user, scholarship)
+                if user.userprofile.plan.amount == 14900:
+                    notify_user(user, scholarship, auto_apply=False)
+                elif user.userprofile.plan.amount == 24900:
+                    notify_user(user, scholarship, auto_apply=True)
 
 def check_eligibility_with_gpt(user, scholarship):
     client = OpenAI(api_key=OPEN_AI_KEY)
@@ -84,16 +88,55 @@ def check_eligibility_with_gpt(user, scholarship):
 
     return response.choices[0].message.content.strip().lower() == 'yes'
 
-def notify_user(user, scholarship):
-    # Create or update UserScholarshipStatus
-    UserScholarshipStatus.objects.update_or_create(
-        user=user,
-        scholarship=scholarship,
-        defaults={'status': 'pending'}
-    )
+
+
+
+# def notify_user(user, scholarship):
+#     # Create or update UserScholarshipStatus
+#     UserScholarshipStatus.objects.update_or_create(
+#         user=user,
+#         scholarship=scholarship,
+#         defaults={'status': 'pending'}
+#     )
     
-    # Here you would typically send an email or push notification to the user
-    print(f"Notifying user {user.username} about scholarship {scholarship.title}")
+#     # Here you would typically send an email or push notification to the user
+#     print(f"Notifying user {user.username} about scholarship {scholarship.title}")
+
+def notify_user(user, scholarship, auto_apply):
+    if auto_apply:
+        # Create or update UserScholarshipStatus
+        UserScholarshipApplicationData.objects.update_or_create(     #change this with respect to scholarships.py
+            user=user,
+            scholarship=scholarship,
+            defaults={'status': 'applied'}
+        )
+        # Notify user about auto-application
+        print(f"User {user.username} has been auto-applied for scholarship {scholarship.title}.")
+        
+        # SEND ALL THIS USER DETAIL TO SCHOLARSHIP PROVIDER
+        # APPLY AND SEND THE MAIL
+        
+        
+        # ScholarshipData.host = who actually hosted it 
+        # ScholarshipData.host.user.email
+        
+        
+        # Here you would typically send an email or push notification to the user
+    else:
+        # Create or update UserScholarshipStatus
+        UserScholarshipApplicationData.objects.update_or_create(
+            user=user,
+            scholarship=scholarship,
+            defaults={'status': 'eligible'}
+        )
+        # Notify user about the scholarship details
+        print(f"Notifying user {user.username} about scholarship {scholarship.title}.")
+
+
+        # SEND ONLY MAIL TO USER
 
 if __name__ == "__main__":
     perform()
+    
+    
+#for 149 I have to send user the 
