@@ -8,7 +8,7 @@ from django.utils.timezone import now
 from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category,Documents,Eligibility
 from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer,DocumentSerializer,EligibilitySerializer
 from userapp.authentication import FirebaseAuthentication
-from userapp.permission import IsActivePermission,CanHostScholarships,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission,IsReviewerUser
+from userapp.permission import IsActivePermission,CanHostScholarships,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission,IsReviewerUser,IsEmailAndPhoneNumberVerified
 from userapp.filters import ScholarshipDataFilter
 
 from rest_framework_simplejwt.authentication import JWTAuthentication

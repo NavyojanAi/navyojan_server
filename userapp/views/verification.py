@@ -9,11 +9,19 @@ from userapp.authentication import FirebaseAuthentication
 from logs import logger
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from userapp.permission import IsVerfiedPermission, IsActivePermission
+
 from rest_framework.decorators import action
 
 DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 class EmailVerificationViewSet(viewsets.ViewSet):
     authentication_classes = DEFAULT_AUTH_CLASSES
+    permission_classes = [IsActivePermission]
+
+    def get_permissions(self):
+        if self.action in ['send_otp', 'verify_otp']:
+            return [IsVerfiedPermission()]
+        return super().get_permissions()
 
     @action(detail=False, methods=['post'], url_path='send-otp')
     def send_otp(self, request):
