@@ -25,7 +25,7 @@ router.register(r'scholarship_status',UserScholarshipStatusViewset)
 router.register(r'documents_required',DocumentViewSet)
 router.register(r'eligibility',EligibilityViewSet)
 router.register(r'user_payments', UserPaymentsViewset)
-router.register(r'email_verification', EmailVerificationViewSet)
+router.register(r'email_verification', EmailVerificationViewSet, basename='email-verification')
 
 urlpatterns = [
     path('', include(router.urls)),

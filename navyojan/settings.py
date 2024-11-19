@@ -24,10 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.extend(
     [
         str(BASE_DIR.parent / "ai"),
+        str(BASE_DIR.parent / "logs"),
+        str(BASE_DIR.parent / "tasks"),
+        str(BASE_DIR.parent / "scripts"),
     ]
 )
 
 load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+from logs import logger
 
 # URL for serving media files (locally stored PDFs)
 MEDIA_URL = "/media/"
@@ -65,6 +70,29 @@ EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]  # Your email password o
 
 
 FERNET_KEY = os.environ["FERNET_KEY"]
+
+CELERY_BROKER_URL = os.environ["RABBITMQ"]
+CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+    user=os.environ["POSTGRES_USERNAME"],
+    password=os.environ["POSTGRES_PASSWORD"],
+    host=os.environ["POSTGRES_HOST"],
+    port=os.environ["POSTGRES_PORT"],
+    database=os.environ["POSTGRES_DATABASE"],
+) 
+
+CELERY_TASK_ROUTES = {
+    "tasks.send_email.send_email_task": {"queue": "default-queue"},
+    "backend.celery.debug_task": {"queue": "default-queue"}
+    # Add more tasks as needed
+}
+
+
+CELERY_TASK_SERIALIZER="pickle"
+CELERY_RESULT_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle']
+CELERY_TASK_IGNORE_RESULT=False
+CELERY_TASK_TRACK_STARTED=True
+CELERY_TASK_DEFAULT_QUEUE="default-queue"
 
 
 
@@ -109,6 +137,7 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "drf_yasg",
+    "celery",
 ]
 
 MIDDLEWARE = [
@@ -173,7 +202,7 @@ WSGI_APPLICATION = "navyojan.wsgi.application"
 # TO CONNECT TO THE DATABASE: RUN THE FOLLOWING COMMANDS IN THE TERMINAL
 # psql -U postgres
 
-print(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
+logger.info(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
 
 # DATABASES = {
 #     'default': {
@@ -269,14 +298,3 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# TODO : need to setup celery
-# # Define the broker URL for Celery
-# CELERY_BROKER_URL = 'redis://localhost:6379/0'
-
-# # Optional configurations
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TIMEZONE = 'UTC'
