@@ -19,3 +19,13 @@ class UserPlanTracker(BaseModel):
 
     def __str__(self):
         return f"{self.user.username} - {self.plan.title} - {self.end_date}"
+
+class UserPayments(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE)
+    razorpay_order_id = models.CharField(max_length=255)
+    payment_id = models.CharField(max_length=255)
+    signature = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan.title} - {self.razorpay_order_id}"

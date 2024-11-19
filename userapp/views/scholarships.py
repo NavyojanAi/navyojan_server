@@ -8,42 +8,49 @@ from django.utils.timezone import now
 from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category,Documents,Eligibility
 from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer,DocumentSerializer,EligibilitySerializer
 from userapp.authentication import FirebaseAuthentication
-from userapp.permission import IsActivePermission,CanHostScholarships,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission,IsReviewerUser
+from userapp.permission import IsActivePermission,CanHostScholarships,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission,IsReviewerUser,IsEmailAndPhoneNumberVerified
 from userapp.filters import ScholarshipDataFilter
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import viewsets
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework.permissions import IsAdminUser
 DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication] 
 
 
 class ScholarshipDataViewSet(viewsets.ModelViewSet):
-    queryset = ScholarshipData.objects.filter(is_approved=True) 
+    queryset = ScholarshipData.objects.all()
     serializer_class = ScholarshipDataSerializer
-    http_method_names = ["get","post","patch","delete"] 
-
     filter_backends = [DjangoFilterBackend]
     filterset_class = ScholarshipDataFilter
+    http_method_names = ["get", "post", "patch", "delete"]
+
+    def get_queryset(self):
+        if self.action == 'list' and self.request.user.is_authenticated and (self.request.user.is_staff or self.request.user.userprofile.is_reviewer):
+            return ScholarshipData.objects.all()
+        return ScholarshipData.objects.filter(is_approved=True)
 
     def get_permissions(self):
-        if self.request.method in ['POST', 'DELETE']:
+        if self.action == 'list' and self.request.user.is_authenticated and (self.request.user.is_staff or self.request.user.userprofile.is_reviewer):
+            return [IsActivePermission(), IsReviewerUser(), IsAdminUser()]
+        elif self.request.method in ['POST', 'DELETE']:
             return [IsActivePermission(), CanHostScholarships()]
-        elif self.request.method in ['PATCH']:
+        elif self.request.method == 'PATCH':
             return [IsActiveAndCanHostOrIsReviewer()]
         else:
             return []
+
     def get_authenticators(self):
         if self.request.method in ['POST', 'PATCH', 'DELETE']:
             return [auth() for auth in DEFAULT_AUTH_CLASSES]
         return []
 
-        
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
-        return queryset.filter(deadline__gte=now())
-    
+        if not (self.request.user.is_authenticated and (self.request.user.is_staff or self.request.user.userprofile.is_reviewer)):
+            queryset = queryset.filter(deadline__gte=now())
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -69,24 +76,22 @@ class ScholarshipDataViewSet(viewsets.ModelViewSet):
         return Response(response_data)
         
     def create(self, request, *args, **kwargs):
-        data = request.data
-        serializer = self.serializer_class(data=data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            scholarship=serializer.save()
-            user = self.request.user
+            scholarship = serializer.save()
+            user = request.user
             user.hostprofile.hosted_scholarships.add(scholarship)
             UserScholarshipStatus.objects.get_or_create(user=user,scholarship=scholarship) # Reviewer needs to approve this scholarship
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        user = self.request.user
-        if instance not in request.user.hostprofile.hosted_scholarships.all():
-            return Response(status=status.HTTP_401_UNAUTHORIZED)     
-        user.hostprofile.hosted_scholarships.remove(instance)  
+        user = request.user
+        if instance not in user.hostprofile.hosted_scholarships.all():
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        user.hostprofile.hosted_scholarships.remove(instance)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_202_ACCEPTED)
 
@@ -110,27 +115,44 @@ class UserScholarshipApplicationDataViewset(viewsets.ModelViewSet):
     serializer_class = UserScholarshipDataSerializer
     http_method_names = ["get", "post", "patch"]
     authentication_classes = DEFAULT_AUTH_CLASSES
-    permission_classes = [IsActivePermission,IsVerfiedPermission]
+    permission_classes = [IsActivePermission]
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return [IsActivePermission(), IsVerfiedPermission()]
+        elif self.action == 'list':
+            return [IsActivePermission()]
+        else:
+            return [IsActivePermission(), IsAdminUser() | CanHostScholarships()]
 
     def get_queryset(self):
-        queryset = self.queryset.filter(user=self.request.user)
-        return queryset
+        user = self.request.user
+        if user.is_staff or user.userprofile.is_reviewer:
+            return self.queryset.all()
+        elif user.hostprofile.can_host_scholarships and user.userprofile.is_host_user:
+            return self.queryset.filter(scholarship__host=user)
+        else:
+            return self.queryset.filter(user=user)
 
     def create(self, request, *args, **kwargs):
         user = request.user
         scholarship_id = request.data.get('scholarship')
 
-        # Check if the application already exists for the user and scholarship
         try:
             application = self.queryset.get(user=user, scholarship__id=scholarship_id)
-            # Update the existing application based on the incoming data
             serializer = self.get_serializer(application, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except UserScholarshipApplicationData.DoesNotExist:
-            # If the application does not exist, create a new one
             return super().create(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if request.user.hostprofile.can_host_scholarships:
+            queryset = queryset.filter(status='applied')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 class UserScholarshipApplicationListView(generics.ListAPIView):
     queryset = UserScholarshipApplicationData.objects.all()

@@ -27,7 +27,7 @@ class BaseUserProfile(BaseModel):
     is_phone_number_verified = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username} - {self.account_type}"
+        return f"{self.account_type}"
 
 class UserProfile(BaseUserProfile):
     user = models.OneToOneField(User, on_delete=models.CASCADE,related_name="userprofile")

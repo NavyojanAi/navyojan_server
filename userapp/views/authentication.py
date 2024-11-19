@@ -42,6 +42,7 @@ def signup_view(request):
                 UserDocuments.objects.get_or_create(user=user)
                 UserPreferences.objects.get_or_create(user=user)
                 signup_type = request.data.get('signup_type')
+                created = False
                 if signup_type == 'scholarshipProviders':
                     _,created=UserProfileScholarshipProvider.objects.get_or_create(user=user)
                     user_profile.is_host_user=True
@@ -99,7 +100,10 @@ def login_view(request):
                     'access': str(refresh.access_token),
                     'refresh': str(refresh)
                 }
-                if user.userprofile.is_host_user:
+                
+                if user.is_staff:
+                    response['role']='admin'
+                elif user.userprofile.is_host_user:
                     response['role']='scholarshipprovider'
                 elif user.userprofile.is_reviewer:
                     response['role']='reviewer'

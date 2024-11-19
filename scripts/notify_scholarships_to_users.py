@@ -1,3 +1,5 @@
+import os
+import django
 from django.utils import timezone
 from datetime import timedelta
 from openai import OpenAI
@@ -6,7 +8,12 @@ from ai.config import OPEN_AI_KEY
 from userapp.models.user import (
     User, UserProfile, UserDocuments, UserPreferences, UserScholarshipStatus
 )
+
 from userapp.models.scholarships import ScholarshipData, Category, Eligibility, Documents, UserScholarshipApplicationData
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
+django.setup()
+
+
 
 def perform():
     now = timezone.now()
@@ -22,8 +29,8 @@ def perform():
     for scholarship in scholarships:
         # Get users who have preferences matching the scholarship categories
         users = User.objects.filter(
-            # userplantracker__end_date__gt=timezone.now(),
-            userprofile__plan__isnull=False,
+            plan_tracker__end_date__gt=timezone.now(),
+            # userprofile__plan__isnull=False,
             category_preferences__categories__in=scholarship.categories.all()
         ).distinct()
 
