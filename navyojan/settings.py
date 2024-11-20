@@ -82,6 +82,7 @@ CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{databa
 
 CELERY_TASK_ROUTES = {
     "tasks.send_email.send_email_task": {"queue": "default-queue"},
+    "tasks.send_email.send_text_task": {"queue": "default-queue"},
     "backend.celery.debug_task": {"queue": "default-queue"}
     # Add more tasks as needed
 }
@@ -93,6 +94,8 @@ CELERY_ACCEPT_CONTENT = ['pickle']
 CELERY_TASK_IGNORE_RESULT=False
 CELERY_TASK_TRACK_STARTED=True
 CELERY_TASK_DEFAULT_QUEUE="default-queue"
+
+MSG_AUTH= os.environ['MSG_AUTH']
 
 
 

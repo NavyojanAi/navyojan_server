@@ -2,4 +2,4 @@ from .user_plans import SubscriptionPlanSerializer
 from .payment import UserPaymentsSerializer
 from .user import UserDisplaySerializer,UserScholarshipStatusSerializer,UserProfileSerializer, UserSerializer, LoginSerializer, UserDocumentsSerializer,UserPreferencesSerializer,UserProfileScholarshipProviderSerializer
 from .scholarships import ScholarshipDataSerializer,UserScholarshipDataSerializer, CategorySerializer,DocumentSerializer,EligibilitySerializer
-from .verification import EmailVerificationSerializer
+from .verification import VerificationSerializer
