@@ -1,9 +1,9 @@
-from userapp.models import EmailVerification
+from userapp.models import Verification
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 # from django.core.mail import send_mail
-from tasks import send_email_task,decrypt_data
+from tasks import send_email_task,decrypt_data,send_text_task
 from navyojan import settings
 from userapp.authentication import FirebaseAuthentication
 from logs import logger
@@ -26,7 +26,7 @@ class EmailVerificationViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='send-otp')
     def send_otp(self, request):
         user = self.request.user
-        email_verification=EmailVerification.objects.create(user=user)  # OTP generation handled in save()
+        email_verification=Verification.objects.create(user=user,verification_type='email')  # OTP generation handled in save()
         
         # Send OTP via email
         logger.debug(f"{email_verification.otp} --- {decrypt_data(email_verification.otp)}")
@@ -47,7 +47,7 @@ class EmailVerificationViewSet(viewsets.ViewSet):
         otp_provided = request.data.get('otp')
 
         try:
-            email_verification = EmailVerification.objects.filter(user=user).order_by('-datetime_created').first()
+            email_verification = Verification.objects.filter(user=user,verification_type='email').order_by('-datetime_created').first()
             decrypted_otp = decrypt_data(email_verification.otp)
             
             if decrypted_otp == otp_provided:
@@ -65,6 +65,54 @@ class EmailVerificationViewSet(viewsets.ViewSet):
                 return Response({"message": "OTP verified successfully."}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
-        except EmailVerification.DoesNotExist:
+        except Verification.DoesNotExist:
             return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+        
+class PhoneVerificationViewset(viewsets.ViewSet):
+    def get_permissions(self):
+        if self.action in ['send_otp', 'verify_otp']:
+            return [IsVerfiedPermission()]
+        return super().get_permissions()
+
+    @action(detail=False, methods=['post'], url_path='send-otp')
+    def send_otp(self, request):
+        user = self.request.user
+        phone_verification = Verification.objects.create(user=user,verification_type='phone')  # OTP generation handled in save()
+        
+        # Send OTP via SMS
+        logger.debug(f"{phone_verification.otp} --- {decrypt_data(phone_verification.otp)}")
+        message = f"Hi {self.request.user.first_name}, your OTP code is {decrypt_data(phone_verification.otp)}"
+        logger.debug(f"sending otp to {user.phone_number}")
+        send_text_task.delay(
+            phone_number=user.phone_number,
+            message=message
+        )
+        
+        return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='verify-otp')
+    def verify_otp(self, request):
+        user = request.user
+        otp_provided = request.data.get('otp')
+
+        try:
+            phone_verification = Verification.objects.filter(user=user,verification_type='phone').order_by('-datetime_created').first()
+            decrypted_otp = decrypt_data(phone_verification.otp)
+            
+            if decrypted_otp == otp_provided:
+                up = user.userprofile
+                up.is_phone_verified = True
+                up.save()
+                message = f"Hi {user.first_name}, your phone number has been successfully verified."
+
+                send_text_task.delay(
+                    phone_number=user.phone_number,
+                    message=message
+                )
+                return Response({"message": "OTP verified successfully."}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+        except Verification.DoesNotExist:
+            return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+
 
