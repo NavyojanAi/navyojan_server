@@ -74,6 +74,18 @@ class UserDocuments(BaseModel):
     certificate_disability = models.FileField(upload_to='disability_pdfs/',validators=[validate_pdf],blank=True)
     certificate_sports = models.FileField(upload_to='sports_pdfs/',validators=[validate_pdf],blank=True)
 
+
+class UserDocumentSummary(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='document_summary')
+    certificate_tenth = models.JSONField(null=True, blank=True)
+    certificate_inter = models.JSONField(null=True, blank=True)
+    certificate_disability = models.JSONField(null=True, blank=True)
+    certificate_sports = models.JSONField(null=True, blank=True)
+    cgpa = models.FloatField(null=True, blank=True)
+    percentage = models.FloatField(null=True, blank=True)
+    
+
+
 class UserPreferences(BaseModel):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='category_preferences')
     categories = models.ManyToManyField(Category,related_name='users') # NOTE: related name will be used for keeping track of user that have shown preference in this category

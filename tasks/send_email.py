@@ -5,7 +5,7 @@ from navyojan import settings
 from tasks import decrypt_data
 from logs import logger
 
-
+# to_user_emails --> array of emails
 @shared_task(name='send_email_task')
 def send_email_task(subject, body, to_user_emails):
     logger.info(f"Sending email with subject: {subject}, body: {body}, to: {to_user_emails}")
