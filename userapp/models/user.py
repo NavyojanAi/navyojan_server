@@ -44,7 +44,7 @@ class Questions(BaseModel):
     ("financial_personal"," Financial and Personal"), # related to userprofile
     ("ambition_problems_challenges","Ambitions, Problems, and Challenges"), # related to userprofile
     ("scholarship_details","Scholarship Details"), # related to scholarshipdata
-    ("agreement","Agreement") # related to scholarshipdata
+    ("review_and_submit","Review and Submit") # related to scholarshipdata
     )
     text = models.TextField()
     category = models.CharField(max_length=50, choices=QUESTION_CATEGORIES)
