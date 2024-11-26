@@ -30,7 +30,7 @@ class BaseUserProfile(BaseModel):
     address = models.TextField(blank=True)  # Address
     city = models.CharField(max_length=50, blank=True)  # City
     state = models.CharField(max_length=50, blank=True)  # State
-    pin_code = models.CharField(max_length=6, blank=True, validators=[RegexValidator(r'^\d{6}$')])  # Pin Code
+    pincode = models.CharField(max_length=6, blank=True, validators=[RegexValidator(r'^\d{6}$')])  # Pin Code
     country = models.CharField(max_length=50, blank=True)
     gender = models.CharField(max_length = 10, blank=True, choices = GENDER_CHOICES)  #default to be removed later
     is_email_verified = models.BooleanField(default=False)

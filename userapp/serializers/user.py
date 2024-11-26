@@ -45,9 +45,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'user', 'phone_number', 'education_level', 'field_of_study', 'country', 'gender', 'profile_photo',
             'account_type', 'date_of_birth', 'is_email_verified', 'is_phone_number_verified', 'parent_name', 'address',
             'city', 'state', 'pincode', 'school_college_university', 'current_academic_year', 'has_siblings',
-            'number_of_siblings', 'siblings_pursuing_education', 'fathers_occupation', 'mothers_occupation',
-            'annual_household_income', 'receiving_scholarships'
-        ]
+            'number_of_siblings', 'are_siblings_pursuing_education', 'fathers_occupation', 'mothers_occupation',
+            'annual_household_income', 'is_receiving_scholarships', 'add_ons', 'is_subscribed', 'current_plan'
+            ]
         read_only_fields = ['is_reviewer', 'is_host_user', 'is_subscribed', 'current_plan']
     
     def get_add_ons(self, obj):
@@ -85,7 +85,7 @@ class UserProfileScholarshipProviderSerializer(serializers.ModelSerializer):
     user = UserDisplaySerializer()
     class Meta:
         model = UserProfileScholarshipProvider
-        fields = ["user","organisation", "org_site", "hosted_scholarships","can_host_scholarships"]
+        fields = ["user", "provider_type", "contact_person_name", "contact_email", "contact_phone_number", "website", "hosted_scholarships", "can_host_scholarships"]
     
     def update(self, instance, validated_data):
         # Handle nested user update

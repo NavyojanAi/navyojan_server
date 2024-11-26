@@ -29,7 +29,7 @@ router.register(r'email_verification', EmailVerificationViewSet, basename='email
 router.register(r'phone_verification', PhoneVerificationViewset, basename='phone-verification')
 router.register(r'question_responses_bulk', QuestionResponsesBulkViewSet)
 router.register(r'questions', QuestionsViewSet)
-router.register(r'question_responses', QuestionResponsesViewSet)
+router.register(r'question_responses', QuestionResponsesViewSet, basename='questions_responses')
 
 
 urlpatterns = [

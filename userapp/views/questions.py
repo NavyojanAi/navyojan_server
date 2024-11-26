@@ -88,7 +88,7 @@ class QuestionsViewSet(viewsets.ModelViewSet):
                 'category',
                 openapi.IN_QUERY,
                 description="Filter questions by category",
-                type=openapi.TYPE_INTEGER
+                type=openapi.TYPE_STRING
             )
         ]
     )
