@@ -18,6 +18,7 @@ class QuestionResponsesViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionResponsesSerializer
     permission_classes = [IsActivePermission]
     authentication_classes = DEFAULT_AUTH_CLASSES
+    http_method_names = ["get"]
 
     def get_queryset(self):
         filtered_queryset = self.queryset.filter(content_type__model='user', object_id=self.request.user.id)
@@ -31,6 +32,7 @@ class QuestionResponsesBulkViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionResponsesSerializer
     permission_classes = [IsActivePermission]  
     authentication_classes = DEFAULT_AUTH_CLASSES
+    http_method_names = ["post"]
 
     @swagger_auto_schema(
         operation_description="Create multiple question responses in bulk.",
