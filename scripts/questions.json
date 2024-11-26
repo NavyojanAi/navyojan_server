@@ -1,0 +1,278 @@
+[
+    {
+        "text": "Do you or your family own a house?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you have a stable internet connection at home?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "How do you commute to school/college?",
+        "category": "financial_personal",
+        "options": {
+            "Public transport": "Public transport",
+            "Personal vehicle": "Personal vehicle",
+            "Walk/cycle": "Walk/cycle"
+        }
+    },
+    {
+        "text": "Does your family own any vehicles?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you have a personal study space at home?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "How many hours a day do you spend studying?",
+        "category": "financial_personal",
+        "options": {
+            "Less than 1 hour": "Less than 1 hour",
+            "1-3 hours": "1-3 hours",
+            "3-5 hours": "3-5 hours",
+            "More than 5 hours": "More than 5 hours"
+        }
+    },
+    {
+        "text": "Have you faced financial difficulties in paying your tuition fees?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you have access to educational resources like books, computers, etc., at home?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Does your school/college provide scholarships or financial aid?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "How would you rate your family's financial stability?",
+        "category": "financial_personal",
+        "options": {
+            "Very stable": "Very stable",
+            "Stable": "Stable",
+            "Unstable": "Unstable",
+            "Very unstable": "Very unstable"
+        }
+    },
+    {
+        "text": "Does anyone in your family rely on you financially?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Are you currently working part-time to support your education?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you participate in any extra-curricular activities?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "How would you rate the quality of your current education?",
+        "category": "financial_personal",
+        "options": {
+            "Excellent": "Excellent",
+            "Good": "Good",
+            "Average": "Average",
+            "Poor": "Poor"
+        }
+    },
+    {
+        "text": "Have you ever had to miss school/college due to financial constraints?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you have access to private tutoring or additional academic support?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Are you the first member of your family to pursue higher education?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Is anyone in your family a government employee?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you have any medical conditions that affect your education?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you have a role model who inspires your academic journey?",
+        "category": "financial_personal",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "What are your academic goals?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What is your dream career?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What motivates you to pursue higher education?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What challenges do you face in achieving your academic goals?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What has been your biggest academic achievement so far?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "Have you ever faced failure or setbacks in your studies? How did you overcome them?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "How do you manage stress during exams?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What skills do you think are necessary to achieve success in your career?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "Do you plan to pursue education abroad?",
+        "category": "ambition_problems_challenges",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you participate in any community service or volunteer work?",
+        "category": "ambition_problems_challenges",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "What are the biggest social challenges in your community?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What problem would you like to solve in your country or the world through your education?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "How do you see yourself contributing to your family’s well-being in the future?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What is your biggest financial challenge at the moment?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "How do you plan to fund your education if you do not receive a scholarship?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What support do you need to achieve your dreams?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "Who has been your greatest supporter in your academic journey?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "Have you faced discrimination in your educational journey?",
+        "category": "ambition_problems_challenges",
+        "options": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    },
+    {
+        "text": "Do you think technology can solve educational problems? If yes, how?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    },
+    {
+        "text": "What legacy would you like to leave behind through your education and career?",
+        "category": "ambition_problems_challenges",
+        "options": {}
+    }
+]

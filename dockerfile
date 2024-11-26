@@ -17,3 +17,5 @@ COPY ./navyojan /navyojan-project/navyojan
 COPY ./scripts /navyojan-project/scripts
 COPY ./userapp /navyojan-project/userapp
 COPY ./manage.py /navyojan-project/manage.py
+COPY ./logs /navyojan-project/logs
+COPY ./tasks /navyojan-project/tasks

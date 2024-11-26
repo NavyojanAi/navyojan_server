@@ -1,4 +1,4 @@
 from .user_plans import SubscriptionPlan,UserPlanTracker,UserPayments
 from .scholarships import ScholarshipData,UserScholarshipApplicationData,Category,Documents,Eligibility
-from .user import UserScholarshipStatus,UserProfile, OTP,UserDocuments,UserPreferences,UserProfileScholarshipProvider,UserSubscriptionInfo
+from .user import UserScholarshipStatus,UserProfile, OTP,UserDocuments,UserPreferences,UserProfileScholarshipProvider,UserSubscriptionInfo,Questions,QuestionResponses
 from .verification import Verification
