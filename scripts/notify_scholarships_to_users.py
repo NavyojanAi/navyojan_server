@@ -88,7 +88,7 @@ def check_eligibility_with_gpt(user, scholarship):
         """
 
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a precise scholarship eligibility verification system who verifies whether the student is eligible for the particular scholarship or not (Be a little lenient)."},
                 {"role": "user", "content": prompt}
