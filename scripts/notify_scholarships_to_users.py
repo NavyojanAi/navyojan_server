@@ -14,7 +14,7 @@ from userapp.models.scholarships import (
     ScholarshipData, Category, Eligibility, Documents, 
     UserScholarshipApplicationData
 )
-
+from sys import stdout
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
 django.setup()
 
@@ -63,10 +63,15 @@ def check_eligibility_with_gpt(user, scholarship):
                 c.name for c in scholarship.categories.all()
             ]
         }
-
+        # print(scholarship_requirements)
+        # print(user_data)
+        # print(scholarship.title)
         # Prepare the prompt
         prompt = f"""
         Analyze if the user is eligible for this scholarship based on the following data:
+
+        Scholarship Title:
+        {scholarship.title}
 
         Scholarship Requirements:
         {scholarship_requirements}
@@ -77,22 +82,21 @@ def check_eligibility_with_gpt(user, scholarship):
         Consider the following rules:
         1. Check if the user's academic performance meets the requirements
         2. Match gender-specific criteria if any
-        3. Check education level compatibility
-        4. Verify category eligibility if any
-        5. Consider any special criteria (disability, sports, etc.)
-
-        Respond with only 'Yes' if ALL criteria are met, or 'No' if ANY criterion is not met.
+        ***
+        IMPORTANT NOTE: RESPOND WITH ONLY 'Yes' if the criteria are met, or 'No' if ANY criterion is not met, DO NOT RETURN WITH ANY PARAGRAPHS OR EXPLANATIONS,just say 'yes' or 'no'.
+        ***
         """
 
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a precise scholarship eligibility verification system."},
+                {"role": "system", "content": "You are a precise scholarship eligibility verification system who verifies whether the student is eligible for the particular scholarship or not (Be a little lenient)."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0
         )
 
+        print(response.choices[0].message.content.strip().lower())
         return response.choices[0].message.content.strip().lower() == 'yes'
 
     except (UserProfile.DoesNotExist, UserDocumentSummary.DoesNotExist):
@@ -110,6 +114,8 @@ def notify_user(user, scholarship, auto_apply):
                 scholarship=scholarship,
                 defaults={'status': 'applied'}
             )
+            # stdout.write(stdout.style.SUCCESS(f'Successfully scraped and imported scholarships'))
+
             print(f"User {user.username} has been auto-applied for scholarship {scholarship.title}.")
             # Get scholarship provider's email
             # provider_email = scholarship.host.user.email if scholarship.host else None
