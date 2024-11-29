@@ -276,53 +276,7 @@
         "options": {}
     },
     {
-        "text": "Name of Scholarship",
-        "category": "scholarship_details",
-        "options": {}
-    },
-    {
-        "text": "Type of Scholarship",
-        "category": "scholarship_details",
-        "options": {
-            "Merit-based": "Merit-based",
-            "Need-based": "Need-based",
-            "Specific field of study": "Specific field of study",
-            "Other": "Other"
-        }
-    },
-    {
-        "text": "Scholarship Amount",
-        "category": "scholarship_details",
-        "options": {}
-    },
-    {
-        "text": "Duration of the Scholarship",
-        "category": "scholarship_details",
-        "options": {
-            "One-time": "One-time",
-            "Annual": "Annual",
-            "Multi-year": "Multi-year"
-        }
-    },
-    {
-        "text": "Target Audience",
-        "category": "scholarship_details",
-        "options": {
-            "Standard 1–5": "Standard 1–5",
-            "Standard 6–10": "Standard 6–10",
-            "Higher Secondary": "Higher Secondary",
-            "Undergraduate": "Undergraduate",
-            "Postgraduate": "Postgraduate",
-            "PhD": "PhD"
-        }
-    },
-    {
         "text": "Eligibility Criteria (Please specify)",
-        "category": "scholarship_details",
-        "options": {}
-    },
-    {
-        "text": "Required Documents (e.g., transcripts, recommendation letters)",
         "category": "scholarship_details",
         "options": {}
     },
