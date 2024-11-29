@@ -104,6 +104,11 @@ class UserProfileScholarshipProvider(BaseModel):
     hosted_scholarships = models.ManyToManyField(ScholarshipData, related_name='host')
     can_host_scholarships = models.BooleanField(default=False)
 
+# ScholarshipData.host = who actually hosted it 
+# ScholarshipData.host.user.email
+
+
+# THIS KEEPS TRACK OF FOR WHICH SCHOLARSHIP ARE OPENED FOR USERS AND ARE APPROVED OR REJECTED BY ADMIN
 class UserScholarshipStatus(BaseModel):
     STATUS=(
         ('pending', 'Pending'),
@@ -124,6 +129,18 @@ class UserDocuments(BaseModel):
     certificate_inter = models.FileField(upload_to='inter_pdfs/',validators=[validate_pdf],blank=True)
     certificate_disability = models.FileField(upload_to='disability_pdfs/',validators=[validate_pdf],blank=True)
     certificate_sports = models.FileField(upload_to='sports_pdfs/',validators=[validate_pdf],blank=True)
+
+
+class UserDocumentSummary(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='document_summary')
+    certificate_tenth = models.JSONField(null=True, blank=True)
+    certificate_inter = models.JSONField(null=True, blank=True)
+    certificate_disability = models.JSONField(null=True, blank=True)
+    certificate_sports = models.JSONField(null=True, blank=True)
+    cgpa = models.FloatField(null=True, blank=True)
+    percentage = models.FloatField(null=True, blank=True)
+    
+
 
 class UserPreferences(BaseModel):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='category_preferences')

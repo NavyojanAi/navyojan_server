@@ -8,6 +8,7 @@ from ai.config import OPEN_AI_KEY
 import os
 import django
 from ai.ai_categorizer import categorize_scholarship
+from asgiref.sync import sync_to_async
 
 # Set up Django environment
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
@@ -53,7 +54,7 @@ def extract_sections(content):
 def parse_date(date_string):
         if not date_string:
             return None 
-        if date_string.lower() == "Deadline varies":
+        if date_string.lower() == ["deadline varies", "varies", "variable"]:
             return None
         try:
             return date_parser.parse(date_string).date()
@@ -123,38 +124,48 @@ async def categorize_with_gpt(text, category_type, predefined_keys):
 @sync_to_async
 @transaction.atomic
 def save_scholarship(details):
+    def extract_amount(amount_string):
+        if not amount_string:
+            return None
+        # Remove all non-digit characters
+        amount_digits = re.sub(r'[^\d]', '', amount_string)
+        # If we're left with an empty string, return None
+        if not amount_digits:
+            return None
+        # Otherwise, convert to integer
+        return int(amount_digits)
+
     scholarship = ScholarshipData(
         title=details["Title"],
-        amount=int(re.sub(r'[^\d]', '', details["Scholarship value"])) if details["Scholarship value"] else None,
-        published_on=parse_date(details["Deadline"]),  # Assuming "Deadline" is equivalent to "published_on"
-        deadline=parse_date(details["Deadline"]),
-        link=details["Apply Now Link"],
+        amount=extract_amount(details.get("Scholarship value")),
+        published_on=parse_date(details.get("Deadline")),
+        deadline=parse_date(details.get("Deadline")),
+        link=details.get("Apply Now Link"),
         is_approved=True
     )
+
     scholarship.save()
 
+    # Process eligibility
     try:
-        # Process eligibility
         eligibility_data = json.loads(details["categorized_eligibility"])
         for key, value in eligibility_data.items():
             eligibility, created = Eligibility.objects.get_or_create(name=key)
             scholarship.eligibility.add(eligibility)
+    except json.JSONDecodeError:
+        print(f"Error parsing eligibility JSON for scholarship {details['Title']}")
 
-        # Process documents
+    # Process documents
+    try:
         document_data = json.loads(details["categorized_documents"])
         for key, value in document_data.items():
             document, created = Documents.objects.get_or_create(name=key)
             scholarship.document_needed.add(document)
-
-    except json.JSONDecodeError as e:
-        print(f"Error parsing JSON for scholarship {details['Title']}: {str(e)}")
-        print(f"Eligibility data: {details['categorized_eligibility']}")
-        print(f"Document data: {details['categorized_documents']}")
-    except Exception as e:
-        print(f"Unexpected error processing scholarship {details['Title']}: {str(e)}")
+    except json.JSONDecodeError:
+        print(f"Error parsing documents JSON for scholarship {details['Title']}")
 
     # Process how to apply
-    scholarship.how_to_apply = details["Application Process"]
+    scholarship.how_to_apply = details.get("Application Process", [])
 
     # Categorize scholarship
     categories = categorize_scholarship(details)
@@ -261,7 +272,7 @@ async def scrape_scholarships():
         await page.goto(base_url)
         
         # scholarships = []
-        limit = 5
+        limit = 50
         
         eligibility_keys, document_keys = await get_predefined_keys()
         
@@ -274,8 +285,24 @@ async def scrape_scholarships():
                 await view_apply_buttons[i].click()
                 await page.wait_for_load_state('networkidle')
 
-                # details = await scrape_scholarship_details(page, page.url)
-                # scholarships.append(details)
+                # Extract the actual title from the page
+                title_selector = 'h1.clrwms.fw4.font18'
+                title_element = await page.query_selector(title_selector)
+                if title_element:
+                    scholarship_name = await title_element.inner_text()
+                else:
+                    print("Could not find scholarship title. Skipping.")
+                    await page.go_back()
+                    await page.wait_for_load_state('networkidle')
+                    continue
+
+                # Check if scholarship already exists
+                if await sync_to_async(ScholarshipData.objects.filter(title=scholarship_name).exists)():
+                    print(f"Scholarship '{scholarship_name}' already exists. Skipping.")
+                    await page.go_back()
+                    await page.wait_for_load_state('networkidle')
+                    continue
+
                 await scrape_scholarship_details(page, page.url, eligibility_keys, document_keys)
                
                 await page.go_back()
@@ -289,7 +316,7 @@ async def scrape_scholarships():
         # with open("scholarships_wemakescholars23.json", "w", encoding="utf-8") as f:
         #     json.dump(scholarships, f, indent=2)
     # print("Data saved to scholarships_wemakescholars23.json")
-        print("Scraping completed and data saved to the database.")
+    print("Scraping completed and data saved to the database.")
 
 
 if __name__ == "__main__":
