@@ -5,6 +5,8 @@ from datetime import timedelta
 from openai import OpenAI
 from django.db.models import Q
 from tasks.send_email import send_email_task
+from userapp.models.user import User, UserProfile, UserDocumentSummary, QuestionResponses
+from django.contrib.contenttypes.models import ContentType
 
 from userapp.models.user import (
     User, UserProfile, UserDocuments, UserPreferences, UserScholarshipStatus, 
@@ -29,6 +31,17 @@ def check_eligibility_with_gpt(user, scholarship):
         doc_summary = UserDocumentSummary.objects.get(user=user)
         print(f"Found document summary for {user.username}")  # Debug print
         
+        user_responses = QuestionResponses.objects.filter(
+            content_type=ContentType.objects.get_for_model(User),
+            object_id=user.id
+        )
+        
+        # Get scholarship's question responses
+        scholarship_responses = QuestionResponses.objects.filter(
+            content_type=ContentType.objects.get_for_model(ScholarshipData),
+            object_id=scholarship.id
+        )
+        
 
         # Prepare detailed user data
         user_data = {
@@ -47,6 +60,11 @@ def check_eligibility_with_gpt(user, scholarship):
             "certificates": {
                 "disability": doc_summary.certificate_disability,
                 "sports": doc_summary.certificate_sports
+            },
+            "questionnaire_responses": {
+                response.question.category: {
+                    response.question.text: response.answer
+                } for response in user_responses
             }
         }
 
@@ -61,7 +79,12 @@ def check_eligibility_with_gpt(user, scholarship):
             ],
             "categories": [
                 c.name for c in scholarship.categories.all()
-            ]
+            ],
+            "provider_requirements": {
+                response.question.category: {
+                    response.question.text: response.answer
+                } for response in scholarship_responses
+            }
         }
         # print(scholarship_requirements)
         # print(user_data)
@@ -76,12 +99,14 @@ def check_eligibility_with_gpt(user, scholarship):
         Scholarship Requirements:
         {scholarship_requirements}
 
-        User Profile and Documents:
+        User Profile, Documents and Responses:
         {user_data}
 
         Consider the following rules:
         1. Check if the user's academic performance meets the requirements
         2. Match gender-specific criteria if any
+        3. Compare user's questionnaire responses with scholarship provider's requirements
+
         ***
         IMPORTANT NOTE: RESPOND WITH ONLY 'Yes' if the criteria are met, or 'No' if ANY criterion is not met, DO NOT RETURN WITH ANY PARAGRAPHS OR EXPLANATIONS,just say 'yes' or 'no'.
         ***
