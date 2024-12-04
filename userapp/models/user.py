@@ -66,8 +66,8 @@ class UserProfile(BaseUserProfile):
         ('more_than_10_lakhs', 'More than ₹10,00,000'),
     )
     EDUCATION_LEVEL_CHOICES = (
-        ('standard_1_5', 'Standard 1–5'),
-        ('standard_6_10', 'Standard 6–10'),
+        ('standard_1_5', 'Standard 1-5'),
+        ('standard_6_10', 'Standard 6-10'),
         ('higher_secondary', 'Higher Secondary'),
         ('undergraduate', 'Undergraduate'),
         ('postgraduate', 'Postgraduate'),

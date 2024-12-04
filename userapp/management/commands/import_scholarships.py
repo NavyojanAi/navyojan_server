@@ -7,6 +7,7 @@ import asyncio
 from scripts.notify_scholarships_to_users import main as notify_scholarships_to_users
 
 from scripts.extract_details import process_user_documents
+from scripts.initialize_questions import initialize_questions
 
 
 class Command(BaseCommand):
@@ -37,7 +38,8 @@ class Command(BaseCommand):
             # self.stdout.write("Scraping scholarships from we_make_scrap...")
             # asyncio.run(we_make_scrap())
             
-            
+            initialize_questions()
+            self.stdout.write(self.style.SUCCESS("Questions initialized successfully."))
             notify_scholarships_to_users()
             # process_user_documents()
             self.stdout.write(self.style.SUCCESS(f'Successfully scraped and imported scholarships'))
