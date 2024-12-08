@@ -13,6 +13,7 @@ services:
     environment:
       - TZ=Asia/Kolkata
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@navyojan-rabbitmq-server/
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE}'"]
       interval: 30s
@@ -42,6 +43,73 @@ services:
       - TZ=Asia/Kolkata
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - navyojan-app
+
+  celery-worker:
+    container_name: navyojan-celery-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /navyojan-project/
+    volumes:
+      - ./logs/:/navyojan-project/logs/
+    depends_on:
+      - celery-flower
+      - database
+      - message-broker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Kolkata
+      - C_FORCE_ROOT=true
+      - POSTGRES_HOST=navyojan-postgres-db-server
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@navyojan-rabbitmq-server/
+    command: celery -A navyojan worker -Q default-queue -l INFO -n default_worker@navyojan
+    networks:
+      - navyojan-app
+
+  celery-flower:
+    container_name: navyojan-celery-flower
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    working_dir: /navyojan-project/
+    
+    image: mher/flower
+    restart: unless-stopped
+    ports:
+      - 5000:5555
+    environment:
+      - TZ=Asia/Kolkata
+      - FLOWER_BASIC_AUTH=${FLOWER_USER}:${FLOWER_PASSWORD}
+    command: celery -A navyojan flower --port=5555
+    depends_on:
+      - database
+      - message-broker
+    networks:
+      - navyojan-app
+  
+  message-broker:
+    image: rabbitmq:3.13-management
+    container_name: navyojan-rabbitmq-server
+    restart: unless-stopped
+    expose:
+      - 5672
+      - 15672
+    environment:
+      - TZ=Asia/Kolkata
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     networks:
       - navyojan-app
 

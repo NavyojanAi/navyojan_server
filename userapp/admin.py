@@ -1,5 +1,5 @@
 from django.contrib import admin
-from userapp.models import UserScholarshipStatus,UserProfile, ScholarshipData, UserScholarshipApplicationData,Category,OTP,UserDocuments,UserPreferences,UserProfileScholarshipProvider,SubscriptionPlan,Documents,Eligibility,UserPlanTracker
+from userapp.models import UserScholarshipStatus,UserProfile, ScholarshipData, UserScholarshipApplicationData,Category,OTP,UserDocuments,UserPreferences,UserProfileScholarshipProvider,SubscriptionPlan,Documents,Eligibility,UserPlanTracker,Verification,QuestionResponses,Questions
 
 class UserProfileAdmin(admin.ModelAdmin):
     # Adding fields to search
@@ -26,6 +26,9 @@ admin.site.register(SubscriptionPlan)
 admin.site.register(Documents)
 admin.site.register(Eligibility)
 admin.site.register(UserPlanTracker)
+admin.site.register(Verification)
+admin.site.register(Questions)
+admin.site.register(QuestionResponses)
 
 
 

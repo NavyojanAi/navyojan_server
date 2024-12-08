@@ -9,7 +9,8 @@ from userapp.views import (
     UserDocumentsViewset, UserPreferencesViewset, AdminStatisticsView, UserProfilePatchView,
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
     DocumentViewSet, EligibilityViewSet, SubscriptionPlanViewSet, PaymentHandlerView,
-    PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView
+    PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView,UserPaymentsViewset,
+    VerificationViewSet,QuestionResponsesBulkViewSet,QuestionsViewSet,QuestionResponsesViewSet
 )
 
 router = DefaultRouter()
@@ -23,13 +24,19 @@ router.register(r'preferences',UserPreferencesViewset)
 router.register(r'scholarship_status',UserScholarshipStatusViewset)
 router.register(r'documents_required',DocumentViewSet)
 router.register(r'eligibility',EligibilityViewSet)
+router.register(r'user_payments', UserPaymentsViewset)
+router.register(r'verification', VerificationViewSet, basename='verification')
+router.register(r'question_responses_bulk', QuestionResponsesBulkViewSet)
+router.register(r'questions', QuestionsViewSet)
+router.register(r'question_responses', QuestionResponsesViewSet, basename='questions_responses')
+
 
 urlpatterns = [
     path('', include(router.urls)),
     path('provider-stats/', ScholarshipProviderStatisticsView.as_view()),
     path('plans/', SubscriptionPlanViewSet.as_view({'get': 'list'}), name='subscription-plans'),
-    path('paymenthandler', PaymentHandlerView.as_view(), name='paymenthandler'),
-    path('paymentrequest', PaymentRequestView.as_view(), name='paymentrequest'),
+    path('paymenthandler/', PaymentHandlerView.as_view(), name='paymenthandler'),
+    path('paymentrequest/', PaymentRequestView.as_view(), name='paymentrequest'),
     path('check_subscription', CheckUserSubscriptionView.as_view(), name='check_subscription'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

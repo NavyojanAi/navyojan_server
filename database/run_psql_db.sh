@@ -1,7 +1,7 @@
 docker run -d -ti --name postgres-db-server \
-    -e POSTGRES_PASSWORD='AVNS_Bt_VNG6g8VOfas3VdMH' \
+    -e POSTGRES_PASSWORD='Networking123' \
     -v /$(pwd)/postgres:/var/lib/postgresql/data:rw \
-    -p 25060:25060 \
+    -p 25072:5432 \
     postgres
 
 !/usr/bin/env pwsh
@@ -19,3 +19,4 @@ docker run -d -ti --name postgres-db-server \
 #     -p 25060:25060 `
 #     postgres
 
+docker run -d -ti --name postgres-db-server -e POSTGRES_PASSWORD='password' -v /$(pwd)/postgres:/var/lib/postgresql/data:rw -p 5000:5432 postgres

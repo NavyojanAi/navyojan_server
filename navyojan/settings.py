@@ -24,10 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.extend(
     [
         str(BASE_DIR.parent / "ai"),
+        str(BASE_DIR.parent / "logs"),
+        str(BASE_DIR.parent / "tasks"),
+        str(BASE_DIR.parent / "scripts"),
     ]
 )
 
 load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+from logs import logger
 
 # URL for serving media files (locally stored PDFs)
 MEDIA_URL = "/media/"
@@ -38,22 +43,58 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 FIREBASE_CREDENTIALS = credentials.Certificate(
     {
-        "type": os.getenv("FIREBASE_TYPE"),
-        "project_id": os.getenv("FIREBASE_PROJECT_ID"),
-        "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID"),
-        "private_key": os.getenv("FIREBASE_PRIVATE_KEY").replace("\\n", "\n"),
-        "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
-        "client_id": os.getenv("FIREBASE_CLIENT_ID"),
-        "auth_uri": os.getenv("FIREBASE_AUTH_URI"),
-        "token_uri": os.getenv("FIREBASE_TOKEN_URI"),
-        "auth_provider_x509_cert_url": os.getenv(
-            "FIREBASE_AUTH_PROVIDER_X509_CERT_URL"
-        ),
-        "client_x509_cert_url": os.getenv("FIREBASE_CLIENT_X509_CERT_URL"),
+        "type": os.environ["FIREBASE_TYPE"],
+        "project_id": os.environ["FIREBASE_PROJECT_ID"],
+        "private_key_id": os.environ["FIREBASE_PRIVATE_KEY_ID"],
+        "private_key": os.environ["FIREBASE_PRIVATE_KEY"].replace("\\n", "\n"),
+        "client_email": os.environ["FIREBASE_CLIENT_EMAIL"],
+        "client_id": os.environ["FIREBASE_CLIENT_ID"],
+        "auth_uri": os.environ["FIREBASE_AUTH_URI"],
+        "token_uri": os.environ["FIREBASE_TOKEN_URI"],
+        "auth_provider_x509_cert_url": os.environ["FIREBASE_AUTH_PROVIDER_X509_CERT_URL"],
+        "client_x509_cert_url": os.environ["FIREBASE_CLIENT_X509_CERT_URL"],
     }
 )
 
 firebase_admin.initialize_app(FIREBASE_CREDENTIALS)
+
+# Email configuration
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # For Gmail SMTP
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]  # Your email address
+EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]  # Your email password or App Password
+
+
+FERNET_KEY = os.environ["FERNET_KEY"]
+
+CELERY_BROKER_URL = os.environ["RABBITMQ"]
+CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+    user=os.environ["POSTGRES_USERNAME"],
+    password=os.environ["POSTGRES_PASSWORD"],
+    host=os.environ["POSTGRES_HOST"],
+    port=os.environ["POSTGRES_PORT"],
+    database=os.environ["POSTGRES_DATABASE"],
+) 
+
+CELERY_TASK_ROUTES = {
+    "tasks.send_email.send_email_task": {"queue": "default-queue"},
+    "tasks.send_email.send_text_task": {"queue": "default-queue"},
+    "backend.celery.debug_task": {"queue": "default-queue"}
+    # Add more tasks as needed
+}
+
+
+CELERY_TASK_SERIALIZER="pickle"
+CELERY_RESULT_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle']
+CELERY_TASK_IGNORE_RESULT=False
+CELERY_TASK_TRACK_STARTED=True
+CELERY_TASK_DEFAULT_QUEUE="default-queue"
+
+MSG_AUTH= os.environ['MSG_AUTH']
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -97,6 +138,7 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "drf_yasg",
+    "celery",
 ]
 
 MIDDLEWARE = [
@@ -161,7 +203,7 @@ WSGI_APPLICATION = "navyojan.wsgi.application"
 # TO CONNECT TO THE DATABASE: RUN THE FOLLOWING COMMANDS IN THE TERMINAL
 # psql -U postgres
 
-print(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
+logger.info(f'starting postgres db...... {os.environ["POSTGRES_DATABASE"]}')
 
 # DATABASES = {
 #     'default': {
@@ -217,8 +259,8 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,  # Blacklist the old refresh token after it is rotated
 }
 
-RAZOR_KEY_ID = "YOUR_KEY_ID"
-RAZOR_KEY_SECRET = "YOUR_KEY_SECRET"
+RAZOR_KEY_ID = os.environ["RAZOR_KEY_ID"]
+RAZOR_KEY_SECRET = os.environ["RAZOR_KEY_SECRET"]
 
 
 # REST_FRAMEWORK = {
@@ -257,14 +299,3 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# TODO : need to setup celery
-# # Define the broker URL for Celery
-# CELERY_BROKER_URL = 'redis://localhost:6379/0'
-
-# # Optional configurations
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TIMEZONE = 'UTC'
