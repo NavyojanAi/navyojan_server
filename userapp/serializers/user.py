@@ -1,8 +1,8 @@
 from userapp.serializers.user_plans import SubscriptionPlanSerializer
 from rest_framework import serializers
-from userapp.models import UserScholarshipStatus,UserProfile,UserProfileScholarshipProvider,UserPreferences,UserDocuments
+from userapp.models import UserScholarshipStatus,UserProfile,UserProfileScholarshipProvider,UserPreferences,UserDocuments,Questions,QuestionResponses
 from django.contrib.auth.models import User
-from userapp.models import UserPlanTracker,UserSubscriptionInfo
+from userapp.models import UserSubscriptionInfo
 from userapp.serializers.scholarships import ScholarshipDataSerializer,UserDisplaySerializer
 
 class UserScholarshipStatusSerializer(serializers.ModelSerializer):
@@ -18,6 +18,15 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
+class QuestionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Questions
+        fields = "__all__"
+
+class QuestionResponsesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionResponses
+        fields = "__all__"
 
 
 class LoginSerializer(serializers.Serializer):
@@ -28,11 +37,22 @@ class UserProfileSerializer(serializers.ModelSerializer):
     user = UserDisplaySerializer()
     is_subscribed = serializers.SerializerMethodField()
     current_plan = serializers.SerializerMethodField()
+    add_ons = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'phone_number', 'education_level', 'field_of_study', 'country', 'gender', 'profile_photo', 'is_subscribed', 'current_plan']
+        fields = [
+            'user', 'phone_number', 'education_level', 'field_of_study', 'country', 'gender', 'profile_photo',
+            'account_type', 'date_of_birth', 'is_email_verified', 'is_phone_number_verified', 'parent_name', 'address',
+            'city', 'state', 'pincode', 'school_college_university', 'current_academic_year', 'has_siblings',
+            'number_of_siblings', 'are_siblings_pursuing_education', 'fathers_occupation', 'mothers_occupation',
+            'annual_household_income', 'is_receiving_scholarships', 'add_ons', 'is_subscribed', 'current_plan'
+            ]
         read_only_fields = ['is_reviewer', 'is_host_user', 'is_subscribed', 'current_plan']
+    
+    def get_add_ons(self, obj):
+        add_ons_data = obj.user.add_ons.all()
+        return QuestionResponsesSerializer(add_ons_data, many=True).data
 
     def get_is_subscribed(self, obj):
         return UserSubscriptionInfo(obj.user).is_subscribed()
@@ -65,7 +85,7 @@ class UserProfileScholarshipProviderSerializer(serializers.ModelSerializer):
     user = UserDisplaySerializer()
     class Meta:
         model = UserProfileScholarshipProvider
-        fields = ["user","organisation", "org_site", "hosted_scholarships","can_host_scholarships"]
+        fields = ["user", "provider_type", "contact_person_name", "contact_email", "contact_phone_number", "website", "hosted_scholarships", "can_host_scholarships"]
     
     def update(self, instance, validated_data):
         # Handle nested user update

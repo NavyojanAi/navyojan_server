@@ -38,16 +38,17 @@ class ScholarshipData(BaseModel):
     eligibility = models.ManyToManyField(Eligibility,related_name='scholarships',blank=True)
     document_needed = models.ManyToManyField(Documents,related_name='scholarships',blank=True)
     how_to_apply = ArrayField(models.CharField(null=True,blank=True,max_length=512),default=list,null=True,blank=True)
-    amount = models.IntegerField(null=True,blank=True)      #filter
-    published_on = models.DateField(null = True,default=None,blank=True)   #filter
-    state = models.CharField(null = True ,max_length=255,default=None,blank=True)   #skip filter for time being
-    deadline = models.DateField(null=True,default=None,blank=True)    #filtered by default
+    amount = models.IntegerField(null=True, blank=True)
+    published_on = models.DateField(null=True, default=None, blank=True)
+    state = models.CharField(null = True ,max_length=255,default=None,blank=True)
+    deadline = models.DateField(null=True, default=None, blank=True)
     link = models.URLField(null=True,default=None,blank=True)
-    categories = models.ManyToManyField('Category', related_name='scholarships', blank=True)  #filter
+    categories = models.ManyToManyField('Category', related_name='scholarships', blank=True)
     is_approved = models.BooleanField(default=False)
-    
+
     def __str__(self):
-        return f"{self.id} - {self.title}"
+        return f"{self.title} - {self.id}"
+
 class Category(BaseModel):
     name = models.CharField(max_length=255, unique=True)
     display_name = models.CharField(max_length=255, unique=True, null=True)
@@ -56,11 +57,14 @@ class Category(BaseModel):
     def __str__(self):
         return self.name
 
+
+# THIS KEEPS TRACK OF APPLICATIONS FOR SCHOLARSHIP BY USERS
 class UserScholarshipApplicationData(BaseModel):
     STATUS=(
         ('applied', 'Applied'),
         ('selected', 'Selected'),
-        ('rejected','Rejected')
+        ('rejected','Rejected'),
+        ('eligible','Eligible'),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='scholarship_applications')
     scholarship = models.ForeignKey(ScholarshipData,on_delete=models.CASCADE,related_name='applicants')
