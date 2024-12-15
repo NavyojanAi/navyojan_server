@@ -21,6 +21,8 @@ services:
       retries: 5
     networks:
       - navyojan-app
+    ports:
+      - 25060:25060
 
   backend:
     container_name: navyojan-backend-server
@@ -41,8 +43,9 @@ services:
       python manage.py runserver 0.0.0.0:8000 --noreload"
     environment:
       - TZ=Asia/Kolkata
-      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_HOST=navyojan-postgres-db-server
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=25060
     networks:
       - navyojan-app
 
@@ -83,7 +86,7 @@ services:
     image: mher/flower
     restart: unless-stopped
     ports:
-      - 5000:5555
+      - 5005:5555
     environment:
       - TZ=Asia/Kolkata
       - FLOWER_BASIC_AUTH=${FLOWER_USER}:${FLOWER_PASSWORD}
