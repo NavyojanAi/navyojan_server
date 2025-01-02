@@ -161,20 +161,47 @@ MIDDLEWARE = [
 ]
 
 # CORS settings
-CORS_ORIGIN_ALLOW_ALL = True  # This is the old style but more permissive
-CORS_ALLOW_ALL_ORIGINS = True  # This is the new style
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# Allow all headers
-CORS_ALLOW_HEADERS = ["*"]
+# Explicitly set allowed origins if needed
+CORS_ALLOWED_ORIGINS = [
+    "http://34.66.194.53",
+    "http://35.200.208.199:8080",
+]
 
-# Allow all methods
-CORS_ALLOW_METHODS = ["*"]
+# Important: When using CORS_ALLOW_CREDENTIALS, specify the exact origin
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://34\.66\.194\.53$",
+    r"^http://35\.200\.208\.199:8080$",
+]
 
-# Additional settings that might help
+# Additional required headers
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
 CORS_EXPOSE_HEADERS = ["*"]
-CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
-CORS_REPLACE_HTTPS_REFERER = True
+
+# Add these specific response headers
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
 
 ROOT_URLCONF = "navyojan.urls"
 
