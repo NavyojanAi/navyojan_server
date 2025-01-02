@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:latest
+    image: postgres:16
     container_name: navyojan-postgres-db-server
     restart: always
     expose:
@@ -94,7 +94,7 @@ services:
       - message-broker
     networks:
       - navyojan-app
-  
+
   message-broker:
     image: rabbitmq:3.13-management
     container_name: navyojan-rabbitmq-server
