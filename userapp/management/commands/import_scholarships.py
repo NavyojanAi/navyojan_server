@@ -15,32 +15,32 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            # self.stdout.write("Initializing categories...")
-            # initialize_categories()
-            # self.stdout.write(self.style.SUCCESS("Categories initialized successfully."))
+            self.stdout.write("Initializing categories...")
+            initialize_categories()
+            self.stdout.write(self.style.SUCCESS("Categories initialized successfully."))
             
-            # self.stdout.write("Initializing documents...")
-            # initialize_documents()
-            # self.stdout.write(self.style.SUCCESS("Documents initialized successfully."))
+            self.stdout.write("Initializing documents...")
+            initialize_documents()
+            self.stdout.write(self.style.SUCCESS("Documents initialized successfully."))
 
-            # self.stdout.write("Initializing eligibility...")
-            # initialize_eligibility()
-            # self.stdout.write(self.style.SUCCESS("Eligibility initialized successfully."))
+            self.stdout.write("Initializing eligibility...")
+            initialize_eligibility()
+            self.stdout.write(self.style.SUCCESS("Eligibility initialized successfully."))
 
-            # self.stdout.write("Initializing subscription plans...")
-            # initialize_subscription_plans()
-            # self.stdout.write(self.style.SUCCESS("Subscription plans initialized successfully."))
+            self.stdout.write("Initializing subscription plans...")
+            initialize_subscription_plans()
+            self.stdout.write(self.style.SUCCESS("Subscription plans initialized successfully."))
             
-            # # self.stdout.write("Scraping scholarships from govt_scholarships...")
-            # # asyncio.run(main())
-            # # self.stdout.write(self.style.SUCCESS(f'Successfully scraped and imported scholarships'))
+            self.stdout.write("Scraping scholarships from govt_scholarships...")
+            asyncio.run(main())
+            self.stdout.write(self.style.SUCCESS(f'Successfully scraped and imported scholarships'))
 
-            # self.stdout.write("Scraping scholarships from we_make_scrap...")
-            # asyncio.run(we_make_scrap())
+            self.stdout.write("Scraping scholarships from we_make_scrap...")
+            asyncio.run(we_make_scrap())
             
             initialize_questions()
-            self.stdout.write(self.style.SUCCESS("Questions initialized successfully."))
-            notify_scholarships_to_users()
+            # self.stdout.write(self.style.SUCCESS("Questions initialized successfully."))
+            # notify_scholarships_to_users()
             # process_user_documents()
             self.stdout.write(self.style.SUCCESS(f'Successfully scraped and imported scholarships'))
             
