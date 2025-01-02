@@ -143,34 +143,34 @@ def notify_user(user, scholarship, auto_apply):
 
             print(f"User {user.username} has been auto-applied for scholarship {scholarship.title}.")
             # Get scholarship provider's email
-            # provider_email = scholarship.host.user.email if scholarship.host else None
+            provider_email = scholarship.host.user.email if scholarship.host else None
 
-            # if provider_email:
-            #     # Prepare and send provider email
-            #     subject_provider = "New Scholarship Application Received"
-            #     body_provider = f"""
-            #     New application received:
-            #     Scholarship: {scholarship.title}
-            #     Applicant: {user.username}
-            #     Email: {user.email}
-            #     Phone: {user.userprofile.phone_number}
-            #     Education: {user.userprofile.education_level}
-            #     Field: {user.userprofile.field_of_study}
-            #     """
-            #     send_email_task.delay(subject_provider, body_provider, [provider_email])
+            if provider_email:
+                # Prepare and send provider email
+                subject_provider = "New Scholarship Application Received"
+                body_provider = f"""
+                New application received:
+                Scholarship: {scholarship.title}
+                Applicant: {user.username}
+                Email: {user.email}
+                Phone: {user.userprofile.phone_number}
+                Education: {user.userprofile.education_level}
+                Field: {user.userprofile.field_of_study}
+                """
+                send_email_task.delay(subject_provider, body_provider, [provider_email])
 
-            # # Notify user about auto-application
-            # subject_user = "Scholarship Application Submitted"
-            # body_user = f"""
-            # Dear {user.username},
+            # Notify user about auto-application
+            subject_user = "Scholarship Application Submitted"
+            body_user = f"""
+            Dear {user.username},
             
-            # We've submitted your application for:
-            # {scholarship.title}
+            We've submitted your application for:
+            {scholarship.title}
             
-            # Application Status: Submitted
-            # Next Steps: The scholarship provider will review your application
-            # """
-            # send_email_task.delay(subject_user, body_user, [user.email])
+            Application Status: Submitted
+            Next Steps: The scholarship provider will review your application
+            """
+            send_email_task.delay(subject_user, body_user, [user.email])
 
         else:
             # Create notification with 'eligible' status
@@ -181,16 +181,16 @@ def notify_user(user, scholarship, auto_apply):
             )
             print(f"Notifying user {user.username} about scholarship {scholarship.title}.")
             # Notify user about eligibility
-            # subject_user = "New Scholarship Opportunity"
-            # body_user = f"""
-            # Dear {user.username},
+            subject_user = "New Scholarship Opportunity"
+            body_user = f"""
+            Dear {user.username},
             
-            # You're eligible for:
-            # {scholarship.title}
+            You're eligible for:
+            {scholarship.title}
             
-            # Visit navyojan.in to apply!
-            # """
-            # send_email_task.delay(subject_user, body_user, [user.email])
+            Visit navyojan.in to apply!
+            """
+            send_email_task.delay(subject_user, body_user, [user.email])
 
     except Exception as e:
         print(f"Error notifying user {user.id} about scholarship {scholarship.id}: {str(e)}")
