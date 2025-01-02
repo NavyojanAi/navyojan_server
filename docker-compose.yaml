@@ -53,7 +53,7 @@ services:
     container_name: navyojan-celery-worker
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     working_dir: /navyojan-project/
     volumes:
       - ./logs/:/navyojan-project/logs/
@@ -78,7 +78,7 @@ services:
     container_name: navyojan-celery-flower
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     env_file:
       - .env
     working_dir: /navyojan-project/

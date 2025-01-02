@@ -108,8 +108,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "*",
+    "http://34.66.194.53/",
     "http://139.59.91.194/",
     "159.65.158.135",
+    "139.59.91.194",
     "159.65.158.135:8080",  # Your server's IP address
     "localhost",
     "127.0.0.1",
@@ -154,6 +156,7 @@ MIDDLEWARE = [
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost",
+    "http://34.66.194.53/",
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:5173",
