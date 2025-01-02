@@ -111,22 +111,7 @@ SECRET_KEY = "django-insecure-x$im$wy@jq*%&rjoccud*3%m9w)qo6vug+a@50v@y7##598q@+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "*",
-    "http://34.66.194.53/",
-    "http://139.59.91.194/",
-    "159.65.158.135",
-    "http://35.200.208.199:8080",
-    "139.59.91.194",
-    "35.200.208.199:8080" "159.65.158.135:8080",  # Your server's IP address
-    "localhost",
-    "127.0.0.1",
-    "http://navyojan.in",
-    "http://www.navyojan.in",
-    "http://www.navyojan.in/",
-    "http://navyojan.in/",
-    # Add any other hosts or domain names here
-]
+
 
 
 # Application definition
@@ -161,36 +146,16 @@ MIDDLEWARE = [
 ]
 
 # CORS settings
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
 
-# Explicitly set allowed origins if needed
-CORS_ALLOWED_ORIGINS = [
-    "http://34.66.194.53",
-    "http://35.200.208.199:8080",
-]
 
 # Important: When using CORS_ALLOW_CREDENTIALS, specify the exact origin
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^http://34\.66\.194\.53$",
-    r"^http://35\.200\.208\.199:8080$",
-]
+
 
 # Additional required headers
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-]
-
-CORS_EXPOSE_HEADERS = ["*"]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 # Add these specific response headers
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
