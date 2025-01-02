@@ -118,8 +118,7 @@ ALLOWED_HOSTS = [
     "159.65.158.135",
     "http://35.200.208.199:8080",
     "139.59.91.194",
-    "35.200.208.199:8080"
-    "159.65.158.135:8080",  # Your server's IP address
+    "35.200.208.199:8080" "159.65.158.135:8080",  # Your server's IP address
     "localhost",
     "127.0.0.1",
     "http://navyojan.in",
@@ -160,28 +159,23 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS settings
+CORS_ORIGIN_ALLOW_ALL = True  # This is the old style but more permissive
+CORS_ALLOW_ALL_ORIGINS = True  # This is the new style
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-    "x-refresh-token",
-]
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
+
+# Allow all headers
+CORS_ALLOW_HEADERS = ["*"]
+
+# Allow all methods
+CORS_ALLOW_METHODS = ["*"]
+
+# Additional settings that might help
+CORS_EXPOSE_HEADERS = ["*"]
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
+CORS_REPLACE_HTTPS_REFERER = True
+
 ROOT_URLCONF = "navyojan.urls"
 
 
