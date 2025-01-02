@@ -51,7 +51,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['is_reviewer', 'is_host_user', 'is_subscribed', 'current_plan']
     
     def get_add_ons(self, obj):
-        add_ons_data = obj.user.add_ons.all()
+        add_ons_data = QuestionResponses.objects.filter(content_type__model='user', object_id=obj.user.id)
         return QuestionResponsesSerializer(add_ons_data, many=True).data
 
     def get_is_subscribed(self, obj):
