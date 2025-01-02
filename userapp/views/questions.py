@@ -10,6 +10,7 @@ from userapp.pagination import CustomPagination
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from logs.logger_setup import logger
 
 DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication] 
 
@@ -21,8 +22,12 @@ class QuestionResponsesViewSet(viewsets.ModelViewSet):
     http_method_names = ["get"]
 
     def get_queryset(self):
-        filtered_queryset = self.queryset.filter(content_type__model='user', object_id=self.request.user.id)
-        return filtered_queryset
+        try:
+            filtered_queryset = self.queryset.filter(content_type__model='user', object_id=self.request.user.id)
+            return filtered_queryset
+        except Exception as e:
+            logger.debug(f'Error filtering question responses: {str(e)}')
+            return QuestionResponses.objects.none()
     
 
 
@@ -60,14 +65,21 @@ class QuestionResponsesBulkViewSet(viewsets.ModelViewSet):
         question_responses_data = request.data.get('question_responses', [])
 
         if not question_responses_data:
+            logger.debug('No question responses provided in the request.')
             return Response({'error': 'No question responses provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(data=question_responses_data, many=True)
 
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save()
+                logger.info('Successfully created question responses.')
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                logger.debug(f'Error saving question responses: {str(e)}')
+                return Response({'error': 'Failed to create question responses'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
+            logger.debug(f'Validation errors: {serializer.errors}')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -96,7 +108,7 @@ class QuestionsViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
 
         # Filter questions based on category from query parameters
-        category = request.query_params['category']
+        category = request.query_params.get('category', None)
         if category:
             queryset = queryset.filter(category=category)
 

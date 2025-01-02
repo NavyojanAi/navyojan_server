@@ -20,6 +20,7 @@ from userapp.models import UserScholarshipStatus,UserProfile, OTP,UserProfileSch
 from userapp.serializers import ScholarshipDataSerializer,UserScholarshipStatusSerializer,UserDisplaySerializer,UserProfileSerializer, UserProfileScholarshipProviderSerializer,UserDocumentsSerializer,UserPreferencesSerializer,UserScholarshipDataSerializer
 from userapp.permission import IsActivePermission, IsReviewerUser,CanHostScholarships
 from userapp.authentication import FirebaseAuthentication
+from logs.logger_setup import logger  # Import the logger
 
 
 DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
@@ -30,100 +31,108 @@ class AdminStatisticsView(APIView):
     authentication_classes = DEFAULT_AUTH_CLASSES
 
     def get(self, request, *args, **kwargs):
-        # User statistics
+        try:
+            # User statistics
+            users_created_this_month = UserProfile.objects.filter(
+                datetime_created__year=timezone.now().year,
+                datetime_created__month=timezone.now().month
+            )
 
-        # Filter users created in the current month
-        users_created_this_month = UserProfile.objects.filter(
-            datetime_created__year=timezone.now().year,
-            datetime_created__month=timezone.now().month
-        )
+            total_users_this_month = users_created_this_month.count()
+            total_users = User.objects.count()
+            total_reviewers = UserProfile.objects.filter(is_reviewer=True).count()
+            total_customers = UserProfile.objects.filter(is_host_user=False).count()  # non-host users
+            total_providers = UserProfile.objects.filter(is_host_user=True).count()
+            total_admins = User.objects.filter(is_staff=True).count()
+            total_subscribed_users = UserProfile.objects.exclude(plan=None).count()
 
-        # If you want to count the number of users
-        total_users_this_month = users_created_this_month.count()
-        total_users = User.objects.count()
-        total_reviewers = UserProfile.objects.filter(is_reviewer=True).count()
-        total_customers = UserProfile.objects.filter(is_host_user=False).count()  # non-host users
-        total_providers = UserProfile.objects.filter(is_host_user=True).count()
-        total_admins = User.objects.filter(is_staff=True).count()
+            # Scholarship statistics
+            total_scholarships = ScholarshipData.objects.count()
+            total_approved_scholarships = ScholarshipData.objects.filter(is_approved=True).count()
+            total_unapproved_scholarships = ScholarshipData.objects.filter(is_approved=False).count()
 
-        total_subscribed_users = UserProfile.objects.exclude(plan=None).count()
+            # applications
+            total_applications = UserScholarshipApplicationData.objects.count()
 
+            # Monthly application data
+            current_year = timezone.now().year
+            last_year = current_year - 1
 
-        # Scholarship statistics
-        total_scholarships = ScholarshipData.objects.count()
-        total_approved_scholarships = ScholarshipData.objects.filter(is_approved=True).count()
-        total_unapproved_scholarships = ScholarshipData.objects.filter(is_approved=False).count()
+            current_year_data = self.get_monthly_application_data(current_year)
+            last_year_data = self.get_monthly_application_data(last_year)
 
-        # applications
-        total_applications = UserScholarshipApplicationData.objects.count()
+            # Latest scholarships with status
+            latest_scholarships = self.get_latest_scholarships()
+            latest_scholarship_applications = self.get_latest_scholarship_applications()
 
+            data = {
+                "user_stats": {
+                    "total_users": total_users,
+                    "total_reviewers": total_reviewers,
+                    "total_customers": total_customers,
+                    "total_providers": total_providers,
+                    "total_admins": total_admins,
+                    "users_this_month": total_users_this_month,
+                    "total-subscribed_users": total_subscribed_users
+                },
+                "scholarship_stats": {
+                    "total_scholarships": total_scholarships,
+                    "approved_scholarships": total_approved_scholarships,
+                    "unapproved_scholarships": total_unapproved_scholarships,
+                    "total_applications": total_applications
+                },
+                "monthly_application_data": [
+                    {"name": "This year", "data": current_year_data},
+                    {"name": "Last year", "data": last_year_data},
+                ],
+                "latest_scholarships": latest_scholarships,
+                "latest_scholarship_applications": latest_scholarship_applications
+            }
 
-        # Monthly application data
-        current_year = timezone.now().year
-        last_year = current_year - 1
-
-        current_year_data = self.get_monthly_application_data(current_year)
-        last_year_data = self.get_monthly_application_data(last_year)
-
-        # Latest scholarships with status
-        latest_scholarships = self.get_latest_scholarships()
-        latest_scholarship_applications = self.get_latest_scholarship_applications()
-
-        data = {
-            "user_stats": {
-                "total_users": total_users,
-                "total_reviewers": total_reviewers,
-                "total_customers": total_customers,
-                "total_providers":total_providers,
-                "total_admins": total_admins,
-                "users_this_month":total_users_this_month,
-                "total-subscribed_users":total_subscribed_users
-            },
-            "scholarship_stats": {
-                "total_scholarships": total_scholarships,
-                "approved_scholarships": total_approved_scholarships,
-                "unapproved_scholarships": total_unapproved_scholarships,
-                "total_applications":total_applications
-            },
-            "monthly_application_data": [
-                {"name": "This year", "data": current_year_data},
-                {"name": "Last year", "data": last_year_data},
-            ],
-            "latest_scholarships": latest_scholarships,
-            "latest_scholarship_applications": latest_scholarship_applications
-        }
-
-        return Response(data)
+            return Response(data)
+        except Exception as e:
+            logger.debug(f'Error retrieving admin statistics: {str(e)}')
+            return Response({'error': 'Failed to retrieve statistics'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_monthly_application_data(self, year):
         monthly_data = []
         for month in range(1, 13):
-            count = UserScholarshipApplicationData.objects.filter(
-                datetime_created__year=year,
-                datetime_created__month=month
-            ).count()
-            monthly_data.append(count)
+            try:
+                count = UserScholarshipApplicationData.objects.filter(
+                    datetime_created__year=year,
+                    datetime_created__month=month
+                ).count()
+                monthly_data.append(count)
+            except Exception as e:
+                logger.debug(f'Error retrieving monthly application data for year {year}, month {month}: {str(e)}')
+                monthly_data.append(0)  # Append 0 on error
         return monthly_data
 
     def get_latest_scholarships(self):
-        latest_scholarships = ScholarshipData.objects.order_by('-datetime_created')[:5]
-        scholarship_data = []
-        for scholarship in latest_scholarships:
-            status = UserScholarshipStatus.objects.filter(scholarship=scholarship).first()
-            scholarship_data.append({
-                "id": scholarship.id,
-                "title": scholarship.title,
-                "status": status.status if status else "Unknown"
-            })
-        return scholarship_data
-    
+        try:
+            latest_scholarships = ScholarshipData.objects.order_by('-datetime_created')[:5]
+            scholarship_data = []
+            for scholarship in latest_scholarships:
+                status = UserScholarshipStatus.objects.filter(scholarship=scholarship).first()
+                scholarship_data.append({
+                    "id": scholarship.id,
+                    "title": scholarship.title,
+                    "status": status.status if status else "Unknown"
+                })
+            return scholarship_data
+        except Exception as e:
+            logger.debug(f'Error retrieving latest scholarships: {str(e)}')
+            return []  # Return empty list on error
+
     def get_latest_scholarship_applications(self):
         try:
             latest_applications = UserScholarshipApplicationData.objects.order_by('-datetime_created')[:5]
+            data = UserScholarshipDataSerializer(latest_applications, many=True).data
+            return data
         except Exception as e:
-            latest_applications = UserScholarshipApplicationData.objects.order_by('-datetime_created')
-        data = UserScholarshipDataSerializer(latest_applications, many=True).data
-        return data
+            logger.debug(f'Error retrieving latest scholarship applications: {str(e)}')
+            return []  # Return empty list on error
+
 class ScholarshipProviderStatisticsView(APIView):
     permission_classes = [IsActivePermission, CanHostScholarships]
     authentication_classes = DEFAULT_AUTH_CLASSES

@@ -19,6 +19,8 @@ from userapp.serializers import UserPaymentsSerializer
 from userapp.permission import IsActivePermission
 from userapp.authentication import FirebaseAuthentication
 
+from logs.logger_setup import logger
+
 
 
 
@@ -32,28 +34,35 @@ class PaymentRequestView(APIView):
     def post(self, request):
         currency = 'INR'
         plan_id = request.data.get('plan_id')
-        plan = SubscriptionPlan.objects.get(id=plan_id)
-        amount = plan.amount
+        try:
+            plan = SubscriptionPlan.objects.get(id=plan_id)
+            amount = plan.amount
 
-        # Create a Razorpay Order
-        razorpay_order = razorpay_client.order.create(dict(amount=int(amount),
-                                                           currency=currency,
-                                                           payment_capture='1'))
+            # Create a Razorpay Order
+            razorpay_order = razorpay_client.order.create(dict(amount=int(amount),
+                                                               currency=currency,
+                                                               payment_capture='1'))
 
-        # order id of newly created order.
-        razorpay_order_id = razorpay_order['id']
+            # order id of newly created order.
+            razorpay_order_id = razorpay_order['id']
 
-        # we need to pass these details to frontend.
-        context = {
-            'razorpay_order_id': razorpay_order_id,
-            'razorpay_merchant_key': settings.RAZOR_KEY_ID,
-            'razorpay_amount': amount,
-            'currency': currency,
-            'plan_id': plan_id,
-            'callback_url':'/api/paymenthandler/'
-        }
+            # we need to pass these details to frontend.
+            context = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_merchant_key': settings.RAZOR_KEY_ID,
+                'razorpay_amount': amount,
+                'currency': currency,
+                'plan_id': plan_id,
+                'callback_url':'/api/paymenthandler/'
+            }
 
-        return Response(context, status=status.HTTP_200_OK)
+            return Response(context, status=status.HTTP_200_OK)
+        except SubscriptionPlan.DoesNotExist:
+            logger.debug(f'Plan with id {plan_id} does not exist.')
+            return Response({'error': 'Plan not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.debug(f'Error creating payment request: {str(e)}')
+            return Response({'error': 'An error occurred while creating the payment request'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class PaymentHandlerView(APIView):
@@ -71,8 +80,7 @@ class PaymentHandlerView(APIView):
             }
 
             # verify the payment signature.
-            result = razorpay_client.utility.verify_payment_signature(
-                params_dict)
+            result = razorpay_client.utility.verify_payment_signature(params_dict)
             if result is not None:
                 plan_id = request.data.get('plan_id')
                 plan = SubscriptionPlan.objects.get(id=plan_id)
@@ -82,17 +90,22 @@ class PaymentHandlerView(APIView):
                     razorpay_client.payment.capture(payment_id, int(amount))
                     user = request.user
                     user_plan = UserPlanTracker.objects.create(user=user, plan=plan, end_date=now() + timedelta(days=plan.duration))
-                    user_payments = UserPayments.objects.create(user=user,plan=plan,razorpay_order_id=razorpay_order_id,payment_id=payment_id,signature=signature)
+                    user_payments = UserPayments.objects.create(user=user, plan=plan, razorpay_order_id=razorpay_order_id, payment_id=payment_id, signature=signature)
                     userprofile = user.userprofile
                     userprofile.plan = plan
                     userprofile.save()
                     return Response({'message': 'Payment successful'}, status=status.HTTP_200_OK)
-                except:
+                except Exception as e:
+                    logger.debug(f'Payment capture failed: {str(e)}')
                     return Response({'error': 'Payment capture failed'}, status=status.HTTP_400_BAD_REQUEST)
             else:
+                logger.debug('Signature verification failed.')
                 return Response({'error': 'Signature verification failed'}, status=status.HTTP_400_BAD_REQUEST)
+        except SubscriptionPlan.DoesNotExist:
+            logger.debug(f'Plan with id {request.data.get("plan_id")} does not exist.')
+            return Response({'error': 'Plan not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            # Log the exception for debugging
+            logger.debug(f'Error processing payment: {str(e)}')
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
@@ -134,7 +147,7 @@ class UserPaymentsViewset(ModelViewSet):
         return self.queryset.filter(user=self.request.user)
     
     def list(self, request, *args, **kwargs):
-        queryset= self.get_queryset()
+        queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
 
         response_data = {

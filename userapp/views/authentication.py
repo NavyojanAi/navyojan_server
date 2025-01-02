@@ -11,6 +11,7 @@ from django.conf import settings
 from userapp.models import UserProfile,UserProfileScholarshipProvider,UserDocuments,UserPreferences
 from userapp.forms import CustomUserCreationForm
 from userapp.permission import IsActivePermission
+from logs.logger_setup import logger
 
 def generate_unique_username(first_name, last_name):
     User = get_user_model()
@@ -28,50 +29,56 @@ def generate_unique_username(first_name, last_name):
 def signup_view(request):
     if request.method == 'POST':
         input_form = request.data
-        input_form['username'] = generate_unique_username(first_name=input_form['first_name'], last_name=input_form['last_name'])
-        form = CustomUserCreationForm(input_form)
-        if form.is_valid():
-            user = form.save()
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password1')
+        try:
+            input_form['username'] = generate_unique_username(first_name=input_form['first_name'], last_name=input_form['last_name'])
+            form = CustomUserCreationForm(input_form)
+            if form.is_valid():
+                user = form.save()
+                email = form.cleaned_data.get('email')
+                password = form.cleaned_data.get('password1')
 
-            # Authenticate user
-            user = authenticate(request, username=email, password=password)
-            if user is not None:
-                user_profile, _ = UserProfile.objects.get_or_create(user=user, account_type="regular")
-                UserDocuments.objects.get_or_create(user=user)
-                UserPreferences.objects.get_or_create(user=user)
-                signup_type = request.data.get('signup_type')
-                created = False
-                if signup_type == 'scholarshipProviders':
-                    _,created=UserProfileScholarshipProvider.objects.get_or_create(user=user)
-                    user_profile.is_host_user=True
-                    user_profile.save()
-                
-                # Generate JWT tokens
-                refresh = RefreshToken.for_user(user)
-                response_data={
-                    'message': 'Signup successful',
-                    'access': str(refresh.access_token),
-                    'refresh': str(refresh)
-                }
-                if created:
-                    response_data['role']='scholarshipprovider'
+                # Authenticate user
+                user = authenticate(request, username=email, password=password)
+                if user is not None:
+                    user_profile, _ = UserProfile.objects.get_or_create(user=user, account_type="regular")
+                    UserDocuments.objects.get_or_create(user=user)
+                    UserPreferences.objects.get_or_create(user=user)
+                    signup_type = request.data.get('signup_type')
+                    created = False
+                    if signup_type == 'scholarshipProviders':
+                        _,created=UserProfileScholarshipProvider.objects.get_or_create(user=user)
+                        user_profile.is_host_user=True
+                        user_profile.save()
+                    
+                    # Generate JWT tokens
+                    refresh = RefreshToken.for_user(user)
+                    response_data={
+                        'message': 'Signup successful',
+                        'access': str(refresh.access_token),
+                        'refresh': str(refresh)
+                    }
+                    if created:
+                        response_data['role']='scholarshipprovider'
+                    else:
+                        response_data['role']='regular'
+                    response= Response(response_data, status=status.HTTP_200_OK)
+                    response.set_cookie(
+                        key='refreshToken',
+                        value=str(refresh),
+                        httponly=True,
+                        max_age=settings.REFRESH_TOKEN_COOKIE_MAX_AGE,  # Set the cookie's lifetime
+                        path=settings.REFRESH_TOKEN_COOKIE_PATH,  # Set the cookie path (typically /api/refresh)
+                    )
+                    return response
                 else:
-                    response_data['role']='regular'
-                response= Response(response_data, status=status.HTTP_200_OK)
-                response.set_cookie(
-                    key='refreshToken',
-                    value=str(refresh),
-                    httponly=True,
-                    max_age=settings.REFRESH_TOKEN_COOKIE_MAX_AGE,  # Set the cookie's lifetime
-                    path=settings.REFRESH_TOKEN_COOKIE_PATH,  # Set the cookie path (typically /api/refresh)
-                )
-                return response
+                    logger.debug(f'Signup successful but login failed for email: {email}')
+                    return Response({'message': 'Signup successful but login failed'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({'message': 'Signup successful but login failed'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({'message': 'Invalid form data', 'error': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+                logger.debug(f'Invalid form data: {form.errors}')
+                return Response({'message': 'Invalid form data', 'error': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.debug(f'Error during signup: {str(e)}')
+            return Response({'message': 'An error occurred during signup', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     elif request.method == 'GET':
         return Response({
             "format": {
@@ -120,8 +127,10 @@ def login_view(request):
 
                 return final_response
             else:
+                logger.debug(f'Invalid login attempt for email: {email}')
                 return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         else:
+            logger.debug('Email and password are required')
             return Response({'message': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'GET':
         return Response({
@@ -138,6 +147,7 @@ def logout_view(request):
     refresh_token= request.headers.get('X-Refresh-Token')
 
     if not refresh_token:
+        logger.debug('Refresh token not provided')
         return Response({'message': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
@@ -146,6 +156,8 @@ def logout_view(request):
         token.blacklist()  # Blacklist the token
         return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
     except TokenError as e:
+        logger.debug(f'Invalid or expired refresh token: {str(e)}')
         return Response({'message': 'Invalid or expired refresh token', 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
+        logger.debug(f'Failed to blacklist token: {str(e)}')
         return Response({'message': 'Failed to blacklist token', 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

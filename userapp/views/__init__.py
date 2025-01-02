@@ -3,5 +3,5 @@ from .scholarships import ScholarshipDataViewSet,CategoryViewSet,UserScholarship
 from .authentication import signup_view,login_view,logout_view
 from .payment import PaymentHandlerView,PaymentRequestView,CheckUserSubscriptionView,UserPaymentsViewset
 from .user_plans import SubscriptionPlanViewSet
-from .verification import EmailVerificationViewSet, PhoneVerificationViewset
+from .verification import VerificationViewSet
 from .questions import QuestionResponsesBulkViewSet,QuestionResponsesViewSet,QuestionsViewSet
