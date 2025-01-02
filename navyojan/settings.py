@@ -112,8 +112,6 @@ SECRET_KEY = "django-insecure-x$im$wy@jq*%&rjoccud*3%m9w)qo6vug+a@50v@y7##598q@+
 DEBUG = True
 
 
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -152,10 +150,39 @@ MIDDLEWARE = [
 
 
 # Additional required headers
-CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://34.66.194.53",  # Production frontend
+    "http://localhost:3000",  # Next.js default
+    "http://localhost:3001",  # Alternative Next.js port
+    "http://localhost:5173",  # Vite default
+    "http://localhost:8000",  # Django development server
+    "http://localhost:8080",  # Alternative backend port
+    "http://127.0.0.1:3000",  # localhost alternative
+    "http://127.0.0.1:3001",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8080",
+]
+
+# Optional: If you need regex patterns for dynamic subdomains or ports
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 CORS_ALLOW_HEADERS = ["*"]
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 # Add these specific response headers
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -293,3 +320,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# CORS settings with credentials
+
