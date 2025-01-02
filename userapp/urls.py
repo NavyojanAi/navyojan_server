@@ -14,7 +14,7 @@ from userapp.views import (
 )
 
 router = DefaultRouter()
-router.register(r'profiles', UserProfileViewSet)
+router.register(r'profile', UserProfileViewSet)
 router.register(r'scholarships', ScholarshipDataViewSet)
 router.register(r'categories',CategoryViewSet)
 router.register(r'user_scholarship_status',UserScholarshipApplicationDataViewset)
