@@ -13,8 +13,11 @@ from userapp.permission import IsVerfiedPermission, IsActivePermission
 
 from rest_framework.decorators import action
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
-class EmailVerificationViewSet(viewsets.ViewSet):
+class VerificationViewSet(viewsets.ViewSet):
     authentication_classes = DEFAULT_AUTH_CLASSES
     permission_classes = [IsActivePermission]
 
@@ -24,91 +27,91 @@ class EmailVerificationViewSet(viewsets.ViewSet):
         return super().get_permissions()
 
     @action(detail=False, methods=['post'], url_path='send-otp')
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'verification_type': openapi.Schema(type=openapi.TYPE_STRING, description='Type of verification: "email" or "phone".')
+            },
+            required=['verification_type']
+        ),
+        responses={
+            200: openapi.Response('OTP sent successfully.'),
+            400: openapi.Response('Invalid request.')
+        }
+    )
     def send_otp(self, request):
         user = self.request.user
-        email_verification=Verification.objects.create(user=user,verification_type='email')  # OTP generation handled in save()
+        verification_type = request.data.get('verification_type')  # 'email' or 'phone'
         
-        # Send OTP via email
-        logger.debug(f"{email_verification.otp} --- {decrypt_data(email_verification.otp)}")
-        subject = 'Your OTP Code'
-        body = f'''Hi {self.request.user.first_name},\nYour OTP code is {decrypt_data(email_verification.otp)}\n\nRegards\nNavyojan Team'''
-        logger.debug(f"sending otp to {user.email}")
-        send_email_task.delay(
-            subject=subject,
-            body=body,
-            to_user_emails=[user.email]
-        )
+        verification = Verification.objects.create(user=user, verification_type=verification_type)  # OTP generation handled in save()
+        
+        if verification_type == 'email':
+            # Send OTP via email
+            logger.debug(f"{verification.otp} --- {decrypt_data(verification.otp)}")
+            subject = 'Your OTP Code'
+            body = f'''Hi {user.first_name},\nYour OTP code is {decrypt_data(verification.otp)}\n\nRegards\nNavyojan Team'''
+            logger.debug(f"sending otp to {user.email}")
+            send_email_task.delay(
+                subject=subject,
+                body=body,
+                to_user_emails=[user.email]
+            )
+        elif verification_type == 'phone':
+            # Send OTP via SMS
+            logger.debug(f"{verification.otp} --- {decrypt_data(verification.otp)}")
+            message = f"Hi {user.first_name}, your OTP code is {decrypt_data(verification.otp)}"
+            logger.debug(f"sending otp to {user.phone_number}")
+            send_text_task.delay(
+                phone_number=user.phone_number,
+                message=message
+            )
         
         return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path='verify-otp')
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'otp': openapi.Schema(type=openapi.TYPE_STRING, description='The OTP code provided by the user.'),
+                'verification_type': openapi.Schema(type=openapi.TYPE_STRING, description='Type of verification: "email" or "phone".')
+            },
+            required=['otp', 'verification_type']
+        ),
+        responses={
+            200: openapi.Response('OTP verified successfully.'),
+            400: openapi.Response('Invalid OTP.')
+        }
+    )
     def verify_otp(self, request):
         user = request.user
         otp_provided = request.data.get('otp')
+        verification_type = request.data.get('verification_type')  # 'email' or 'phone'
 
         try:
-            email_verification = Verification.objects.filter(user=user,verification_type='email').order_by('-datetime_created').first()
-            decrypted_otp = decrypt_data(email_verification.otp)
+            verification = Verification.objects.filter(user=user, verification_type=verification_type).order_by('-datetime_created').first()
+            decrypted_otp = decrypt_data(verification.otp)
             
             if decrypted_otp == otp_provided:
                 up = user.userprofile
-                up.is_email_verified=True
+                if verification_type == 'email':
+                    up.is_email_verified = True
+                    subject = 'Email Verified Successfully'
+                    body = f'''Hi {user.first_name},\nYour email has been successfully verified.\n\nRegards\nNavyojan Team'''
+                    send_email_task.delay(
+                        subject=subject,
+                        body=body,
+                        to_user_emails=[user.email]
+                    )
+                elif verification_type == 'phone':
+                    up.is_phone_verified = True
+                    message = f"Hi {user.first_name}, your phone number has been successfully verified."
+                    send_text_task.delay(
+                        phone_number=user.phone_number,
+                        message=message
+                    )
                 up.save()
-                subject = 'Email Verified Successfully'
-                body = f'''Hi {user.first_name},\nYour email has been successfully verified.\n\nRegards\nNavyojan Team'''
-
-                send_email_task.delay(
-                    subject=subject,
-                    body=body,
-                    to_user_emails=[user.email]
-                )
-                return Response({"message": "OTP verified successfully."}, status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
-        except Verification.DoesNotExist:
-            return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
-        
-class PhoneVerificationViewset(viewsets.ViewSet):
-    def get_permissions(self):
-        if self.action in ['send_otp', 'verify_otp']:
-            return [IsVerfiedPermission()]
-        return super().get_permissions()
-
-    @action(detail=False, methods=['post'], url_path='send-otp')
-    def send_otp(self, request):
-        user = self.request.user
-        phone_verification = Verification.objects.create(user=user,verification_type='phone')  # OTP generation handled in save()
-        
-        # Send OTP via SMS
-        logger.debug(f"{phone_verification.otp} --- {decrypt_data(phone_verification.otp)}")
-        message = f"Hi {self.request.user.first_name}, your OTP code is {decrypt_data(phone_verification.otp)}"
-        logger.debug(f"sending otp to {user.phone_number}")
-        send_text_task.delay(
-            phone_number=user.phone_number,
-            message=message
-        )
-        
-        return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=['post'], url_path='verify-otp')
-    def verify_otp(self, request):
-        user = request.user
-        otp_provided = request.data.get('otp')
-
-        try:
-            phone_verification = Verification.objects.filter(user=user,verification_type='phone').order_by('-datetime_created').first()
-            decrypted_otp = decrypt_data(phone_verification.otp)
-            
-            if decrypted_otp == otp_provided:
-                up = user.userprofile
-                up.is_phone_verified = True
-                up.save()
-                message = f"Hi {user.first_name}, your phone number has been successfully verified."
-
-                send_text_task.delay(
-                    phone_number=user.phone_number,
-                    message=message
-                )
                 return Response({"message": "OTP verified successfully."}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)

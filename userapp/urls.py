@@ -10,11 +10,11 @@ from userapp.views import (
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
     DocumentViewSet, EligibilityViewSet, SubscriptionPlanViewSet, PaymentHandlerView,
     PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView,UserPaymentsViewset,
-    EmailVerificationViewSet,PhoneVerificationViewset,QuestionResponsesBulkViewSet,QuestionsViewSet,QuestionResponsesViewSet
+    VerificationViewSet,QuestionResponsesBulkViewSet,QuestionsViewSet,QuestionResponsesViewSet
 )
 
 router = DefaultRouter()
-router.register(r'profiles', UserProfileViewSet)
+router.register(r'profile', UserProfileViewSet)
 router.register(r'scholarships', ScholarshipDataViewSet)
 router.register(r'categories',CategoryViewSet)
 router.register(r'user_scholarship_status',UserScholarshipApplicationDataViewset)
@@ -25,8 +25,7 @@ router.register(r'scholarship_status',UserScholarshipStatusViewset)
 router.register(r'documents_required',DocumentViewSet)
 router.register(r'eligibility',EligibilityViewSet)
 router.register(r'user_payments', UserPaymentsViewset)
-router.register(r'email_verification', EmailVerificationViewSet, basename='email-verification')
-router.register(r'phone_verification', PhoneVerificationViewset, basename='phone-verification')
+router.register(r'verification', VerificationViewSet, basename='verification')
 router.register(r'question_responses_bulk', QuestionResponsesBulkViewSet)
 router.register(r'questions', QuestionsViewSet)
 router.register(r'question_responses', QuestionResponsesViewSet, basename='questions_responses')
