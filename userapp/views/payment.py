@@ -87,7 +87,7 @@ class PaymentHandlerView(APIView):
                 amount = plan.amount 
                 try:
                     # capture the payment
-                    razorpay_client.payment.capture(payment_id, amount)
+                    razorpay_client.payment.capture(payment_id, int(amount))
                     user = request.user
                     user_plan = UserPlanTracker.objects.create(user=user, plan=plan, end_date=now() + timedelta(days=plan.duration))
                     user_payments = UserPayments.objects.create(user=user, plan=plan, razorpay_order_id=razorpay_order_id, payment_id=payment_id, signature=signature)
