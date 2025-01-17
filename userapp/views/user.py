@@ -25,6 +25,27 @@ from logs.logger_setup import logger  # Import the logger
 
 DEFAULT_AUTH_CLASSES = [JWTAuthentication, FirebaseAuthentication]
 
+class UserProfileFieldsView(APIView):
+    # authentication_classes = DEFAULT_AUTH_CLASSES
+    # permission_classes = [IsActivePermission]
+
+    def get(self, request):
+        """Returns all field choices for UserProfile model"""
+        try:
+            fields_data = {
+                'gender': dict(UserProfile.GENDER_CHOICES),
+                'annual_household_income': dict(UserProfile.ANNUAL_HOUSEHOLD_INCOME_CHOICES),
+                'education_level': dict(UserProfile.EDUCATION_LEVEL_CHOICES),
+            }
+            return Response(fields_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in UserProfileFieldsView: {str(e)}")
+            return Response(
+                {"error": "An error occurred while fetching field choices"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 
 class AdminStatisticsView(APIView):
     permission_classes = [IsActivePermission, IsAdminUser]  # Allow only admin users to view these statistics

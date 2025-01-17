@@ -10,7 +10,7 @@ from userapp.views import (
     UserProfileScholarshipProviderPatchView, UserDocumentsPatchView, UserPreferencesPatchView,
     DocumentViewSet, EligibilityViewSet, SubscriptionPlanViewSet, PaymentHandlerView,
     PaymentRequestView, CheckUserSubscriptionView, userScholarshipStatusListView,UserPaymentsViewset,
-    VerificationViewSet,QuestionResponsesBulkViewSet,QuestionsViewSet,QuestionResponsesViewSet
+    VerificationViewSet,QuestionResponsesBulkViewSet,QuestionsViewSet,QuestionResponsesViewSet,UserProfileFieldsView
 )
 
 router = DefaultRouter()
@@ -29,6 +29,7 @@ router.register(r'verification', VerificationViewSet, basename='verification')
 router.register(r'question_responses_bulk', QuestionResponsesBulkViewSet)
 router.register(r'questions', QuestionsViewSet)
 router.register(r'question_responses', QuestionResponsesViewSet, basename='questions_responses')
+router.register(r'profile_fields', UserProfileFieldsView, basename='profile_fields')
 
 
 urlpatterns = [
