@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:latest
+    image: postgres:16
     container_name: navyojan-postgres-db-server
     restart: always
     expose:
@@ -53,7 +53,7 @@ services:
     container_name: navyojan-celery-worker
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     working_dir: /navyojan-project/
     volumes:
       - ./logs/:/navyojan-project/logs/
@@ -78,7 +78,7 @@ services:
     container_name: navyojan-celery-flower
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     env_file:
       - .env
     working_dir: /navyojan-project/
@@ -94,7 +94,7 @@ services:
       - message-broker
     networks:
       - navyojan-app
-  
+
   message-broker:
     image: rabbitmq:3.13-management
     container_name: navyojan-rabbitmq-server

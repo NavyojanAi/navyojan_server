@@ -51,7 +51,9 @@ FIREBASE_CREDENTIALS = credentials.Certificate(
         "client_id": os.environ["FIREBASE_CLIENT_ID"],
         "auth_uri": os.environ["FIREBASE_AUTH_URI"],
         "token_uri": os.environ["FIREBASE_TOKEN_URI"],
-        "auth_provider_x509_cert_url": os.environ["FIREBASE_AUTH_PROVIDER_X509_CERT_URL"],
+        "auth_provider_x509_cert_url": os.environ[
+            "FIREBASE_AUTH_PROVIDER_X509_CERT_URL"
+        ],
         "client_x509_cert_url": os.environ["FIREBASE_CLIENT_X509_CERT_URL"],
     }
 )
@@ -64,37 +66,40 @@ EMAIL_HOST = "smtp.gmail.com"  # For Gmail SMTP
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]  # Your email address
-EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]  # Your email password or App Password
+EMAIL_HOST_PASSWORD = os.environ[
+    "EMAIL_HOST_PASSWORD"
+]  # Your email password or App Password
 
 
 FERNET_KEY = os.environ["FERNET_KEY"]
 
 CELERY_BROKER_URL = os.environ["RABBITMQ"]
-CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{database}'.format(
-    user=os.environ["POSTGRES_USERNAME"],
-    password=os.environ["POSTGRES_PASSWORD"],
-    host=os.environ["POSTGRES_HOST"],
-    port=os.environ["POSTGRES_PORT"],
-    database=os.environ["POSTGRES_DATABASE"],
-) 
+CELERY_RESULT_BACKEND = (
+    "db+postgresql://{user}:{password}@{host}:{port}/{database}".format(
+        user=os.environ["POSTGRES_USERNAME"],
+        password=os.environ["POSTGRES_PASSWORD"],
+        host=os.environ["POSTGRES_HOST"],
+        port=os.environ["POSTGRES_PORT"],
+        database=os.environ["POSTGRES_DATABASE"],
+    )
+)
 
 CELERY_TASK_ROUTES = {
     "tasks.send_email.send_email_task": {"queue": "default-queue"},
     "tasks.send_email.send_text_task": {"queue": "default-queue"},
-    "backend.celery.debug_task": {"queue": "default-queue"}
+    "backend.celery.debug_task": {"queue": "default-queue"},
     # Add more tasks as needed
 }
 
 
-CELERY_TASK_SERIALIZER="pickle"
-CELERY_RESULT_SERIALIZER = 'pickle'
-CELERY_ACCEPT_CONTENT = ['pickle']
-CELERY_TASK_IGNORE_RESULT=False
-CELERY_TASK_TRACK_STARTED=True
-CELERY_TASK_DEFAULT_QUEUE="default-queue"
+CELERY_TASK_SERIALIZER = "pickle"
+CELERY_RESULT_SERIALIZER = "pickle"
+CELERY_ACCEPT_CONTENT = ["pickle"]
+CELERY_TASK_IGNORE_RESULT = False
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_DEFAULT_QUEUE = "default-queue"
 
-MSG_AUTH= os.environ['MSG_AUTH']
-
+MSG_AUTH = os.environ["MSG_AUTH"]
 
 
 # Quick-start development settings - unsuitable for production
@@ -105,20 +110,6 @@ SECRET_KEY = "django-insecure-x$im$wy@jq*%&rjoccud*3%m9w)qo6vug+a@50v@y7##598q@+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = [
-    "*",
-    "http://139.59.91.194/",
-    "159.65.158.135",
-    "159.65.158.135:8080",  # Your server's IP address
-    "localhost",
-    "127.0.0.1",
-    "http://navyojan.in",
-    "http://www.navyojan.in",
-    "http://www.navyojan.in/",
-    "http://navyojan.in/"
-    # Add any other hosts or domain names here
-]
 
 
 # Application definition
@@ -142,38 +133,68 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# CORS settings
+
+
+# Important: When using CORS_ALLOW_CREDENTIALS, specify the exact origin
+
+
+# Additional required headers
 CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://159.65.158.135:3000",
-    "http://159.65.158.135:8080",
-    "http://localhost:8080",
+    "http://34.66.194.53",  # Production frontend
+    "http://localhost:3000",  # Next.js default
+    "http://localhost:3001",  # Alternative Next.js port
+    "http://localhost:5173",  # Vite default
+    "http://localhost:8000",  # Django development server
+    "http://localhost:8080",  # Alternative backend port
+    "http://127.0.0.1:3000",  # localhost alternative
+    "http://127.0.0.1:3001",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8000",
     "http://127.0.0.1:8080",
-    "http://139.59.91.194"
 ]
-CORS_ALLOW_HEADERS = [
-    "authorization",
-    "content-type",
-    "x-refresh-token",
-    "X-CSRFToken",
-    "x-requested-with",
-    "accept",
-    "origin",
-    "x-csrftoken",
+
+# Optional: If you need regex patterns for dynamic subdomains or ports
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
 ]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+CORS_ALLOW_HEADERS = ["*"]
+ALLOWED_HOSTS = ["*"]
+
+# Add these specific response headers
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 ROOT_URLCONF = "navyojan.urls"
 
 
@@ -299,3 +320,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# CORS settings with credentials
+
