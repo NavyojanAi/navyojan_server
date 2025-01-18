@@ -43,10 +43,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = [
             'user', 'phone_number', 'education_level', 'field_of_study', 'country', 'gender', 'profile_photo',
-            'account_type', 'date_of_birth', 'is_email_verified', 'is_phone_number_verified', 'parent_name', 'address',
+            'account_type', 'date_of_birth', 'is_email_verified', 'is_phone_number_verified', 'address',
             'city', 'state', 'pincode', 'school_college_university', 'current_academic_year', 'has_siblings',
             'number_of_siblings', 'are_siblings_pursuing_education', 'fathers_occupation', 'mothers_occupation',
-            'annual_household_income', 'is_receiving_scholarships', 'add_ons', 'is_subscribed', 'current_plan'
+            'annual_household_income', 'is_receiving_scholarships', 'add_ons', 'is_subscribed', 'current_plan',
+            'fathers_name', 'mothers_name'
             ]
         read_only_fields = ['is_reviewer', 'is_host_user', 'is_subscribed', 'current_plan']
     

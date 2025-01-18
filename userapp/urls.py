@@ -29,7 +29,6 @@ router.register(r'verification', VerificationViewSet, basename='verification')
 router.register(r'question_responses_bulk', QuestionResponsesBulkViewSet)
 router.register(r'questions', QuestionsViewSet)
 router.register(r'question_responses', QuestionResponsesViewSet, basename='questions_responses')
-router.register(r'profile_fields', UserProfileFieldsView, basename='profile_fields')
 
 
 urlpatterns = [
@@ -51,4 +50,5 @@ urlpatterns = [
     path('profile_sp/edit', UserProfileScholarshipProviderPatchView.as_view(), name='profile-sp-patch'),
     path('documents/edit', UserDocumentsPatchView.as_view(), name='documents-patch'),
     path('preferences/edit', UserPreferencesPatchView.as_view(), name='user-preferences-patch'),
+    path('profile_fields/', UserProfileFieldsView.as_view(), name='profile-fields'),
 ]

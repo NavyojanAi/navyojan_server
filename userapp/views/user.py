@@ -37,6 +37,9 @@ class UserProfileFieldsView(APIView):
                 'annual_household_income': dict(UserProfile.ANNUAL_HOUSEHOLD_INCOME_CHOICES),
                 'education_level': dict(UserProfile.EDUCATION_LEVEL_CHOICES),
             }
+            fields_data['education_level']['undergraduate'] = 'Under Graduate'
+            fields_data['education_level']['postgraduate'] = 'Post Graduate'
+            fields_data['education_level']['phd'] = 'PhD'
             return Response(fields_data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Error in UserProfileFieldsView: {str(e)}")
