@@ -1,5 +1,6 @@
 import os
 import django
+from ai.config import OPEN_AI_KEY
 from django.utils import timezone
 from datetime import timedelta
 from openai import OpenAI

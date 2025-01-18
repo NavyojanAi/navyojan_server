@@ -3,6 +3,10 @@ FROM python:3.11.9
 # Set the working directory
 WORKDIR /navyojan-project
 
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 # Copy the project files
 COPY . .
 
