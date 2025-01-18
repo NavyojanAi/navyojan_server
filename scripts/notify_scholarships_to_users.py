@@ -17,11 +17,11 @@ from userapp.models.scholarships import (
     UserScholarshipApplicationData
 )
 from sys import stdout
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
-django.setup()
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
+# django.setup()
 
 def check_eligibility_with_gpt(user, scholarship):
-    client = OpenAI(api_key="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")
+    client = OpenAI(api_key=OPEN_AI_KEY)
 
     try:
         # Get all relevant user data
@@ -306,7 +306,7 @@ def main():
 # import django
 # from django.utils import timezone
 # from datetime import timedelta
-# from openai import OpenAI
+# import openai
 # # from ai.config import OPEN_AI_KEY
 
 # from userapp.models.user import (
@@ -348,7 +348,7 @@ def main():
 #                     notify_user(user, scholarship, auto_apply=True)
 
 # def check_eligibility_with_gpt(user, scholarship):
-#     client = OpenAI(api_key="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")
+#     openai.api_key = "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"
 
 #     # Correct way to access UserProfile and UserDocuments
 #     user_profile = UserProfile.objects.get(user=user)
@@ -391,7 +391,7 @@ def main():
 #     Is the user eligible for this scholarship? Respond with only 'Yes' or 'No'.
 #     """
 
-#     response = client.chat.completions.create(
+#     response = openai.ChatCompletion.create(
 #         model="gpt-4o-mini",
 #         messages=[
 #             {"role": "system", "content": "You are an AI assistant that determines scholarship eligibility."},

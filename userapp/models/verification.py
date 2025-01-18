@@ -5,6 +5,7 @@ import random
 
 from navyojan.models import BaseModel
 from tasks import encrypt_data
+
 class Verification(BaseModel):
     VERIFICATION_CHOICES = [
         ('email', 'Email'),

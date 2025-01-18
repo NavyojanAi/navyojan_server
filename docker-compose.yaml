@@ -46,6 +46,7 @@ services:
       - TZ=Asia/Kolkata
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@navyojan-rabbitmq-server/
     networks:
       - navyojan-app
 
@@ -111,6 +112,18 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - navyojan-app
+
+  cron-job:
+    build:
+      dockerfile: Dockerfile.cron
+    container_name: navyojan-cron-job
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - backend
     networks:
       - navyojan-app
 

@@ -3,8 +3,8 @@ import django
 from decimal import Decimal
 
 # Set up Django environment
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
-django.setup()
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
+# django.setup()
 
 from userapp.models.scholarships import Category, Eligibility, Documents
 from userapp.models.user_plans import SubscriptionPlan

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from tasks import send_email_task,decrypt_data,send_text_task
 from navyojan import settings
 from userapp.authentication import FirebaseAuthentication
-from logs import logger
+from logs import logger 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from userapp.permission import IsVerfiedPermission, IsActivePermission

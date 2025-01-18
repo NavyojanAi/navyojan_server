@@ -17,10 +17,12 @@ import re
 
 
 
-# Set up Django environment
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
-django.setup()
+# # Set up Django environment
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
+# django.setup()
 
+# Set up OpenAI API key
+client = OpenAI(api_key=OPEN_AI_KEY)
 
 
 
@@ -96,8 +98,6 @@ fields = [
 ]
 
 from dateutil import parser as date_parser
-
-client = OpenAI(api_key=OPEN_AI_KEY)
 
 @sync_to_async
 def get_predefined_keys():

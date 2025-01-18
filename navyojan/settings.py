@@ -87,8 +87,16 @@ CELERY_RESULT_BACKEND = (
 CELERY_TASK_ROUTES = {
     "tasks.send_email.send_email_task": {"queue": "default-queue"},
     "tasks.send_email.send_text_task": {"queue": "default-queue"},
+    "tasks.initialize_categories_task": {"queue": "default-queue"},
+    "tasks.initialize_documents_task": {"queue": "default-queue"},
+    "tasks.initialize_eligibility_task": {"queue": "default-queue"},
+    "tasks.initialize_subscription_plans_task": {"queue": "default-queue"},
+    "tasks.scrape_govt_scholarships_task": {"queue": "default-queue"},
+    "tasks.scrape_we_make_scrap_task": {"queue": "default-queue"},
+    "tasks.notify_scholarships_to_users_task": {"queue": "default-queue"},
+    "tasks.process_user_documents_task": {"queue": "default-queue"},
+    "tasks.daily_automation_task": {"queue": "default-queue"},
     "backend.celery.debug_task": {"queue": "default-queue"},
-    # Add more tasks as needed
 }
 
 

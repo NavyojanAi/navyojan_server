@@ -12,8 +12,8 @@ from userapp.models.user import (
     User, UserDocuments, UserDocumentSummary
 )
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
-django.setup()
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
+# django.setup()
 
 # Initialize OpenAI
 llm = ChatOpenAI(

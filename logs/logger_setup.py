@@ -1,4 +1,3 @@
-
 import logging
 from pathlib import Path
 import os
@@ -16,10 +15,16 @@ fh1.setLevel(logging.INFO)
 
 fh2 = logging.FileHandler(debug_file_path / 'log_debug.log', mode='w+')
 fh2.setLevel(logging.DEBUG)
+
+fh3 = logging.FileHandler(debug_file_path / 'log_error.log', mode='w+')
+fh3.setLevel(logging.ERROR)
+
 # formatter
 formater = logging.Formatter('%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(message)s')
 fh1.setFormatter(formater)
 fh2.setFormatter(formater)
+fh3.setFormatter(formater)
 
 logger.addHandler(fh1)
 logger.addHandler(fh2)
+logger.addHandler(fh3)

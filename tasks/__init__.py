@@ -1,3 +1,13 @@
 from tasks.data_encrypt_decrypt import encrypt_data,decrypt_data
 from tasks.send_email import send_email_task
 from tasks.send_text import send_text_task
+from tasks.daily_automation import daily_automation_task
+from tasks.daily_automation import initialize_categories_task
+from tasks.daily_automation import initialize_documents_task
+from tasks.daily_automation import initialize_eligibility_task
+from tasks.daily_automation import initialize_subscription_plans_task
+from tasks.daily_automation import scrape_govt_scholarships_task
+from tasks.daily_automation import scrape_we_make_scrap_task
+from tasks.daily_automation import notify_scholarships_to_users_task
+from tasks.daily_automation import process_user_documents_task
+

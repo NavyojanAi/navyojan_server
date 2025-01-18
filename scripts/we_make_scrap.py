@@ -11,8 +11,8 @@ from ai.ai_categorizer import categorize_scholarship
 from asgiref.sync import sync_to_async
 
 # Set up Django environment
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
-django.setup()
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
+# django.setup()
 
 from userapp.models.scholarships import ScholarshipData, Category, Eligibility, Documents
 from django.db import transaction
