@@ -161,6 +161,7 @@ MIDDLEWARE = [
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
+    "http://www.navyojan.ai",
     "http://34.66.194.53",  # Production frontend
     "http://localhost:3000",  # Next.js default
     "http://localhost:3001",  # Alternative Next.js port
