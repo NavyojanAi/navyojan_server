@@ -8,7 +8,7 @@ from django.utils.timezone import now
 from userapp.models import UserScholarshipStatus,ScholarshipData, UserScholarshipApplicationData, Category,Documents,Eligibility
 from userapp.serializers import ScholarshipDataSerializer, UserScholarshipDataSerializer, CategorySerializer,DocumentSerializer,EligibilitySerializer
 from userapp.authentication import FirebaseAuthentication
-from userapp.permission import IsActivePermission,CanHostScholarships,IsActiveAndCanHostOrIsReviewer, IsVerfiedPermission,IsReviewerUser
+from userapp.permission import IsActivePermission,CanHostScholarships,IsActiveAndCanHostOrIsReviewer, IsVerifiedPermission,IsReviewerUser
 from userapp.filters import ScholarshipDataFilter
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -145,21 +145,22 @@ class UserScholarshipApplicationDataViewset(viewsets.ModelViewSet):
     serializer_class = UserScholarshipDataSerializer
     http_method_names = ["get", "post", "patch"]
     authentication_classes = DEFAULT_AUTH_CLASSES
-    permission_classes = [IsActivePermission]
 
     def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update']:
-            return [IsActivePermission(), IsVerfiedPermission()]
-        elif self.action == 'list':
+        if self.action in ['create']:
+            return [IsActivePermission(), IsVerifiedPermission()]
+        elif self.action in ['list', 'retrieve']:
             return [IsActivePermission()]
-        else:
+        elif self.action in [ 'partial_update']:
             return [IsActivePermission(), IsAdminUser() | CanHostScholarships()]
+        else:
+            return []
 
     def get_queryset(self):
         user = self.request.user
         if user.is_staff or user.userprofile.is_reviewer:
             return self.queryset.all()
-        elif user.hostprofile.can_host_scholarships and user.userprofile.is_host_user:
+        elif hasattr(user, 'hostprofile') and user.hostprofile.can_host_scholarships and user.userprofile.is_host_user:
             return self.queryset.filter(scholarship__host=user)
         else:
             return self.queryset.filter(user=user)
@@ -167,6 +168,9 @@ class UserScholarshipApplicationDataViewset(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         user = request.user
         scholarship_id = request.data.get('scholarship')
+
+        if not scholarship_id:
+            return Response({'error': 'Scholarship ID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             application = self.queryset.get(user=user, scholarship__id=scholarship_id)
@@ -179,7 +183,7 @@ class UserScholarshipApplicationDataViewset(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        if request.user.hostprofile.can_host_scholarships:
+        if hasattr(request.user, 'hostprofile') and request.user.hostprofile.can_host_scholarships:
             queryset = queryset.filter(status='applied')
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
