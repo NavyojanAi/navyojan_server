@@ -9,7 +9,8 @@ RUN mkdir -p /navyojan-project/
 
 COPY ./requirements.txt /navyojan-project/requirements.txt
 
-RUN pip install -r /navyojan-project/requirements.txt
+# Upgrade pip and install requirements
+RUN pip install --upgrade pip && pip install -r /navyojan-project/requirements.txt
 
 WORKDIR /navyojan-project/
 COPY ./ai /navyojan-project/ai

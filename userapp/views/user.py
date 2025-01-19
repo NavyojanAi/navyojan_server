@@ -307,7 +307,7 @@ class UserScholarshipStatusViewset(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method == 'PATCH':
-            return [IsActivePermission(), IsAdminUser(), IsReviewerUser()]
+            return [IsActivePermission(), IsAdminUser() | IsReviewerUser()]
         return [IsActivePermission(), CanHostScholarships()]
 
     def get_queryset(self):

@@ -6,10 +6,10 @@ from rest_framework.response import Response
 from tasks import send_email_task,decrypt_data,send_text_task
 from navyojan import settings
 from userapp.authentication import FirebaseAuthentication
-from logs import logger
+from logs import logger 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from userapp.permission import IsVerfiedPermission, IsActivePermission
+from userapp.permission import IsVerifiedPermission, IsActivePermission
 
 from rest_framework.decorators import action
 
@@ -23,7 +23,7 @@ class VerificationViewSet(viewsets.ViewSet):
 
     def get_permissions(self):
         if self.action in ['send_otp', 'verify_otp']:
-            return [IsVerfiedPermission()]
+            return [IsVerifiedPermission()]
         return super().get_permissions()
 
     @action(detail=False, methods=['post'], url_path='send-otp')
