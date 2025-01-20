@@ -319,8 +319,8 @@ async def scrape_scholarships():
     print("Scraping completed and data saved to the database.")
 
 
-if __name__ == "__main__":
-    asyncio.run(scrape_scholarships())
+# if __name__ == "__main__":
+#     asyncio.run(scrape_scholarships())
 
 @sync_to_async
 def get_predefined_keys():

@@ -1,6 +1,7 @@
 import os
 import django
 from decimal import Decimal
+from logs import logger
 
 # Set up Django environment
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "navyojan.settings")
@@ -25,7 +26,7 @@ def initialize_categories():
     for category_name in categories:
         Category.objects.get_or_create(name=category_name)
 
-    print("Categories initialized successfully.")
+    logger.info("Categories initialized successfully.")
 
 
 #14900 - 149, get_notified
@@ -57,7 +58,7 @@ def initialize_eligibility():
     for name, description in eligibility_criteria.items():
         Eligibility.objects.get_or_create(name=name, defaults={'description': description})
 
-    print("Eligibility criteria initialized successfully.")
+    logger.info("Eligibility criteria initialized successfully.")
 
 def initialize_documents():
     required_documents = {
@@ -79,7 +80,7 @@ def initialize_documents():
     for name, description in required_documents.items():
         Documents.objects.get_or_create(name=name, defaults={'description': description})
 
-    print("Required documents initialized successfully.")
+    logger.info("Required documents initialized successfully.")
     
 #TODO: add display_name and description to all the models
 #TODO: check if data which is coming from scraped scholarships has key:value pair for eligibility, documents, etc.,
@@ -112,11 +113,11 @@ def initialize_subscription_plans():
             }
         )
 
-    print("Subscription plans initialized successfully.")
+    logger.info("Subscription plans initialized successfully.")
 
 
-if __name__ == "__main__":
-    initialize_categories()
-    initialize_eligibility()
-    initialize_documents()
-    initialize_subscription_plans()
+# if __name__ == "__main__":
+#     initialize_categories()
+#     initialize_eligibility()
+#     initialize_documents()
+#     initialize_subscription_plans()
