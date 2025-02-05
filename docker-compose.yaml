@@ -1,8 +1,8 @@
 services:
   database:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: navyojan-postgres-db-server
-    restart: always
+    restart: unless-stopped
     expose:
       - 25060
     ports:
@@ -16,11 +16,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@navyojan-rabbitmq-server/
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "sh -c 'pg_isready -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE}'",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE}"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -29,7 +25,7 @@ services:
 
   backend:
     container_name: navyojan-backend-server
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: dockerfile
@@ -38,7 +34,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     working_dir: /navyojan-project
     command: >
       bash -c "
@@ -61,9 +58,10 @@ services:
     volumes:
       - ./logs/:/navyojan-project/logs/
     depends_on:
-      - celery-flower
-      - database
-      - message-broker
+      message-broker:
+        condition: service_healthy
+      database:
+        condition: service_healthy
     restart: unless-stopped
     env_file:
       - .env
@@ -73,33 +71,36 @@ services:
       - POSTGRES_HOST=navyojan-postgres-db-server
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@navyojan-rabbitmq-server/
-    command: celery -A navyojan worker -Q default-queue -l INFO -n default_worker@navyojan
+    command: >
+      celery -A navyojan worker 
+      -Q default-queue 
+      -l INFO 
+      -n default_worker@navyojan
     networks:
       - navyojan-app
 
   celery-flower:
     container_name: navyojan-celery-flower
-    build:
-      context: .
-      dockerfile: dockerfile
-    env_file:
-      - .env
-    working_dir: /navyojan-project/
-    image: mher/flower
+    image: mher/flower:2.0
     restart: unless-stopped
     ports:
       - 5555:5555
     environment:
       - TZ=Asia/Kolkata
-    command: celery -A navyojan flower --port=5555
+      - CELERY_BROKER_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@navyojan-rabbitmq-server/
+    command: >
+      celery flower 
+      --port=5555 
+      --persistent=True 
+      --max_tasks=10000
     depends_on:
-      - database
-      - message-broker
+      message-broker:
+        condition: service_healthy
     networks:
       - navyojan-app
 
   message-broker:
-    image: rabbitmq:3.13-management
+    image: rabbitmq:3.13-alpine
     container_name: navyojan-rabbitmq-server
     restart: unless-stopped
     expose:
@@ -133,4 +134,6 @@ networks:
   navyojan-app:
 
 volumes:
-  logs-volumes:
+  postgres_data:
+  rabbitmq_data:
+  logs:

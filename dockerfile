@@ -1,5 +1,5 @@
-# Not yet Tested
-FROM python:3.11.9
+# Build stage
+FROM python:3.11-alpine
 
 LABEL team="navyojan"
 
